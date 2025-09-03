@@ -1555,6 +1555,23 @@ export default function Empidente() {
   const cardRef = useRef(null);
   const navigate=useNavigate()
   // ✅ Fetch employee profile from backend API
+  const formatDate = (value) => {
+  if (!value) return "N/A";
+
+  // force string → number
+  const num = parseInt(value, 10);
+  if (isNaN(num)) return "N/A";
+
+  const date = new Date(num);
+  if (isNaN(date.getTime())) return "N/A";
+
+  return date.toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -1759,9 +1776,7 @@ ADDRESS: ${employeeData.address || "N/A"}`;
                                   Join Date/नियुक्ति
                                 </div>
                                 <div className="aadhaar-value">
-                                  {new Date(
-                                    employeeData.joinDate
-                                  ).toLocaleDateString("en-IN")}
+                                  {formatDate(employeeData.joinDate)}
                                 </div>
                               </div>
 

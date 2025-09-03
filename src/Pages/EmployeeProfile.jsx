@@ -21,39 +21,47 @@ import {
   Settings,
   Star,
   Activity,
+  Menu,
+  ChevronLeft,
 } from "lucide-react";
 
 export default function EmployeeProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "",
-    employeeId: "",
-    email: "",
-    phone: "",
-    department: "",
-    position: "",
-    joinDate: "",
-    address: "",
+    name: "John Smith",
+    employeeId: "EMP001",
+    email: "john.smith@company.com",
+    phone: "+1 (555) 123-4567",
+    department: "Engineering",
+    position: "Senior Software Engineer",
+    joinDate: "2023-01-15",
+    address: "123 Main Street, City, State 12345",
     profilePic: "",
+    DOB: "1990-05-15"
   });
   const [saveAnimation, setSaveAnimation] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // Mock API call simulation
+  // Mock API call simulation - using localStorage fallback for demo
   useEffect(() => {
     const fetchEmployeeData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          return;
-        }
+        // Simulate API call with fallback data for demo
+        const mockData = {
+          profile: profileData
+        };
+        
+      
+        const token = localStorage?.getItem("token");
+        if (!token) return;
+        
         const res = await fetch("https://ruwa-backend.onrender.com/api/employee/profile", {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        console.log(data);
         if (res.ok) {
           setProfileData({
             name: data.profile.name,
@@ -64,11 +72,10 @@ export default function EmployeeProfile() {
             position: data.profile.position,
             joinDate: data.profile.joinDate,
             address: data.profile.address,
-            profilePic: data.profile.profile_pic,
+            DOB: data.profile.DOB
           });
-        } else {
-          console.error(data.message);
         }
+        
       } catch (err) {
         console.error("Error fetching profile:", err);
       }
@@ -80,40 +87,35 @@ export default function EmployeeProfile() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 1. Local preview
+    // Local preview
     setImageFile(file);
-    setPreview(URL.createObjectURL(file));
+    const previewUrl = URL.createObjectURL(file);
+    setPreview(previewUrl);
     setProfileData((prev) => ({
       ...prev,
-      profilePic: URL.createObjectURL(file),
+      profilePic: previewUrl,
     }));
 
-    // 2. Send to backend
+  
     try {
       const formData = new FormData();
       formData.append("image", file);
-
-      const token = localStorage.getItem("token");
+      const token = localStorage?.getItem("token");
 
       const res = await fetch("https://ruwa-backend.onrender.com/api/uu/upload-profile", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // token for auth
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
       const data = await res.json();
-
       if (res.ok && data.url) {
-        // Backend se actual URL mil gaya
         setProfileData((prev) => ({ ...prev, profilePic: data.url }));
-      } else {
-        console.error("Upload failed:", data.message);
       }
     } catch (err) {
       console.error("Upload error:", err);
     }
+    
   };
 
   const handleInputChange = (e) => {
@@ -124,13 +126,45 @@ export default function EmployeeProfile() {
     }));
   };
 
+  const handleUpdateDOB = async (newDOB) => {
+    if (!newDOB) return;
+
+    setProfileData((prev) => ({
+      ...prev,
+      DOB: newDOB,
+    }));
+
+    
+    try {
+      const token = localStorage?.getItem("token");
+      const res = await fetch("https://ruwa-backend.onrender.com/api/uu/upload-DOB", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ DOB: newDOB }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setProfileData((prev) => ({
+          ...prev,
+          DOB: data.profile?.DOB || newDOB,
+        }));
+      }
+    } catch (err) {
+      console.error("DOB update error:", err);
+    }
+    
+  };
+
   const handleSave = async () => {
     setSaveAnimation(true);
     // Simulate API save
     setTimeout(() => {
       setIsEditing(false);
       setSaveAnimation(false);
-      // Show success toast
     }, 2000);
   };
 
@@ -138,18 +172,25 @@ export default function EmployeeProfile() {
     setIsEditing(false);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Not specified";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+   const formatDate = (value) => {
+  if (!value) return "N/A";
+
+  // force string → number
+  const num = parseInt(value, 10);
+  if (isNaN(num)) return "N/A";
+
+  const date = new Date(num);
+  if (isNaN(date.getTime())) return "N/A";
+
+  return date.toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 
   return (
     <>
-      {/* Custom Styles */}
       <style>{`
         :root {
           --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -178,6 +219,31 @@ export default function EmployeeProfile() {
           line-height: 1.6;
         }
 
+        .container-fluid-pro {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 1rem;
+        }
+
+        /* Mobile-first responsive container */
+        @media (min-width: 576px) {
+          .container-fluid-pro {
+            padding: 1.5rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .container-fluid-pro {
+            padding: 2rem;
+          }
+        }
+
+        @media (min-width: 1200px) {
+          .container-fluid-pro {
+            padding: 2.5rem;
+          }
+        }
+
         /* Glassmorphism effect */
         .glass-card {
           background: rgba(255, 255, 255, 0.95);
@@ -194,14 +260,28 @@ export default function EmployeeProfile() {
           transform: translateY(-2px);
         }
 
-        /* Profile Header */
+        /* Profile Header - Mobile First */
         .profile-hero {
           background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
           backdrop-filter: blur(30px);
-          border-radius: 24px;
+          border-radius: 16px;
           border: 1px solid rgba(255,255,255,0.2);
           position: relative;
           overflow: hidden;
+          margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+          .profile-hero {
+            border-radius: 24px;
+            margin-bottom: 2rem;
+          }
+        }
+
+        @media (min-width: 992px) {
+          .profile-hero {
+            margin-bottom: 3rem;
+          }
         }
 
         .profile-hero::before {
@@ -220,34 +300,115 @@ export default function EmployeeProfile() {
           to { transform: rotate(360deg); }
         }
 
-        /* Profile Avatar */
-        .avatar-container {
+        /* Responsive Profile Header Content */
+        .profile-header-content {
+          padding: 1.5rem;
           position: relative;
-          width: 120px;
-          height: 120px;
+          z-index: 2;
         }
 
-        .avatar-img {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 4px solid rgba(255,255,255,0.3);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-          transition: var(--transition);
+        @media (min-width: 576px) {
+          .profile-header-content {
+            padding: 2rem;
+          }
         }
 
-        .avatar-img:hover {
-          transform: scale(1.05);
-          box-shadow: 0 12px 48px rgba(0,0,0,0.4);
+        @media (min-width: 768px) {
+          .profile-header-content {
+            padding: 2.5rem;
+          }
         }
 
+        @media (min-width: 992px) {
+          .profile-header-content {
+            padding: 3rem;
+          }
+        }
+
+        /* Mobile Header Layout */
+        .mobile-header {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+          .mobile-header {
+            flex-direction: row;
+            text-align: left;
+            justify-content: space-between;
+          }
+        }
+
+        /* Profile Title Responsive */
+        .profile-title {
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: white;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          margin-bottom: 0.5rem;
+          line-height: 1.2;
+        }
+
+        @media (min-width: 576px) {
+          .profile-title {
+            font-size: 2rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .profile-title {
+            font-size: 2.5rem;
+          }
+        }
+
+        @media (min-width: 992px) {
+          .profile-title {
+            font-size: 3rem;
+          }
+        }
+
+        .profile-subtitle {
+          font-size: 0.9rem;
+          color: rgba(255, 255, 255, 0.8);
+          margin-bottom: 1rem;
+        }
+
+        @media (min-width: 576px) {
+          .profile-subtitle {
+            font-size: 1rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .profile-subtitle {
+            font-size: 1.1rem;
+          }
+        }
+
+        /* Profile Controls (Image Upload + DOB) */
+        .profile-controls {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+          width: 100%;
+          max-width: 200px;
+        }
+
+        @media (min-width: 768px) {
+          .profile-controls {
+            width: auto;
+            max-width: none;
+          }
+        }
+
+        /* Camera Button Responsive */
         .camera-btn {
-          position: absolute;
-          bottom: 8px;
-          right: 8px;
-          width: 36px;
-          height: 36px;
+          width: 50px;
+          height: 50px;
           border-radius: 50%;
           background: linear-gradient(135deg, #667eea, #764ba2);
           border: 2px solid white;
@@ -256,59 +417,157 @@ export default function EmployeeProfile() {
           justify-content: center;
           cursor: pointer;
           transition: var(--transition);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (min-width: 576px) {
+          .camera-btn {
+            width: 60px;
+            height: 60px;
+          }
         }
 
         .camera-btn:hover {
           transform: scale(1.1);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
 
-        /* Status Badge */
+        /* DOB Input Responsive */
+        .dob-input {
+          width: 100%;
+        }
+
+        .dob-input label {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.8);
+          margin-bottom: 0.25rem;
+          display: block;
+        }
+
+        .dob-input input {
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          font-size: 0.875rem;
+          backdrop-filter: blur(10px);
+        }
+
+        .dob-input input:focus {
+          outline: none;
+          border-color: rgba(255, 255, 255, 0.6);
+          background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Status Badge Responsive */
         .status-badge {
           background: linear-gradient(135deg, #4ade80, #22c55e);
           color: white;
-          padding: 8px 20px;
+          padding: 0.5rem 1rem;
           border-radius: 50px;
           font-weight: 600;
-          font-size: 0.875rem;
+          font-size: 0.75rem;
           display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 0.5rem;
           box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
         }
 
-        /* Modern Cards */
+        @media (min-width: 576px) {
+          .status-badge {
+            font-size: 0.875rem;
+            padding: 0.5rem 1.25rem;
+          }
+        }
+
+        /* Modern Cards Responsive */
         .modern-card {
           background: rgba(255, 255, 255, 0.98);
-          border-radius: 20px;
+          border-radius: 16px;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.2);
           overflow: hidden;
           transition: var(--transition);
           color: #1a202c;
+          margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+          .modern-card {
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+          }
         }
 
         .modern-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 8px极速40px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
         }
 
         .card-header-modern {
           background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
-          border-bottom: 1px solid rgba(102, 126, 234, 极速0.1);
-          padding: 1.5rem;
+          border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+          padding: 1rem;
           color: #1a202c;
         }
 
-        /* Form Controls */
+        @media (min-width: 576px) {
+          .card-header-modern {
+            padding: 1.25rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .card-header-modern {
+            padding: 1.5rem;
+          }
+        }
+
+        .card-body-responsive {
+          padding: 1rem;
+        }
+
+        @media (min-width: 576px) {
+          .card-body-responsive {
+            padding: 1.25rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .card-body-responsive {
+            padding: 1.5rem;
+          }
+        }
+
+        /* Form Controls Responsive */
         .form-control-modern {
           border: 2px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 12px 16px;
-          font-size: 1rem;
+          border-radius: 8px;
+          padding: 0.75rem;
+          font-size: 0.875rem;
           font-weight: 500;
           transition: var(--transition);
           background: rgba(255, 255, 255, 0.9);
           color: #1a202c;
+          width: 100%;
+        }
+
+        @media (min-width: 576px) {
+          .form-control-modern {
+            border-radius: 10px;
+            font-size: 0.9rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .form-control-modern {
+            border-radius: 12px;
+            padding: 0.875rem;
+            font-size: 1rem;
+          }
         }
 
         .form-control-modern:focus {
@@ -325,25 +584,70 @@ export default function EmployeeProfile() {
           font-weight: 500;
         }
 
-        /* Form Labels */
+        /* Form Labels Responsive */
         .form-label {
           font-weight: 600;
           color: #374151;
           margin-bottom: 0.5rem;
-          font-size: 0.875rem;
+          font-size: 0.75rem;
           letter-spacing: 0.025em;
+          display: block;
         }
 
-        /* Stats Cards */
+        @media (min-width: 576px) {
+          .form-label {
+            font-size: 0.8rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .form-label {
+            font-size: 0.875rem;
+          }
+        }
+
+        /* Stats Cards Responsive Grid */
+        .stats-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+
+        @media (min-width: 576px) {
+          .stats-grid {
+            gap: 1rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .stats-grid {
+            gap: 1rem;
+          }
+        }
+
         .stat-card {
           background: rgba(255, 255, 255, 0.9);
-         极速 border-radius: 16px;
-          padding: 1.5rem;
+          border-radius: 12px;
+          padding: 1rem;
           text-align: center;
           transition: var(--transition);
           position: relative;
           overflow: hidden;
           border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        @media (min-width: 576px) {
+          .stat-card {
+            border-radius: 14px;
+            padding: 1.25rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .stat-card {
+            border-radius: 16px;
+            padding: 1.5rem;
+          }
         }
 
         .stat-card::before {
@@ -352,45 +656,95 @@ export default function EmployeeProfile() {
           top: 0;
           left: 0;
           width: 100%;
-          height: 4px;
+          height: 3px;
           background: var(--primary-gradient);
         }
 
+        @media (min-width: 768px) {
+          .stat-card::before {
+            height: 4px;
+          }
+        }
+
         .stat-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-          background: rgba极速(255, 255, 255, 0.95);
+          transform: translateY(-4px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+          background: rgba(255, 255, 255, 0.95);
+        }
+
+        @media (min-width: 768px) {
+          .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+          }
         }
 
         .stat-number {
-          font-size: 2rem;
+          font-size: 1.5rem;
           font-weight: 800;
           background: var(--primary-gradient);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
           line-height: 1.2;
+          margin-bottom: 0.25rem;
         }
 
-        .stat-card .small {
+        @media (min-width: 576px) {
+          .stat-number {
+            font-size: 1.75rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .stat-number {
+            font-size: 2rem;
+          }
+        }
+
+        .stat-label {
           color: #4a5568;
           font-weight: 600;
-          font-size: 0.75rem;
+          font-size: 0.7rem;
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
 
-        /* Buttons */
+        @media (min-width: 576px) {
+          .stat-label {
+            font-size: 0.75rem;
+          }
+        }
+
+        /* Responsive Buttons */
         .btn-gradient-primary {
           background: var(--primary-gradient);
           border: none;
           color: white;
-          border-radius: 12px;
-          padding: 12px 24px;
+          border-radius: 8px;
+          padding: 0.75rem 1.5rem;
           font-weight: 600;
           transition: var(--transition);
           position: relative;
           overflow: hidden;
+          font-size: 0.875rem;
+          width: 100%;
+        }
+
+        @media (min-width: 576px) {
+          .btn-gradient-primary {
+            width: auto;
+            border-radius: 10px;
+            font-size: 0.9rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .btn-gradient-primary {
+            border-radius: 12px;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+          }
         }
 
         .btn-gradient-primary::before {
@@ -406,7 +760,13 @@ export default function EmployeeProfile() {
 
         .btn-gradient-primary:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (min-width: 768px) {
+          .btn-gradient-primary:hover {
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+          }
         }
 
         .btn-gradient-primary:hover::before {
@@ -417,23 +777,111 @@ export default function EmployeeProfile() {
           background: linear-gradient(135deg, #22c55e, #16a34a);
           border: none;
           color: white;
-          border-radius: 12px;
-          padding: 12px 24px;
+          border-radius: 8px;
+          padding: 0.75rem 1.5rem;
           font-weight: 600;
           transition: var(--transition);
+          font-size: 0.875rem;
+          width: 100%;
+        }
+
+        @media (min-width: 576px) {
+          .btn-gradient-success {
+            width: auto;
+            border-radius: 10px;
+            font-size: 0.9rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .btn-gradient-success {
+            border-radius: 12px;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+          }
         }
 
         .btn-gradient-success:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+          box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
         }
 
-        /* Security Alerts */
+        @media (min-width: 768px) {
+          .btn-gradient-success:hover {
+            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+          }
+        }
+
+        .btn-outline-secondary {
+          background: transparent;
+          border: 2px solid #6b7280;
+          color: #6b7280;
+          border-radius: 8px;
+          padding: 0.75rem 1.5rem;
+          font-weight: 600;
+          transition: var(--transition);
+          font-size: 0.875rem;
+          width: 100%;
+        }
+
+        @media (min-width: 576px) {
+          .btn-outline-secondary {
+            width: auto;
+            border-radius: 10px;
+            font-size: 0.9rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .btn-outline-secondary {
+            border-radius: 12px;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+          }
+        }
+
+        .btn-outline-secondary:hover {
+          background: #6b7280;
+          color: white;
+          transform: translateY(-2px);
+        }
+
+        /* Action Buttons Container */
+        .action-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 576px) {
+          .action-buttons {
+            flex-direction: row;
+            justify-content: flex-end;
+            gap: 1rem;
+          }
+        }
+
+        /* Security Cards Responsive */
         .security-card {
-          border-radius: 16px;
-          padding: 1.5rem;
+          border-radius: 12px;
+          padding: 1rem;
           border: none;
           margin-bottom: 1rem;
+        }
+
+        @media (min-width: 576px) {
+          .security-card {
+            border-radius: 14px;
+            padding: 1.25rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .security-card {
+            border-radius: 16px;
+            padding: 1.5rem;
+          }
         }
 
         .security-warning {
@@ -448,15 +896,147 @@ export default function EmployeeProfile() {
           border-left: 4px solid #22c55e;
         }
 
-        .security-card h6,
-        .security-card .fw-semibold {
-          color: #1a202c;
-          font-weight: 600;
+        /* Security Card Content */
+        .security-content {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          align-items: flex-start;
         }
 
-        .security-card .text-muted {
-          color: #64748b !important;
-          font-weight: 500;
+        @media (min-width: 576px) {
+          .security-content {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+          }
+        }
+
+        /* Form Grid Responsive */
+        .form-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        @media (min-width: 576px) {
+          .form-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .form-grid {
+            gap: 1.5rem;
+          }
+        }
+
+        .form-grid .col-full {
+          grid-column: 1 / -1;
+        }
+
+        /* Main Layout Responsive */
+        .main-layout {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        @media (min-width: 992px) {
+          .main-layout {
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+          }
+        }
+
+        @media (min-width: 1200px) {
+          .main-layout {
+            grid-template-columns: 400px 1fr;
+            gap: 2.5rem;
+          }
+        }
+
+        /* Profile Summary Mobile Optimization */
+        .profile-summary {
+          text-align: center;
+        }
+
+        .profile-summary h5 {
+          font-size: 1.1rem;
+          margin-bottom: 0.5rem;
+        }
+
+        @media (min-width: 576px) {
+          .profile-summary h5 {
+            font-size: 1.25rem;
+          }
+        }
+
+        .profile-summary .position {
+          font-size: 0.9rem;
+          color: #667eea;
+          font-weight: 600;
+          margin-bottom: 0.25rem;
+        }
+
+        @media (min-width: 576px) {
+          .profile-summary .position {
+            font-size: 1rem;
+          }
+        }
+
+        .profile-summary .department {
+          font-size: 0.85rem;
+          color: #6b7280;
+          margin-bottom: 1rem;
+        }
+
+        @media (min-width: 576px) {
+          .profile-summary .department {
+            font-size: 0.9rem;
+          }
+        }
+
+        /* Profile Details Grid */
+        .profile-details {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+          margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid #e5e7eb;
+        }
+
+        .profile-detail {
+          text-align: center;
+        }
+
+        .profile-detail-label {
+          font-size: 0.7rem;
+          color: #6b7280;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.025em;
+          margin-bottom: 0.25rem;
+        }
+
+        @media (min-width: 576px) {
+          .profile-detail-label {
+            font-size: 0.75rem;
+          }
+        }
+
+        .profile-detail-value {
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        @media (min-width: 576px) {
+          .profile-detail-value {
+            font-size: 0.875rem;
+          }
         }
 
         /* Animations */
@@ -489,38 +1069,44 @@ export default function EmployeeProfile() {
           100% { transform: scale(1); }
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .avatar-container {
-            width: 100px;
-            height: 100px;
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 1000;
+        }
+
+        .mobile-menu-overlay.show {
+          display: block;
+        }
+
+        /* Badge Enhancements */
+        .badge {
+          font-weight: 600;
+          padding: 0.25rem 0.75rem;
+          border-radius: 12px;
+          font-size: 0.75rem;
+        }
+
+        @media (min-width: 576px) {
+          .badge {
+            padding: 0.375rem 1rem;
+            font-size: 0.8rem;
           }
-          
-          .avatar-img {
-            width: 100px;
-            height: 100px;
-          }
-          
-          .stat-card {
-            padding: 1rem;
-            margin-bottom: 1rem;
-          }
-          
-          .btn-gradient-primary,
-          .btn-gradient-success {
-            width: 100%;
-            margin-bottom: 0.5rem;
-          }
+        }
+
+        .badge.bg-white {
+          background: rgba(255, 255, 255, 0.2) !important;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         /* Typography Enhancements */
-        .display-5 {
-          font-weight: 700;
-          color: white;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          line-height: 1.2;
-        }
-
         .fw-bold {
           font-weight: 700 !important;
           color: #1a202c;
@@ -545,7 +1131,47 @@ export default function EmployeeProfile() {
           color: rgba(255, 255, 255, 0.75) !important;
         }
 
-        /* Profile specific text styles */
+        /* Button Warning */
+        .btn-warning {
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          border: none;
+          color: white;
+          border-radius: 8px;
+          padding: 0.5rem 1rem;
+          font-weight: 600;
+          font-size: 0.8rem;
+          transition: var(--transition);
+          width: 100%;
+        }
+
+        @media (min-width: 576px) {
+          .btn-warning {
+            width: auto;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            padding: 0.625rem 1.25rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .btn-warning {
+            border-radius: 12px;
+          }
+        }
+
+        .btn-warning:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        /* Spinner Responsive */
+        .spinner-border-sm {
+          width: 1rem;
+          height: 1rem;
+          border-width: 0.1em;
+        }
+
+        /* Text Colors for Profile Hero */
         .profile-hero .text-white {
           color: white !important;
           font-weight: 500;
@@ -560,99 +1186,148 @@ export default function EmployeeProfile() {
           color: rgba(255, 255, 255, 0.9) !important;
         }
 
-        .badge {
-          font-weight: 600;
-          color: rgba(255, 255, 255, 极速0.9) !important;
+        /* Mobile-first utility classes */
+        .d-flex { display: flex; }
+        .flex-column { flex-direction: column; }
+        .flex-row { flex-direction: row; }
+        .align-items-center { align-items: center; }
+        .justify-content-center { justify-content: center; }
+        .justify-content-between { justify-content: space-between; }
+        .justify-content-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .mb-0 { margin-bottom: 0; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1.5rem; }
+        .mb-5 { margin-bottom: 3rem; }
+        .me-2 { margin-right: 0.5rem; }
+        .me-3 { margin-right: 1rem; }
+        .p-4 { padding: 1.5rem; }
+        .gap-3 { gap: 1rem; }
+
+        /* Responsive utilities */
+        @media (min-width: 576px) {
+          .flex-sm-row { flex-direction: row; }
+          .text-sm-left { text-align: left; }
+        }
+
+        @media (min-width: 768px) {
+          .flex-md-row { flex-direction: row; }
+          .text-md-left { text-align: left; }
+        }
+
+        /* Print styles */
+        @media print {
+          .btn, .camera-btn { display: none; }
+          .profile-hero { background: #f8f9fa; color: #000; }
+          .modern-card { box-shadow: none; border: 1px solid #dee2e6; }
+        }
+
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+          .glass-card, .modern-card {
+            background: white;
+            border: 2px solid #000;
+          }
+          
+          .profile-hero {
+            background: #000;
+            color: white;
+          }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
         }
       `}</style>
 
-      <div className="container-fluid-pro px-3 px-md-4 py-4">
+      <div className="container-fluid-pro">
         {/* Profile Header */}
-        <div className="profile-hero mb-5 fade-in">
-          <div className="p-4 p-md-5">
-            <div
-              className="row align-items-center position-relative"
-              style={{ zIndex: 2 }}
-            >
-              <div className="col-lg-8 col-md-7">
+        <div className="profile-hero fade-in">
+          <div className="profile-header-content">
+            <div className="mobile-header">
+              <div style={{ flex: 1 }}>
                 <div className="text-white">
-                  <div className="d-flex align-items-center mb-3">
-                    <div className="badge bg-white bg-opacity-20 px-3 py-2 me-3">
+                  <div className="d-flex align-items-center justify-content-center justify-content-md-start mb-3 flex-wrap gap-2">
+                    <div className="badge bg-white bg-opacity-20 px-3 py-2">
                       <User size={16} className="me-2 text-primary" />
-                      <span className="text-danger">Employee Profile</span>
+                      <span>Employee Profile</span>
                     </div>
-                    <Bell size极速={20} className="text-white-50" />
+                    <Bell size={20} className="text-white-50" />
                   </div>
-                  <h1 className="display-5 fw-bold mb-2">{profileData.name}</h1>
-                  <p className="fs-5 mb-0 text-white-50">
+                  <h1 className="profile-title text-center text-md-start">
+                    {profileData.name}
+                  </h1>
+                  <p className="profile-subtitle text-center text-md-start">
                     Manage your personal information and account settings
                   </p>
                 </div>
               </div>
-              <div className="col-lg-4 col-md-5 text-center">
-                <div className="avatar-container mx-auto position-relative">
-                  {/* Profile Picture */}
-                  <img
-                    src={profileData.profilePic || "/default-avatar.png"} // fallback image
-                    alt="Profile"
-                    className="avatar-img"
+              
+              <div className="profile-controls">
+                {/* Profile Image Upload Button */}
+                <div
+                  className="camera-btn"
+                  onClick={() => document.querySelector("input[name=image]").click()}
+                >
+                  <Camera size={20} className="text-white" />
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleImageUpload}
                   />
+                </div>
 
-                  {/* Camera Button */}
-                  <div
-                    className="camera-btn"
-                    onClick={() =>
-                      document.querySelector("input[name=image]").click()
-                    }
-                  >
-                    <Camera size={18} className="text-white" />
-                    <input
-                      type="file"
-                      name="image"
-                      accept="image/*"
-                      style={{ display: "none" }}
-                      onChange={handleImageUpload}
-                    />
-                  </div>
+                {/* Date of Birth Input */}
+                <div className="dob-input">
+                  <label htmlFor="dob">Date of Birth</label>
+                  <input
+                    type="date"
+                    id="dob"
+                    name="dob"
+                    value={profileData.DOB || ""}
+                    onChange={(e) => handleUpdateDOB(e.target.value)}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="row g-4">
+        <div className="main-layout">
           {/* Left Sidebar */}
-          <div className="col-lg-4">
+          <div>
             {/* Profile Summary Card */}
-            <div className="modern-card mb-4 fade-in">
-              <div className="极速p-4 text-center">
+            <div className="modern-card fade-in">
+              <div className="card-body-responsive profile-summary">
                 <h5 className="fw-bold mb-2">{profileData.name}</h5>
-                <p className="text-primary fw-semibold mb-1">
-                  {profileData.position}
-                </p>
-                <p className="text-muted mb-3">{profileData.department}</p>
+                <p className="position mb-1">{profileData.position}</p>
+                <p className="department mb-3">{profileData.department}</p>
 
-                <div className="status-badge mb-4">
-                  <CheckCircle size={16} />
-                  Active Employee
+                <div className="d-flex justify-content-center mb-4">
+                  <div className="status-badge">
+                    <CheckCircle size={16} />
+                    Active Employee
+                  </div>
                 </div>
 
-                <div className="row text-center">
-                  <div className="col-6">
-                    <div className="border-end">
-                      <div className="fw-bold text-muted small">
-                        Employee ID
-                      </div>
-                      <div className="small fw-semibold">
-                        {profileData.employeeId}
-                      </div>
-                    </div>
+                <div className="profile-details">
+                  <div className="profile-detail">
+                    <div className="profile-detail-label">Employee ID</div>
+                    <div className="profile-detail-value">{profileData.employeeId}</div>
                   </div>
-                  <div className="col-6">
-                    <div className="fw-bold text-muted small">Joined</div>
-                    <div className="small fw-semibold">
-                      {formatDate(profileData.joinDate)}
-                    </div>
+                  <div className="profile-detail">
+                    <div className="profile-detail-label">Joined</div>
+                    <div className="profile-detail-value">{formatDate(profileData.joinDate)}</div>
                   </div>
                 </div>
               </div>
@@ -666,43 +1341,27 @@ export default function EmployeeProfile() {
                   Performance Overview
                 </h5>
               </div>
-              <div className="p-4">
-                <div className="row g-3">
-                  <div className="col-6">
-                    <div className="stat-card">
-                      <FileText size={24} className="text-primary mb-2" />
-                      <div className="stat-number">156</div>
-                      <div className="small text-muted fw-semibold">
-                        Applications
-                      </div>
-                    </div>
+              <div className="card-body-responsive">
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <FileText size={20} className="text-primary mb-2" />
+                    <div className="stat-number">156</div>
+                    <div className="stat-label">Applications</div>
                   </div>
-                  <div className="col-6">
-                    <div className="stat-card">
-                      <Award size={24} className="text-success mb-2" />
-                      <div className="stat-number">98%</div>
-                      <div className="small text-muted fw-semibold">
-                        Approval Rate
-                      </div>
-                    </div>
+                  <div className="stat-card">
+                    <Award size={20} className="text-success mb-2" />
+                    <div className="stat-number">98%</div>
+                    <div className="stat-label">Approval Rate</div>
                   </div>
-                  <div className="col-6">
-                    <div className="stat-card">
-                      <Users size={24} className="text-info mb-2" />
-                      <div className="stat-number">23</div>
-                      <div className="small text-muted fw-semibold">
-                        Users Managed
-                      </div>
-                    </div>
+                  <div className="stat-card">
+                    <Users size={20} className="text-info mb-2" />
+                    <div className="stat-number">23</div>
+                    <div className="stat-label">Users Managed</div>
                   </div>
-                  <div className="col-6">
-                    <div className="stat-card">
-                      <Activity size={24} className="text-warning mb-2" />
-                      <div className="stat-number">5</div>
-                      <div className="small text-muted fw-semibold">
-                        Reports
-                      </div>
-                    </div>
+                  <div className="stat-card">
+                    <Activity size={20} className="text-warning mb-2" />
+                    <div className="stat-number">5</div>
+                    <div className="stat-label">Reports</div>
                   </div>
                 </div>
               </div>
@@ -710,9 +1369,9 @@ export default function EmployeeProfile() {
           </div>
 
           {/* Main Content */}
-          <div className="col-lg-8">
+          <div>
             {/* Action Buttons */}
-            <div className="d-flex flex-column flex-md-row gap-2 justify-content-end mb-4">
+            <div className="action-buttons">
               {!isEditing ? (
                 <button
                   className="btn btn-gradient-primary d-flex align-items-center justify-content-center"
@@ -722,7 +1381,7 @@ export default function EmployeeProfile() {
                   Edit Profile
                 </button>
               ) : (
-                <div className="d-flex flex-column flex-md-row gap-2">
+                <>
                   <button
                     className={`btn btn-gradient-success d-flex align-items-center justify-content-center ${
                       saveAnimation ? "save-loading" : ""
@@ -750,26 +1409,25 @@ export default function EmployeeProfile() {
                   <button
                     className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
                     onClick={handleCancel}
-                    style={{ borderRadius: "12px" }}
                   >
                     <X size={18} className="me-2" />
                     Cancel
                   </button>
-                </div>
+                </>
               )}
             </div>
 
             {/* Personal Information */}
-            <div className="modern-card mb-4 fade-in">
+            <div className="modern-card fade-in">
               <div className="card-header-modern">
                 <h5 className="mb-0 fw-bold d-flex align-items-center">
                   <User size={20} className="me-2 text-primary" />
                   Personal Information
                 </h5>
               </div>
-              <div className="p-4">
-                <div className="row g-3">
-                  <div className="col-md-6">
+              <div className="card-body-responsive">
+                <div className="form-grid">
+                  <div>
                     <label className="form-label fw-semibold">Full Name</label>
                     <input
                       type="text"
@@ -780,10 +1438,8 @@ export default function EmployeeProfile() {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="col-md-6">
-                    <label className="form-label fw-semibold">
-                      Employee ID
-                    </label>
+                  <div>
+                    <label className="form-label fw-semibold">Employee ID</label>
                     <input
                       type="text"
                       className="form-control form-control-modern"
@@ -791,9 +1447,9 @@ export default function EmployeeProfile() {
                       disabled
                     />
                   </div>
-                  <div className="col-md-6">
+                  <div>
                     <label className="form-label fw-semibold">
-                      <Mail size={16} className="me极速-2" />
+                      <Mail size={16} className="me-2" />
                       Email Address
                     </label>
                     <input
@@ -801,11 +1457,11 @@ export default function EmployeeProfile() {
                       name="email"
                       className="form-control form-control-modern"
                       value={profileData.email}
-                      onChange极速={handleInputChange}
+                      onChange={handleInputChange}
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="col-md极速-6">
+                  <div>
                     <label className="form-label fw-semibold">
                       <Phone size={16} className="me-2" />
                       Phone Number
@@ -819,7 +1475,7 @@ export default function EmployeeProfile() {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="col-md-6">
+                  <div>
                     <label className="form-label fw-semibold">
                       <Building size={16} className="me-2" />
                       Department
@@ -833,7 +1489,7 @@ export default function EmployeeProfile() {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="col-md-6">
+                  <div>
                     <label className="form-label fw-semibold">Position</label>
                     <input
                       type="text"
@@ -844,7 +1500,7 @@ export default function EmployeeProfile() {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="col-md-6">
+                  <div>
                     <label className="form-label fw-semibold">
                       <Calendar size={16} className="me-2" />
                       Join Date
@@ -858,7 +1514,7 @@ export default function EmployeeProfile() {
                       disabled={!isEditing}
                     />
                   </div>
-                  <div className="col-12">
+                  <div className="col-full">
                     <label className="form-label fw-semibold">
                       <MapPin size={16} className="me-2" />
                       Address
@@ -884,11 +1540,11 @@ export default function EmployeeProfile() {
                   Security Settings
                 </h5>
               </div>
-              <div className="p-4">
+              <div className="card-body-responsive">
                 <div className="security-card security-warning">
-                  <div className="d-flex justify-content-between align-items-center flex-column flex-md-row">
-                    <div className="mb-3 mb-md-0">
-                      <h6 className="fw-bold mb-1">
+                  <div className="security-content">
+                    <div>
+                      <h6 className="fw-bold mb-1 d-flex align-items-center">
                         <Lock size={18} className="me-2" />
                         Password Security
                       </h6>
@@ -904,8 +1560,8 @@ export default function EmployeeProfile() {
                 </div>
 
                 <div className="security-card security-success">
-                  <div className="d-flex align-items-center">
-                    <CheckCircle size={20} className="text-success me-3" />
+                  <div className="d-flex align-items-center gap-3">
+                    <CheckCircle size={20} className="text-success" />
                     <div>
                       <div className="fw-semibold text-success">
                         Two-Factor Authentication Enabled
