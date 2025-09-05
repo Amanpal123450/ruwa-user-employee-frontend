@@ -37,7 +37,10 @@ export default function EmployeeProfile() {
     joinDate: "2023-01-15",
     address: "123 Main Street, City, State 12345",
     profilePic: "",
-    DOB: "1990-05-15"
+    DOB: "",
+    totalUsers:"",
+    totalServicesApplied:"",
+    approvalRate:""
   });
   const [saveAnimation, setSaveAnimation] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -72,7 +75,10 @@ export default function EmployeeProfile() {
             position: data.profile.position,
             joinDate: data.profile.joinDate,
             address: data.profile.address,
-            DOB: data.profile.DOB
+            DOB: data.profile.DOB,
+            totalUsers:data.totalApplications,
+            totalServicesApplied:data.totalServicesApplied,
+            approvalRate:data.approvalRate
           });
         }
         
@@ -82,6 +88,21 @@ export default function EmployeeProfile() {
     };
     fetchEmployeeData();
   }, []);
+const formattedDate = (value) => {
+  if (!value) return "N/A";
+
+  // ensure it's a number
+  const timestamp = typeof value === "string" ? Number(value) : value;
+  const date = new Date(timestamp);
+
+  if (isNaN(date.getTime())) return "N/A";
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -172,22 +193,21 @@ export default function EmployeeProfile() {
     setIsEditing(false);
   };
 
-   const formatDate = (value) => {
+const formatDate = (value) => {
   if (!value) return "N/A";
 
-  // force string → number
-  const num = parseInt(value, 10);
-  if (isNaN(num)) return "N/A";
+  // if it's a number (timestamp), convert to Number
+  const date = typeof value === "number" ? new Date(value) : new Date(value);
 
-  const date = new Date(num);
   if (isNaN(date.getTime())) return "N/A";
 
-  return date.toLocaleDateString("en-IN", {
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
     year: "numeric",
-    month: "long",
-    day: "numeric",
   });
 };
+
 
   return (
     <>
@@ -1288,16 +1308,18 @@ export default function EmployeeProfile() {
                 </div>
 
                 {/* Date of Birth Input */}
-                <div className="dob-input">
+                {profileData.DOB? <div className="dob-input">
+                   <span style={{color:"white"}}> DOB : {formatDate(profileData.DOB)}</span>
+                  </div>:<div className="dob-input">
                   <label htmlFor="dob">Date of Birth</label>
                   <input
                     type="date"
                     id="dob"
-                    name="dob"
+                    name="DOB"
                     value={profileData.DOB || ""}
                     onChange={(e) => handleUpdateDOB(e.target.value)}
                   />
-                </div>
+                </div>}
               </div>
             </div>
           </div>
@@ -1327,7 +1349,7 @@ export default function EmployeeProfile() {
                   </div>
                   <div className="profile-detail">
                     <div className="profile-detail-label">Joined</div>
-                    <div className="profile-detail-value">{formatDate(profileData.joinDate)}</div>
+                    <div className="profile-detail-value">{formattedDate(profileData.joinDate)}</div>
                   </div>
                 </div>
               </div>
@@ -1345,17 +1367,17 @@ export default function EmployeeProfile() {
                 <div className="stats-grid">
                   <div className="stat-card">
                     <FileText size={20} className="text-primary mb-2" />
-                    <div className="stat-number">156</div>
+                    <div className="stat-number">{profileData.totalServicesApplied}</div>
                     <div className="stat-label">Applications</div>
                   </div>
                   <div className="stat-card">
                     <Award size={20} className="text-success mb-2" />
-                    <div className="stat-number">98%</div>
+                    <div className="stat-number">{profileData.approvalRate}%</div>
                     <div className="stat-label">Approval Rate</div>
                   </div>
                   <div className="stat-card">
                     <Users size={20} className="text-info mb-2" />
-                    <div className="stat-number">23</div>
+                    <div className="stat-number">{profileData.totalUsers}</div>
                     <div className="stat-label">Users Managed</div>
                   </div>
                   <div className="stat-card">
@@ -1506,10 +1528,10 @@ export default function EmployeeProfile() {
                       Join Date
                     </label>
                     <input
-                      type="date"
+                      type="text"
                       name="joinDate"
                       className="form-control form-control-modern"
-                      value={profileData.joinDate}
+                      value={formattedDate(profileData.joinDate)}
                       onChange={handleInputChange}
                       disabled={!isEditing}
                     />

@@ -197,6 +197,7 @@ import FeedbackPage from './Pages/FeedbackPage';
 import EmployeeDashboard from './Pages/EmployeeDashboard';
 import EmployeeProfile from './Pages/EmployeeProfile';
 import ManageUsers from './Pages/ManageUsers';
+import PaymentPage from "./Pages/PaymentPage"
 // import ManageApplications from './Pages/Employee/ManageApplications';
 // import Reports from './Pages/Employee/Reports';
 // import Settings from './Pages/Employee/Settings';
@@ -213,6 +214,7 @@ import Empkendra from './components/Empkendra';
 import Empidente from './components/Empidente';
 import EmpApplication from './components/EmpApplication';
 import EmployeeAttendance from './Pages/EmployeeAttendance';
+import { ToastContainer } from 'react-toastify';
 
 // Scroll to top component
 function ScrollToTop() {
@@ -339,13 +341,14 @@ export default function Main() {
           <Route path='/employee-id' element={<EmployeeProtectedRoute><Empidente/></EmployeeProtectedRoute>} />
           <Route path='/manage-applications' element={<EmployeeProtectedRoute><EmpApplication/></EmployeeProtectedRoute>} />
           <Route path='/employee-att' element={<EmployeeProtectedRoute><EmployeeAttendance/></EmployeeProtectedRoute>} />
+          <Route path='/payment' element={<EmployeeProtectedRoute><PaymentPage/></EmployeeProtectedRoute>} />
 
 
 
         
           {/* <Route path='/employee-settings' element={<EmployeeProtectedRoute><Settings /></EmployeeProtectedRoute>} /> */}
         </Routes>
-
+      <ToastContainer />
         <Footer />
       </AuthProvider>
     </BrowserRouter>

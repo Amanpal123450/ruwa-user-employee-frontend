@@ -1,10 +1,33 @@
-import React from 'react';
+import React, { useState,useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../components/AuthContext';
+import axios from 'axios';
 
 export default function EmployeeDashboard() {
   const { user } = useAuth();
-
+   const [stats, setStats] = useState({
+    totalApplications: 0,
+    pendingApplications: 0,
+    todayAppliedCount: 0,
+  });
+   useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem("token"); // assuming JWT is stored
+        const res = await axios.get("https://ruwa-backend.onrender.com/api/employee/dash", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data.success) {
+          setStats(res.data.dashboard);
+        }
+      } catch (err) {
+        console.error("Error fetching dashboard:", err);
+      } finally {
+       
+      }
+    };
+    fetchDashboard();
+  }, []);
   const dashboardCards = [
     {
       title: 'Manage Users',
@@ -136,7 +159,8 @@ export default function EmployeeDashboard() {
               </div>
 
               {/* Enhanced Stats Cards */}
-              <div className="row mb-5">
+              <div className="row d-flex justify-content-evenly mb-5">
+
                 <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
                   <div className="stats-card stats-primary">
                     <div className="stats-content">
@@ -144,7 +168,7 @@ export default function EmployeeDashboard() {
                         <i className="fas fa-users"></i>
                       </div>
                       <div className="stats-info">
-                        <h3 className="stats-number" data-count="1234">1,234</h3>
+                        <h3 className="stats-number" data-count="1234">{stats.totalApplications}</h3>
                         <p className="stats-text">Total Users</p>
                         <div className="stats-progress">
                           <span className="progress-indicator">+12% from last month</span>
@@ -161,7 +185,7 @@ export default function EmployeeDashboard() {
                         <i className="fas fa-file-alt"></i>
                       </div>
                       <div className="stats-info">
-                        <h3 className="stats-number" data-count="89">89</h3>
+                        <h3 className="stats-number" data-count="89">{stats.pendingApplications}</h3>
                         <p className="stats-text">Pending Applications</p>
                         <div className="stats-progress">
                           <span className="progress-indicator">-5% from yesterday</span>
@@ -178,7 +202,7 @@ export default function EmployeeDashboard() {
                         <i className="fas fa-check-circle"></i>
                       </div>
                       <div className="stats-info">
-                        <h3 className="stats-number" data-count="156">156</h3>
+                        <h3 className="stats-number" data-count="156">{stats.todayAppliedCount}</h3>
                         <p className="stats-text">Approved Today</p>
                         <div className="stats-progress">
                           <span className="progress-indicator">+23% from yesterday</span>
@@ -188,7 +212,7 @@ export default function EmployeeDashboard() {
                   </div>
                 </div>
                 
-                <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+                {/* <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
                   <div className="stats-card stats-info">
                     <div className="stats-content">
                       <div className="stats-icon">
@@ -203,7 +227,7 @@ export default function EmployeeDashboard() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* Enhanced Dashboard Cards */}

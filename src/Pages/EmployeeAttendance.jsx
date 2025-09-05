@@ -109,7 +109,36 @@ export default function EmployeeAttendance() {
       alert("Failed to check in. Please try again.");
     }
   };
+const fetchSummary = async () => {
+  try {
+    const response = await api.get("https://ruwa-backend.onrender.com/api/attendance/summary");
+    const summary = response.data.summary;
 
+    setMonthlyStats({
+      present: parseInt(summary.present) || 0,
+      late: parseInt(summary.lateArrival) || 0,
+      absent: parseInt(summary.absent) || 0,
+      earlyDeparture: parseInt(summary.leftEarly) || 0,
+      paidLeave: parseInt(summary.paidLeave) || 0,
+      totalWorkingHours: parseFloat(summary.totalWorkingHours) || 0,
+      requiredWorkingHours: parseFloat(summary.requiredHours) || 0,
+      hoursDifference: parseFloat(summary.balance) || 0,
+    });
+  } catch (error) {
+    console.error("Error fetching summary stats:", error);
+  }
+};
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrentTime(new Date());
+  }, 1000);
+
+  fetchAttendanceData();
+  fetchSummary(); // ✅ Fetch summary from backend
+
+  return () => clearInterval(timer);
+}, []);
   // ✅ Handle Check-out
   const handleCheckOut = async () => {
     try {
@@ -331,7 +360,7 @@ export default function EmployeeAttendance() {
 
                       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
                         <div><span className="text-dark">• Total Working Hours</span></div>
-                        <span className="fw-bold text-truncate">{monthlyStats.totalWorkingHours.toFixed(1)}h</span>
+                        <span className="fw-bold text-truncate">{monthlyStats?.totalWorkingHours}h</span>
                       </div>
 
                       <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
@@ -342,7 +371,7 @@ export default function EmployeeAttendance() {
                       <div className="d-flex flex-wrap justify-content-between align-items-center">
                         <div><span className="text-dark">• Balance</span></div>
                         <span className={`fw-bold text-truncate ${monthlyStats.hoursDifference >= 0 ? 'text-success' : 'text-danger'}`}>
-                          {monthlyStats.hoursDifference >= 0 ? '+' : ''}{monthlyStats.hoursDifference.toFixed(1)}h
+                          {monthlyStats.hoursDifference >= 0 ? '+' : ''}{monthlyStats.hoursDifference}h
                         </span>
                       </div>
                     </div>

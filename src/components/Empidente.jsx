@@ -1555,63 +1555,92 @@ export default function Empidente() {
   const cardRef = useRef(null);
   const navigate=useNavigate()
   // ✅ Fetch employee profile from backend API
-  const formatDate = (value) => {
+const formatDate = (value) => {
   if (!value) return "N/A";
 
-  // force string → number
-  const num = parseInt(value, 10);
-  if (isNaN(num)) return "N/A";
+  // ensure it's a number
+  const timestamp = typeof value === "string" ? Number(value) : value;
+  const date = new Date(timestamp);
 
-  const date = new Date(num);
   if (isNaN(date.getTime())) return "N/A";
 
-  return date.toLocaleDateString("en-IN", {
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
     year: "numeric",
-    month: "long",
-    day: "numeric",
   });
 };
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/employee/profile",
-          {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const data = await res.json();
-        if (res.ok) {
-  setEmployeeData(data.profile);
 
-  if (!employeeData.profilePic) {
-    toast.error("🚨 Please complete your profile by adding a Profile Picture!", {
-      position: "top-center",
-      autoClose: 3000,
-      style: {
-        background: "#f44336",
-        color: "#fff",
-        fontWeight: "bold",
-        borderRadius: "12px",
-        fontSize: "16px",
-      },
-      onClose: () => navigate("/employee-profile"), // redirect after toast closes
-    });
-  }
-} else {
-          console.error("Error:", data.message);
+ const getExpiryDate = (joinDate) => {
+  if (!joinDate) return "N/A";
+
+  // handle both string & number
+  const timestamp = typeof joinDate === "string" ? Number(joinDate) : joinDate;
+  const date = new Date(timestamp);
+
+  if (isNaN(date.getTime())) return "N/A";
+
+  // add 2 years
+  date.setFullYear(date.getFullYear() + 2);
+
+  // format nicely
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+};
+useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        "https://ruwa-backend.onrender.com/api/employee/profile",
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
         }
-      } catch (err) {
-        console.error("API error:", err);
-      } finally {
-        setLoading(false);
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setEmployeeData(data.profile);
+
+        // ✅ check for missing fields
+       if (!data.profile.profile_pic || !data.profile.DOB) {
+  toast.error("🚨 Please complete your profile by adding DOB & Profile Picture!", {
+    position: "top-center",
+    autoClose: 2000,
+    style: {
+      background: "#f4ee36ff",
+      color: "#fff",
+      fontWeight: "bold",
+      borderRadius: "15px",
+      fontSize: "16px",
+    },
+  });
+
+  // ⏳ wait a bit before redirecting
+  setTimeout(() => {
+    navigate("/employee-profile", { replace: true });
+  }, 1500);
+}
+      } else {
+        console.error("Error:", data.message);
       }
-    };
-    fetchProfile();
-  }, []);
+    } catch (err) {
+      console.error("API error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProfile();
+}, [navigate]);
+
+
 
   // ✅ Download ID Card as PDF
   const handleDownload = async () => {
@@ -1804,17 +1833,11 @@ ADDRESS: ${employeeData.address || "N/A"}`;
                             <div className="aadhaar-validity">
                               <span>
                                 Issued On:{" "}
-                                {new Date(
-                                  employeeData.joinDate
-                                ).toLocaleDateString("en-IN")}
+                              {formatDate(employeeData.joinDate)}
                               </span>
                               <span>
                                 Valid Until:{" "}
-                                {employeeData.validUntil
-                                  ? new Date(
-                                      employeeData.validUntil
-                                    ).toLocaleDateString("en-IN")
-                                  : "N/A"}
+                               {getExpiryDate(employeeData.joinDate)}
                               </span>
                             </div>
                           </div>
