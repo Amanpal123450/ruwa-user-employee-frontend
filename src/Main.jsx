@@ -1,164 +1,3 @@
-// import React, { useState } from 'react'
-// import { BrowserRouter, Route, Routes } from 'react-router-dom'
-// import Header from "./components/Header"
-// import Footer from './components/Footer'
-// import Homepage from './Pages/Homepage'
-// import Aboutpage from './Pages/Aboutpage'
-// // import About from './components/About'
-// // import Aboutpage from './Pages/Aboutpage'
-// // import Featuers from './components/Featuers'
-// import Workpage from './Pages/Workpage'
-// import Servicepage from './Pages/Servicepage'
-// import Contactpage from './Pages/Contactpage'
-// import Featuerpage from './Pages/Featuerpage'
-// import LearnMore from './Pages/LearnMore'
-// import GetStartPage from './Pages/GetStartPage'
-// import Jansawviman from './components/Jansawviman'
-// import Janarogycard from './components/Janarogycard'
-// import Login from './components/Login'
-// import Register from './components/Resigter'
-// import ForgotPass from './components/Forgetpass'
-// import Swvimanyojna from './Pages/Swvimanyojna'
-// import Arogycard from './Pages/Arogycard'
-// // import Getstart from './components/Getstart'
-
-// export default function Main() {
-//   //  const [showModal, setShowModal] = useState(false);
-//   const [user, setUser] = useState(null);
-//   return (
-    
-//     <BrowserRouter>
-//     <Header user={user}/>
-   
-//         <Routes>
-//     <Route path='/' element={<Homepage/>}/>
-//     <Route path='about' element={<Aboutpage/>}/>
-//      <Route path='/Featuers' element={<Featuerpage/>}/>
-//       <Route path='/how-it-work' element={<Workpage/>}/>
-//        <Route path='/services' element={<Servicepage/>}/>
-//         <Route path='/contact' element={<Contactpage/>}/>
-
-//        {/* learn abbout page routes   */}
-//          <Route path='/learnmore' element={<LearnMore/>}/>
-
-
-
-//          {/* login route   */}
-//          {/* <Route path='/getstart' element={<GetStartPage/>}/> */}
-//   {/* <Route path="/login" element={<Login />} />
-//   <Route path="/register" element={<Register />} />
-//   <Route path="/forgot-password" element={<ForgotPass />} /> */}
-
-//          <Route path="/apply-swabhiman" element={<Swvimanyojna />} />
-//         <Route path="/apply-arogya" element={<Arogycard />} />
-
-//    </Routes>
-//    <Footer/>
- 
-//     </BrowserRouter>
-//   )
-// // }
-// import React, { useState } from 'react'
-// import { BrowserRouter, Route, Routes } from 'react-router-dom'
-// import Header from "./components/Header"
-// import Footer from './components/Footer'
-// import Homepage from './Pages/Homepage'
-// import Aboutpage from './Pages/Aboutpage'
-// import Workpage from './Pages/Workpage'
-// import Servicepage from './Pages/Servicepage'
-// import Contactpage from './Pages/Contactpage'
-// import Featuerpage from './Pages/Featuerpage'
-// import LearnMore from './Pages/LearnMore'
-// import GetStartPage from './Pages/GetStartPage'
-// import Jansawviman from './components/Jansawviman'
-// import Janarogycard from './components/Janarogycard'
-// import Login from './components/Login'
-// import Register from './components/Resigter'
-// import ForgotPass from './components/Forgetpass'
-// import Swvimanyojna from './Pages/Swvimanyojna'
-// import Arogycard from './Pages/Arogycard'
-
-// export default function Main() {
-//   const [user, setUser] = useState(null);
-
-//   return (
-//     <BrowserRouter>
-//       <Header user={user} />
-
-//       <Routes>
-//         <Route path='/' element={<Homepage />} />
-//         <Route path='about' element={<Aboutpage />} />
-//         <Route path='/Featuers' element={<Featuerpage />} />
-//         <Route path='/how-it-work' element={<Workpage />} />
-//         <Route path='/services' element={<Servicepage />} />
-//         <Route path='/contact' element={<Contactpage />} />
-
-//         {/* Learn More Page */}
-//         <Route path='/learnmore' element={<LearnMore />} />
-
-//         {/* Auth Pages */}
-//         <Route path='/login' element={<Login />} />
-//         <Route path='/register' element={<Register />} />
-//         <Route path='/forgot-password' element={<ForgotPass />} />
-
-//         {/* Card Application Pages */}
-//         <Route path='/apply-swabhiman' element={<Swvimanyojna />} />
-//         <Route path='/apply-arogya' element={<Arogycard />} />
-//       </Routes>
-
-//       <Footer />
-//     </BrowserRouter>
-//   )
-// // }
-// import React from 'react'
-// import { BrowserRouter, Route, Routes } from 'react-router-dom'
-// import Header from "./components/Header"
-// import Footer from './components/Footer'
-// import Homepage from './Pages/Homepage'
-// import Aboutpage from './Pages/Aboutpage'
-// import Workpage from './Pages/Workpage'
-// import Servicepage from './Pages/Servicepage'
-// import Contactpage from './Pages/Contactpage'
-// import Featuerpage from './Pages/Featuerpage'
-// import LearnMore from './Pages/LearnMore'
-// import GetStartPage from './Pages/GetStartPage'
-// import Jansawviman from './components/Jansawviman'
-// import Janarogycard from './components/Janarogycard'
-// import Login from './components/Login'
-// import Register from './components/Resigter'
-// import ForgotPass from './components/Forgetpass'
-// import Swvimanyojna from './Pages/Swvimanyojna'
-// import Arogycard from './Pages/Arogycard'
-// import { AuthProvider } from './components/AuthContext'
-
-// export default function Main() {
-//   return (
-//     <AuthProvider>
-//       <BrowserRouter>
-//         <Header />
-//         <Routes>
-//           <Route path='/' element={<Homepage />} />
-//           <Route path='about' element={<Aboutpage />} />
-//           <Route path='/Featuers' element={<Featuerpage />} />
-//           <Route path='/how-it-work' element={<Workpage />} />
-//           <Route path='/services' element={<Servicepage />} />
-//           <Route path='/contact' element={<Contactpage />} />
-//           <Route path='/learnmore' element={<LearnMore />} />
-
-//           {/* Auth Pages */}
-//           <Route path='/login' element={<Login />} />
-//           <Route path='/register' element={<Register />} />
-//           <Route path='/forgot-password' element={<ForgotPass />} />
-
-//           {/* Card Pages */}
-//           <Route path='/apply-swabhiman' element={<Swvimanyojna />} />
-//           <Route path='/apply-arogya' element={<Arogycard />} />
-//         </Routes>
-//         <Footer />
-//       </BrowserRouter>
-//     </AuthProvider>
-//   )
-// }
 import React from 'react';
 import { BrowserRouter, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import Header from "./components/Header";
@@ -192,15 +31,9 @@ import RegisterPage from './Pages/RegisterPage';
 import ComingSoonPage from './Pages/ComingSoonPage';
 import CareerPage from './Pages/CareerPage';
 import FeedbackPage from './Pages/FeedbackPage';
-
-// Import Employee Pages (you'll need to create these)
 import EmployeeDashboard from './Pages/EmployeeDashboard';
 import EmployeeProfile from './Pages/EmployeeProfile';
 import ManageUsers from './Pages/ManageUsers';
-// import ManageApplications from './Pages/Employee/ManageApplications';
-// import Reports from './Pages/Employee/Reports';
-// import Settings from './Pages/Employee/Settings';
-
 import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import Empservices from './components/Empservices';
@@ -344,7 +177,6 @@ export default function Main() {
 
 
         
-          {/* <Route path='/employee-settings' element={<EmployeeProtectedRoute><Settings /></EmployeeProtectedRoute>} /> */}
         </Routes>
       <ToastContainer />
         <Footer />

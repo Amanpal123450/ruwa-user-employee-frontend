@@ -13,7 +13,7 @@
 //     franchiseCategory:"",
 //     category:"",
 //     relevantExperience: '',
-   
+
 //     idProof: null,
 //     qualificationCertificate: null,
 //     financialStatement: null
@@ -23,7 +23,6 @@
 //   const [formSubmitted, setFormSubmitted] = useState(false);
 
 //   // Fetch user data on component mount
-  
 
 //   const franchiseInfo = [
 //     {
@@ -133,7 +132,7 @@
 //         if (res.ok) {
 //           setFormSubmitted(true);
 //           setTimeout(() => setFormSubmitted(false), 4000);
-          
+
 //           // Reset form but keep user info
 //           setFormData({
 //             ...formData,
@@ -223,7 +222,7 @@
 //                 <h3 className="header-title">Franchise Application Form</h3>
 //                 <p className="header-subtitle">Join us in providing quality healthcare to your community</p>
 //               </div>
-              
+
 //               <div className="card-body">
 //                 {formSubmitted && (
 //                   <div className="alert alert-success alert-custom" role="alert">
@@ -236,12 +235,12 @@
 //                   <Row className="g-3 mb-4">
 //                     <Col md={6}>
 //                       <Form.Label className="form-label-custom">Full Name</Form.Label>
-//                       <Form.Control 
-//                         type="text" 
-//                         name="name" 
-//                         value={formData.name} 
-//                         onChange={handleChange} 
-//                         isInvalid={!!errors.name} 
+//                       <Form.Control
+//                         type="text"
+//                         name="name"
+//                         value={formData.name}
+//                         onChange={handleChange}
+//                         isInvalid={!!errors.name}
 //                         className="form-control-custom"
 //                         readOnly
 //                       />
@@ -250,12 +249,12 @@
 
 //                     <Col md={6}>
 //                       <Form.Label className="form-label-custom">aadhaar</Form.Label>
-//                       <Form.Control 
-//                         type="aadhaar" 
-//                         name="aadhaar" 
-//                         value={formData.aadhaar} 
-//                         onChange={handleChange} 
-//                         isInvalid={!!errors.aadhaar} 
+//                       <Form.Control
+//                         type="aadhaar"
+//                         name="aadhaar"
+//                         value={formData.aadhaar}
+//                         onChange={handleChange}
+//                         isInvalid={!!errors.aadhaar}
 //                         className="form-control-custom"
 //                         readOnly
 //                       />
@@ -264,12 +263,12 @@
 
 //                     <Col md={6}>
 //                       <Form.Label className="form-label-custom">Phone</Form.Label>
-//                       <Form.Control 
-//                         type="text" 
-//                         name="phone" 
-//                         value={formData.phone} 
-//                         onChange={handleChange} 
-//                         isInvalid={!!errors.phone} 
+//                       <Form.Control
+//                         type="text"
+//                         name="phone"
+//                         value={formData.phone}
+//                         onChange={handleChange}
+//                         isInvalid={!!errors.phone}
 //                         className="form-control-custom"
 //                         readOnly
 //                       />
@@ -278,12 +277,12 @@
 
 //                     <Col md={6}>
 //                       <Form.Label className="form-label-custom">Address</Form.Label>
-//                       <Form.Control 
-//                         type="text" 
-//                         name="address" 
-//                         value={formData.address} 
-//                         onChange={handleChange} 
-//                         isInvalid={!!errors.address} 
+//                       <Form.Control
+//                         type="text"
+//                         name="address"
+//                         value={formData.address}
+//                         onChange={handleChange}
+//                         isInvalid={!!errors.address}
 //                         className="form-control-custom"
 //                         placeholder="Enter your complete address"
 //                       />
@@ -292,12 +291,12 @@
 
 //                     <Col md={6}>
 //                       <Form.Label className="form-label-custom">Business Type</Form.Label>
-//                       <Form.Control 
-//                         type="text" 
-//                         name="businessType" 
-//                         value={formData.businessType} 
-//                         onChange={handleChange} 
-//                         isInvalid={!!errors.businessType} 
+//                       <Form.Control
+//                         type="text"
+//                         name="businessType"
+//                         value={formData.businessType}
+//                         onChange={handleChange}
+//                         isInvalid={!!errors.businessType}
 //                         className="form-control-custom"
 //                         placeholder="e.g., Individual, Partnership, Company"
 //                       />
@@ -306,12 +305,12 @@
 
 //                     <Col md={6}>
 //                       <Form.Label className="form-label-custom">Investment Capacity (₹)</Form.Label>
-//                       <Form.Control 
-//                         type="text" 
-//                         name="investmentCapacity" 
-//                         value={formData.investmentCapacity} 
-//                         onChange={handleChange} 
-//                         isInvalid={!!errors.investmentCapacity} 
+//                       <Form.Control
+//                         type="text"
+//                         name="investmentCapacity"
+//                         value={formData.investmentCapacity}
+//                         onChange={handleChange}
+//                         isInvalid={!!errors.investmentCapacity}
 //                         className="form-control-custom"
 //                         placeholder="e.g., 5,00,000 - 10,00,000"
 //                       />
@@ -320,12 +319,12 @@
 
 //                     <Col md={6}>
 //                       <Form.Label className="form-label-custom">Proposed Location</Form.Label>
-//                       <Form.Control 
-//                         type="text" 
-//                         name="proposedLocation" 
-//                         value={formData.proposedLocation} 
-//                         onChange={handleChange} 
-//                         isInvalid={!!errors.proposedLocation} 
+//                       <Form.Control
+//                         type="text"
+//                         name="proposedLocation"
+//                         value={formData.proposedLocation}
+//                         onChange={handleChange}
+//                         isInvalid={!!errors.proposedLocation}
 //                         className="form-control-custom"
 //                         placeholder="City, State, Area"
 //                       />
@@ -334,10 +333,10 @@
 
 //                     <Col md={6}>
 //                       <Form.Label className="form-label-custom">Franchise Category</Form.Label>
-//                       <Form.Select 
-//                         name="category" 
-//                         value={formData.category} 
-//                         onChange={handleChange} 
+//                       <Form.Select
+//                         name="category"
+//                         value={formData.category}
+//                         onChange={handleChange}
 //                         isInvalid={!!errors.category}
 //                         className="form-control-custom"
 //                       >
@@ -351,13 +350,13 @@
 
 //                     <Col md={12}>
 //                       <Form.Label className="form-label-custom">Relevant relevantExperience</Form.Label>
-//                       <Form.Control 
-//                         as="textarea" 
-//                         rows={3} 
-//                         name="relevantExperience" 
-//                         value={formData.relevantExperience} 
-//                         onChange={handleChange} 
-//                         isInvalid={!!errors.relevantExperience} 
+//                       <Form.Control
+//                         as="textarea"
+//                         rows={3}
+//                         name="relevantExperience"
+//                         value={formData.relevantExperience}
+//                         onChange={handleChange}
+//                         isInvalid={!!errors.relevantExperience}
 //                         className="form-control-custom"
 //                         placeholder="Describe your relevant relevantExperience in healthcare or business"
 //                       />
@@ -366,17 +365,17 @@
 //                   </Row>
 
 //                   <h5 className="section-subtitle mb-3">Required Documents</h5>
-                  
+
 //                   <Row className="g-3 mb-4">
 //                     <Col md={4}>
 //                       <div className="file-upload-card">
 //                         <Form.Label className="form-label-custom">ID Proof *</Form.Label>
 //                         <div className="file-input-container">
-//                           <Form.Control 
-//                             type="file" 
-//                             name="idProof" 
-//                             onChange={handleChange} 
-//                             isInvalid={!!errors.idProof} 
+//                           <Form.Control
+//                             type="file"
+//                             name="idProof"
+//                             onChange={handleChange}
+//                             isInvalid={!!errors.idProof}
 //                             className="file-input-custom"
 //                             required
 //                           />
@@ -392,11 +391,11 @@
 //                       <div className="file-upload-card">
 //                         <Form.Label className="form-label-custom">Qualification Certificate *</Form.Label>
 //                         <div className="file-input-container">
-//                           <Form.Control 
-//                             type="file" 
-//                             name="qualificationCertificate" 
-//                             onChange={handleChange} 
-//                             isInvalid={!!errors.qualificationCertificate} 
+//                           <Form.Control
+//                             type="file"
+//                             name="qualificationCertificate"
+//                             onChange={handleChange}
+//                             isInvalid={!!errors.qualificationCertificate}
 //                             className="file-input-custom"
 //                             required
 //                           />
@@ -412,11 +411,11 @@
 //                       <div className="file-upload-card">
 //                         <Form.Label className="form-label-custom">Financial Statement *</Form.Label>
 //                         <div className="file-input-container">
-//                           <Form.Control 
-//                             type="file" 
-//                             name="financialStatement" 
-//                             onChange={handleChange} 
-//                             isInvalid={!!errors.financialStatement} 
+//                           <Form.Control
+//                             type="file"
+//                             name="financialStatement"
+//                             onChange={handleChange}
+//                             isInvalid={!!errors.financialStatement}
 //                             className="file-input-custom"
 //                             required
 //                           />
@@ -718,11 +717,11 @@
 //           .welcome-title {
 //             font-size: 1.8rem;
 //           }
-          
+
 //           .welcome-overlay {
 //             padding: 1.5rem;
 //           }
-          
+
 //           .service-card {
 //             margin-bottom: 1rem;
 //           }
@@ -734,110 +733,117 @@
 
 // export default Empkendra;
 
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Empkendra = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    aadhaar: '',
-    phone: '',
-    address: '',
-    businessType: '',
-    investmentCapacity: '',
-    proposedLocation: '',
-    franchiseCategory: '',
-    category: '',
-    relevantExperience: '',
-    forUserId: '', // Added for employee application
+    name: "",
+    aadhaar: "",
+    phone: "",
+    address: "",
+    businessType: "",
+    investmentCapacity: "",
+    proposedLocation: "",
+    franchiseCategory: "",
+    category: "",
+    relevantExperience: "",
+    forUserId: "", // Added for employee application
     idProof: null,
     qualificationCertificate: null,
-    financialStatement: null
+    financialStatement: null,
   });
 
   const [errors, setErrors] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
-  
+
   const [isLoading, setIsLoading] = useState(false);
 
   // Fetch users for employee to select from
- 
 
   const franchiseInfo = [
     {
-      icon: '🏥',
-      title: 'S1 Category Franchise',
+      icon: "🏥",
+      title: "S1 Category Franchise",
       description: [
-        '200 sq. ft facility space',
-        'Basic healthcare services',
-        'Ideal for rural areas',
-        'Lower investment requirement'
+        "200 sq. ft facility space",
+        "Basic healthcare services",
+        "Ideal for rural areas",
+        "Lower investment requirement",
       ],
-      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
     },
     {
-      icon: '🏢',
-      title: 'S2 Category Franchise',
+      icon: "🏢",
+      title: "S2 Category Franchise",
       description: [
-        '400 sq. ft facility space',
-        'Comprehensive healthcare services',
-        'Semi-urban locations',
-        'Moderate investment'
+        "400 sq. ft facility space",
+        "Comprehensive healthcare services",
+        "Semi-urban locations",
+        "Moderate investment",
       ],
-      gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+      gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
     },
     {
-      icon: '🏬',
-      title: 'S3 Category Franchise',
+      icon: "🏬",
+      title: "S3 Category Franchise",
       description: [
-        '600 sq. ft facility space',
-        'Advanced healthcare services',
-        'Urban locations',
-        'Higher investment capacity'
+        "600 sq. ft facility space",
+        "Advanced healthcare services",
+        "Urban locations",
+        "Higher investment capacity",
       ],
-      gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+      gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
     },
     {
-      icon: '💰',
-      title: 'Investment Benefits',
+      icon: "💰",
+      title: "Investment Benefits",
       description: [
-        'Government subsidies available',
-        'Training and support provided',
-        'Brand recognition',
-        'Proven business model'
+        "Government subsidies available",
+        "Training and support provided",
+        "Brand recognition",
+        "Proven business model",
       ],
-      gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"
-    }
+      gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+    },
   ];
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = 'Full Name is required';
-    if (!formData.aadhaar ) newErrors.aadhaar = 'Enter Aadhaar Number';
-    if (!formData.phone || !/^\d{10}$/.test(formData.phone)) newErrors.phone = '10-digit phone number required';
-    if (!formData.address) newErrors.address = 'Address is required';
-    if (!formData.businessType) newErrors.businessType = 'Business type is required';
-    if (!formData.investmentCapacity) newErrors.investmentCapacity = 'Investment capacity is required';
-    if (!formData.proposedLocation) newErrors.proposedLocation = 'Location is required';
-    if (!formData.category) newErrors.category = 'Category is required';
-    if (!formData.relevantExperience) newErrors.relevantExperience = 'Relevant Experience is required';
-    if (!formData.forUserId) newErrors.forUserId = 'Please select a user to apply for';
-    if (!formData.idProof) newErrors.idProof = 'ID Proof is required';
-    if (!formData.qualificationCertificate) newErrors.qualificationCertificate = 'Qualification Certificate is required';
-    if (!formData.financialStatement) newErrors.financialStatement = 'Financial Statement is required';
+    if (!formData.name) newErrors.name = "Full Name is required";
+    if (!formData.aadhaar) newErrors.aadhaar = "Enter Aadhaar Number";
+    if (!formData.phone || !/^\d{10}$/.test(formData.phone))
+      newErrors.phone = "10-digit phone number required";
+    if (!formData.address) newErrors.address = "Address is required";
+    if (!formData.businessType)
+      newErrors.businessType = "Business type is required";
+    if (!formData.investmentCapacity)
+      newErrors.investmentCapacity = "Investment capacity is required";
+    if (!formData.proposedLocation)
+      newErrors.proposedLocation = "Location is required";
+    if (!formData.category) newErrors.category = "Category is required";
+    if (!formData.relevantExperience)
+      newErrors.relevantExperience = "Relevant Experience is required";
+    if (!formData.forUserId)
+      newErrors.forUserId = "Please select a user to apply for";
+    if (!formData.idProof) newErrors.idProof = "ID Proof is required";
+    if (!formData.qualificationCertificate)
+      newErrors.qualificationCertificate =
+        "Qualification Certificate is required";
+    if (!formData.financialStatement)
+      newErrors.financialStatement = "Financial Statement is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value
+      [name]: files ? files[0] : value,
     }));
 
     // Auto-fill user details when user is selected
-   
   };
 
   const handleSubmit = async (e) => {
@@ -853,53 +859,75 @@ const Empkendra = () => {
         formDataToSend.append("phone", formData.phone);
         formDataToSend.append("address", formData.address);
         formDataToSend.append("businessType", formData.businessType);
-        formDataToSend.append("investmentCapacity", formData.investmentCapacity);
+        formDataToSend.append(
+          "investmentCapacity",
+          formData.investmentCapacity
+        );
         formDataToSend.append("proposedLocation", formData.proposedLocation);
         formDataToSend.append("category", formData.category);
         formDataToSend.append("franchiseCategory", formData.category); // Using category for franchiseCategory as per backend
-        formDataToSend.append("relevantExperience", formData.relevantExperience);
+        formDataToSend.append(
+          "relevantExperience",
+          formData.relevantExperience
+        );
         formDataToSend.append("forUserId", formData.forUserId); // Required for employee application
 
         // Append files
-        if (formData.idProof) formDataToSend.append("idProof", formData.idProof);
-        if (formData.qualificationCertificate) formDataToSend.append("qualificationCertificate", formData.qualificationCertificate);
-        if (formData.financialStatement) formDataToSend.append("financialStatement", formData.financialStatement);
+        if (formData.idProof)
+          formDataToSend.append("idProof", formData.idProof);
+        if (formData.qualificationCertificate)
+          formDataToSend.append(
+            "qualificationCertificate",
+            formData.qualificationCertificate
+          );
+        if (formData.financialStatement)
+          formDataToSend.append(
+            "financialStatement",
+            formData.financialStatement
+          );
 
-        const res = await fetch("https://ruwa-backend.onrender.com/api/services/apply-kendra/employee/apply", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          body: formDataToSend
-        });
+        const res = await fetch(
+          "https://ruwa-backend.onrender.com/api/services/apply-kendra/employee/apply",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formDataToSend,
+          }
+        );
 
         const data = await res.json();
-         if(data.message="User Already Applied"){
-          alert("User Already Applied")
-         }
+        if ((data.message = "User Already Applied")) {
+          alert("User Already Applied");
+        }
         if (res.ok) {
-          setFormSubmitted(true);
-          setTimeout(() => setFormSubmitted(false), 4000);
-          
-          // Reset form
-          setFormData({
-            name: '',
-            aadhaar: '',
-            phone: '',
-            address: '',
-            businessType: '',
-            investmentCapacity: '',
-            proposedLocation: '',
-            category: '',
-            franchiseCategory: '',
-            relevantExperience: '',
-            forUserId: '',
-            idProof: null,
-            qualificationCertificate: null,
-            financialStatement: null
-          });
-          setErrors({});
-        } else {
+  setFormSubmitted(true);
+  setTimeout(() => setFormSubmitted(false), 4000);
+
+  // Reset form
+  setFormData({
+    name: "",
+    aadhaar: "",
+    phone: "",
+    address: "",
+    businessType: "",
+    investmentCapacity: "",
+    proposedLocation: "",
+    category: "",
+    franchiseCategory: "",
+    relevantExperience: "",
+    forUserId: "",
+    idProof: null,
+    qualificationCertificate: null,
+    financialStatement: null,
+  });
+  setErrors({});
+
+  // 👇 Redirect to external URL
+  window.location.href = "https://razorpay.me/@nhsindia?amount=gtjkDOGv69g55ggcfywxBg%3D%3D";
+}
+ else {
           alert(data.message || "Something went wrong");
         }
       } catch (error) {
@@ -913,9 +941,15 @@ const Empkendra = () => {
 
   return (
     <>
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-      
+      <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+        rel="stylesheet"
+      />
+      <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet"
+      />
+
       <div className="dashboard-container">
         <div className="container-fluid py-4">
           <div className="row">
@@ -933,7 +967,8 @@ const Empkendra = () => {
                           Jan Arogya Kendra Franchise
                         </h1>
                         <p className="welcome-subtitle">
-                          Apply for Jan Arogya Kendra franchise on behalf of users
+                          Apply for Jan Arogya Kendra franchise on behalf of
+                          users
                         </p>
                       </div>
                     </div>
@@ -954,7 +989,10 @@ const Empkendra = () => {
               <div className="row mb-5">
                 {franchiseInfo.map((info, index) => (
                   <div className="col-12 col-md-6 col-lg-3 mb-4" key={index}>
-                    <div className="service-card" style={{ '--gradient': info.gradient }}>
+                    <div
+                      className="service-card"
+                      style={{ "--gradient": info.gradient }}
+                    >
                       <div className="card-background"></div>
                       <div className="card-content">
                         <div className="card-icon">
@@ -978,12 +1016,17 @@ const Empkendra = () => {
               <div className="card user-table-card">
                 <div className="card-header-custom">
                   <h3 className="header-title">Franchise Application Form</h3>
-                  <p className="header-subtitle">Apply on behalf of users for Jan Arogya Kendra franchise</p>
+                  <p className="header-subtitle">
+                    Apply on behalf of users for Jan Arogya Kendra franchise
+                  </p>
                 </div>
-                
+
                 <div className="card-body">
                   {formSubmitted && (
-                    <div className="alert alert-success alert-custom" role="alert">
+                    <div
+                      className="alert alert-success alert-custom"
+                      role="alert"
+                    >
                       <i className="fas fa-check-circle me-2"></i>
                       Application submitted successfully!
                     </div>
@@ -993,216 +1036,335 @@ const Empkendra = () => {
                     {/* User Selection */}
                     <div className="row g-3 mb-4">
                       <div className="col-md-12">
-                        <label className="form-label form-label-custom">Enter User ID *</label>
-                        <input 
-                          name="forUserId" 
-                          value={formData.forUserId} 
-                          onChange={handleChange} 
-                          type='text'
-                          className={`form-control form-control-custom ${errors.forUserId ? 'is-invalid' : ''}`}
-                        >
-                          
-                          
-                        </input>
-                        {errors.forUserId && <div className="invalid-feedback">{errors.forUserId}</div>}
+                        <label className="form-label form-label-custom">
+                          Enter User ID *
+                        </label>
+                        <input
+                          name="forUserId"
+                          value={formData.forUserId}
+                          onChange={handleChange}
+                          type="text"
+                          className={`form-control form-control-custom ${
+                            errors.forUserId ? "is-invalid" : ""
+                          }`}
+                        ></input>
+                        {errors.forUserId && (
+                          <div className="invalid-feedback">
+                            {errors.forUserId}
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     <div className="row g-3 mb-4">
                       <div className="col-md-6">
-                        <label className="form-label form-label-custom">Full Name</label>
-                        <input 
-                          type="text" 
-                          name="name" 
-                          value={formData.name} 
-                          onChange={handleChange} 
-                          className={`form-control form-control-custom ${errors.name ? 'is-invalid' : ''}`}
+                        <label className="form-label form-label-custom">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          className={`form-control form-control-custom ${
+                            errors.name ? "is-invalid" : ""
+                          }`}
                           placeholder="Enter full name"
                         />
-                        {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                        {errors.name && (
+                          <div className="invalid-feedback">{errors.name}</div>
+                        )}
                       </div>
 
                       <div className="col-md-6">
-                        <label className="form-label form-label-custom">aadhaar</label>
-                        <input 
-                          type="text" 
-                          
-                          name="aadhaar" 
-                          value={formData.aadhaar} 
+                        <label className="form-label form-label-custom">
+                          aadhaar
+                        </label>
+                        <input
+                          type="text"
+                          name="aadhaar"
+                          value={formData.aadhaar}
                           onChange={handleChange}
-  
-                          className={`form-control form-control-custom ${errors.aadhaar ? 'is-invalid' : ''}`}
+                          className={`form-control form-control-custom ${
+                            errors.aadhaar ? "is-invalid" : ""
+                          }`}
                           placeholder="Enter aadhaar address"
                         />
-                        {errors.aadhaar && <div className="invalid-feedback">{errors.aadhaar}</div>}
+                        {errors.aadhaar && (
+                          <div className="invalid-feedback">
+                            {errors.aadhaar}
+                          </div>
+                        )}
                       </div>
 
                       <div className="col-md-6">
-                        <label className="form-label form-label-custom">Phone</label>
-                        <input 
-                          type="text" 
-                          name="phone" 
-                          value={formData.phone} 
-                          onChange={handleChange} 
-                          className={`form-control form-control-custom ${errors.phone ? 'is-invalid' : ''}`}
+                        <label className="form-label form-label-custom">
+                          Phone
+                        </label>
+                        <input
+                          type="text"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className={`form-control form-control-custom ${
+                            errors.phone ? "is-invalid" : ""
+                          }`}
                           placeholder="Enter 10-digit phone number"
                         />
-                        {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+                        {errors.phone && (
+                          <div className="invalid-feedback">{errors.phone}</div>
+                        )}
                       </div>
 
                       <div className="col-md-6">
-                        <label className="form-label form-label-custom">Address</label>
-                        <input 
-                          type="text" 
-                          name="address" 
-                          value={formData.address} 
-                          onChange={handleChange} 
-                          className={`form-control form-control-custom ${errors.address ? 'is-invalid' : ''}`}
+                        <label className="form-label form-label-custom">
+                          Address
+                        </label>
+                        <input
+                          type="text"
+                          name="address"
+                          value={formData.address}
+                          onChange={handleChange}
+                          className={`form-control form-control-custom ${
+                            errors.address ? "is-invalid" : ""
+                          }`}
                           placeholder="Enter complete address"
                         />
-                        {errors.address && <div className="invalid-feedback">{errors.address}</div>}
+                        {errors.address && (
+                          <div className="invalid-feedback">
+                            {errors.address}
+                          </div>
+                        )}
                       </div>
 
                       <div className="col-md-6">
-                        <label className="form-label form-label-custom">Business Type</label>
-                        <input 
-                          type="text" 
-                          name="businessType" 
-                          value={formData.businessType} 
-                          onChange={handleChange} 
-                          className={`form-control form-control-custom ${errors.businessType ? 'is-invalid' : ''}`}
+                        <label className="form-label form-label-custom">
+                          Business Type
+                        </label>
+                        <input
+                          type="text"
+                          name="businessType"
+                          value={formData.businessType}
+                          onChange={handleChange}
+                          className={`form-control form-control-custom ${
+                            errors.businessType ? "is-invalid" : ""
+                          }`}
                           placeholder="e.g., Individual, Partnership, Company"
                         />
-                        {errors.businessType && <div className="invalid-feedback">{errors.businessType}</div>}
+                        {errors.businessType && (
+                          <div className="invalid-feedback">
+                            {errors.businessType}
+                          </div>
+                        )}
                       </div>
 
                       <div className="col-md-6">
-                        <label className="form-label form-label-custom">Investment Capacity (₹)</label>
-                        <input 
-                          type="text" 
-                          name="investmentCapacity" 
-                          value={formData.investmentCapacity} 
-                          onChange={handleChange} 
-                          className={`form-control form-control-custom ${errors.investmentCapacity ? 'is-invalid' : ''}`}
+                        <label className="form-label form-label-custom">
+                          Investment Capacity (₹)
+                        </label>
+                        <input
+                          type="text"
+                          name="investmentCapacity"
+                          value={formData.investmentCapacity}
+                          onChange={handleChange}
+                          className={`form-control form-control-custom ${
+                            errors.investmentCapacity ? "is-invalid" : ""
+                          }`}
                           placeholder="e.g., 5,00,000 - 10,00,000"
                         />
-                        {errors.investmentCapacity && <div className="invalid-feedback">{errors.investmentCapacity}</div>}
+                        {errors.investmentCapacity && (
+                          <div className="invalid-feedback">
+                            {errors.investmentCapacity}
+                          </div>
+                        )}
                       </div>
 
                       <div className="col-md-6">
-                        <label className="form-label form-label-custom">Proposed Location</label>
-                        <input 
-                          type="text" 
-                          name="proposedLocation" 
-                          value={formData.proposedLocation} 
-                          onChange={handleChange} 
-                          className={`form-control form-control-custom ${errors.proposedLocation ? 'is-invalid' : ''}`}
+                        <label className="form-label form-label-custom">
+                          Proposed Location
+                        </label>
+                        <input
+                          type="text"
+                          name="proposedLocation"
+                          value={formData.proposedLocation}
+                          onChange={handleChange}
+                          className={`form-control form-control-custom ${
+                            errors.proposedLocation ? "is-invalid" : ""
+                          }`}
                           placeholder="City, State, Area"
                         />
-                        {errors.proposedLocation && <div className="invalid-feedback">{errors.proposedLocation}</div>}
+                        {errors.proposedLocation && (
+                          <div className="invalid-feedback">
+                            {errors.proposedLocation}
+                          </div>
+                        )}
                       </div>
 
                       <div className="col-md-6">
-                        <label className="form-label form-label-custom">Franchise Category</label>
-                        <select 
-                          name="category" 
-                          value={formData.category} 
-                          onChange={handleChange} 
-                          className={`form-control form-control-custom ${errors.category ? 'is-invalid' : ''}`}
+                        <label className="form-label form-label-custom">
+                          Franchise Category
+                        </label>
+                        <select
+                          name="category"
+                          value={formData.category}
+                          onChange={handleChange}
+                          className={`form-control form-control-custom ${
+                            errors.category ? "is-invalid" : ""
+                          }`}
                         >
                           <option value="">Select Category</option>
                           <option value="S1">S1 (200 sq. ft)</option>
                           <option value="S2">S2 (400 sq. ft)</option>
                           <option value="S3">S3 (600 sq. ft)</option>
                         </select>
-                        {errors.category && <div className="invalid-feedback">{errors.category}</div>}
+                        {errors.category && (
+                          <div className="invalid-feedback">
+                            {errors.category}
+                          </div>
+                        )}
                       </div>
 
                       <div className="col-md-12">
-                        <label className="form-label form-label-custom">Relevant Experience</label>
-                        <textarea 
-                          rows={3} 
-                          name="relevantExperience" 
-                          value={formData.relevantExperience} 
-                          onChange={handleChange} 
-                          className={`form-control form-control-custom ${errors.relevantExperience ? 'is-invalid' : ''}`}
+                        <label className="form-label form-label-custom">
+                          Relevant Experience
+                        </label>
+                        <textarea
+                          rows={3}
+                          name="relevantExperience"
+                          value={formData.relevantExperience}
+                          onChange={handleChange}
+                          className={`form-control form-control-custom ${
+                            errors.relevantExperience ? "is-invalid" : ""
+                          }`}
                           placeholder="Describe relevant experience in healthcare or business"
                         />
-                        {errors.relevantExperience && <div className="invalid-feedback">{errors.relevantExperience}</div>}
+                        {errors.relevantExperience && (
+                          <div className="invalid-feedback">
+                            {errors.relevantExperience}
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    <h5 className="section-subtitle mb-3">Required Documents</h5>
-                    
+                    <h5 className="section-subtitle mb-3">
+                      Required Documents
+                    </h5>
+
                     <div className="row g-3 mb-4">
                       <div className="col-md-4">
                         <div className="file-upload-card">
-                          <label className="form-label form-label-custom">ID Proof *</label>
+                          <label className="form-label form-label-custom">
+                            ID Proof *
+                          </label>
                           <div className="file-input-container">
-                            <input 
-                              type="file" 
-                              name="idProof" 
-                              onChange={handleChange} 
-                              className={`file-input-custom ${errors.idProof ? 'is-invalid' : ''}`}
+                            <input
+                              type="file"
+                              name="idProof"
+                              onChange={handleChange}
+                              className={`file-input-custom ${
+                                errors.idProof ? "is-invalid" : ""
+                              }`}
                               accept=".pdf,.jpg,.jpeg,.png"
                               required
                             />
                             <div className="file-upload-placeholder">
                               <i className="fas fa-id-card me-2"></i>
-                              {formData.idProof ? formData.idProof.name : 'Upload ID Proof'}
+                              {formData.idProof
+                                ? formData.idProof.name
+                                : "Upload ID Proof"}
                             </div>
                           </div>
-                          {errors.idProof && <div className="invalid-feedback d-block">{errors.idProof}</div>}
+                          {errors.idProof && (
+                            <div className="invalid-feedback d-block">
+                              {errors.idProof}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="file-upload-card">
-                          <label className="form-label form-label-custom">Qualification Certificate *</label>
+                          <label className="form-label form-label-custom">
+                            Qualification Certificate *
+                          </label>
                           <div className="file-input-container">
-                            <input 
-                              type="file" 
-                              name="qualificationCertificate" 
-                              onChange={handleChange} 
-                              className={`file-input-custom ${errors.qualificationCertificate ? 'is-invalid' : ''}`}
+                            <input
+                              type="file"
+                              name="qualificationCertificate"
+                              onChange={handleChange}
+                              className={`file-input-custom ${
+                                errors.qualificationCertificate
+                                  ? "is-invalid"
+                                  : ""
+                              }`}
                               accept=".pdf,.jpg,.jpeg,.png"
                               required
                             />
                             <div className="file-upload-placeholder">
                               <i className="fas fa-graduation-cap me-2"></i>
-                              {formData.qualificationCertificate ? formData.qualificationCertificate.name : 'Upload Certificate'}
+                              {formData.qualificationCertificate
+                                ? formData.qualificationCertificate.name
+                                : "Upload Certificate"}
                             </div>
                           </div>
-                          {errors.qualificationCertificate && <div className="invalid-feedback d-block">{errors.qualificationCertificate}</div>}
+                          {errors.qualificationCertificate && (
+                            <div className="invalid-feedback d-block">
+                              {errors.qualificationCertificate}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="col-md-4">
                         <div className="file-upload-card">
-                          <label className="form-label form-label-custom">Financial Statement *</label>
+                          <label className="form-label form-label-custom">
+                            Financial Statement *
+                          </label>
                           <div className="file-input-container">
-                            <input 
-                              type="file" 
-                              name="financialStatement" 
-                              onChange={handleChange} 
-                              className={`file-input-custom ${errors.financialStatement ? 'is-invalid' : ''}`}
+                            <input
+                              type="file"
+                              name="financialStatement"
+                              onChange={handleChange}
+                              className={`file-input-custom ${
+                                errors.financialStatement ? "is-invalid" : ""
+                              }`}
                               accept=".pdf,.jpg,.jpeg,.png"
                               required
                             />
                             <div className="file-upload-placeholder">
                               <i className="fas fa-file-invoice-dollar me-2"></i>
-                              {formData.financialStatement ? formData.financialStatement.name : 'Upload Statement'}
+                              {formData.financialStatement
+                                ? formData.financialStatement.name
+                                : "Upload Statement"}
                             </div>
                           </div>
-                          {errors.financialStatement && <div className="invalid-feedback d-block">{errors.financialStatement}</div>}
+                          {errors.financialStatement && (
+                            <div className="invalid-feedback d-block">
+                              {errors.financialStatement}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-
-                    <div className="text-center mt-4">
-                      <button type="submit" className="btn btn-primary-custom px-5 py-2" disabled={isLoading}>
-                        <i className={`fas ${isLoading ? 'fa-spinner fa-spin' : 'fa-paper-plane'} me-2`}></i>
-                        {isLoading ? 'Submitting...' : 'Submit Application'}
-                      </button>
-                    </div>
+  
+                      <div className="text-center mt-4">
+                        <button
+                          type="submit"
+                          className="btn btn-primary-custom px-5 py-2"
+                          disabled={isLoading}
+                        >
+                          <i
+                            className={`fas ${
+                              isLoading
+                                ? "fa-spinner fa-spin"
+                                : "fa-paper-plane"
+                            } me-2`}
+                          ></i>
+      
+                          {isLoading
+                            ? "Submitting..."
+                            : "Pay To Submit Application"}
+                        </button>
+                      </div>
+                    
                   </form>
                 </div>
               </div>
@@ -1288,7 +1450,7 @@ const Empkendra = () => {
           }
 
           .service-card::before {
-            content: '';
+            content: "";
             position: absolute;
             top: 0;
             left: 0;
@@ -1487,11 +1649,11 @@ const Empkendra = () => {
             .welcome-title {
               font-size: 1.8rem;
             }
-            
+
             .welcome-overlay {
               padding: 1.5rem;
             }
-            
+
             .service-card {
               margin-bottom: 1rem;
             }

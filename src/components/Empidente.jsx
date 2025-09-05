@@ -1643,38 +1643,55 @@ useEffect(() => {
 
 
   // ✅ Download ID Card as PDF
-  const handleDownload = async () => {
-    if (!cardRef.current || !employeeData) return;
-    try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 3,
-        useCORS: true,
-        logging: false,
-      });
-      const imgData = canvas.toDataURL("image/png", 1.0);
+ const handleDownload = async () => {
+  if (!cardRef.current || !employeeData) return;
+  try {
+    const canvas = await html2canvas(cardRef.current, {
+      scale: 3, // higher scale for sharpness
+      useCORS: true,
+      logging: false,
+    });
 
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "pt",
-        format: [595, 842], // A4
-      });
+    const imgData = canvas.toDataURL("image/png", 1.0);
 
-      const width = pdf.internal.pageSize.getWidth();
-      const height = pdf.internal.pageSize.getHeight();
-      pdf.addImage(imgData, "PNG", 0, 0, width, height);
+    // PDF in portrait A4 (595 x 842 pt)
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4",
+    });
 
-      // Hidden searchable text
-      pdf.setFontSize(10);
-      pdf.setTextColor(0, 0, 0, 0);
-      pdf.text(employeeData.name || "", 200, 250);
-      pdf.text(employeeData.employeeId || "", 200, 280);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.save(`${employeeData.name?.replace(/\s+/g, "_")}_ID_Card.pdf`);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Error generating PDF. Please try again.");
-    }
-  };
+    // Image original size
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+
+    // Scale to fit within PDF (maintain aspect ratio)
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const newWidth = imgWidth * ratio;
+    const newHeight = imgHeight * ratio;
+
+    // Center the image
+    const x = (pdfWidth - newWidth) / 2;
+    const y = (pdfHeight - newHeight) / 2;
+
+    pdf.addImage(imgData, "PNG", x, y, newWidth, newHeight);
+
+    // Hidden searchable text
+    pdf.setFontSize(10);
+    pdf.setTextColor(0, 0, 0, 0);
+    pdf.text(employeeData.name || "", 50, pdfHeight - 50);
+    pdf.text(employeeData.employeeId || "", 50, pdfHeight - 30);
+
+    pdf.save(`${employeeData.name?.replace(/\s+/g, "_")}_ID_Card.pdf`);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    alert("Error generating PDF. Please try again.");
+  }
+};
+
 
   // ✅ Generate QR Code Data
   const generateQRData = () => {

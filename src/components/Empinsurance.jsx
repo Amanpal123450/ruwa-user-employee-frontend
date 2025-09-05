@@ -526,7 +526,7 @@ export default function Empinsurance() {
                   <div className="text-center mt-4">
                     <Button type="submit" className="btn-primary-custom px-5 py-2">
                       <i className="fas fa-file-contract me-2"></i>
-                      Submit Application
+                      Pay to Submit Application
                     </Button>
                   </div>
                 </Form>
