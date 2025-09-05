@@ -197,7 +197,6 @@ import FeedbackPage from './Pages/FeedbackPage';
 import EmployeeDashboard from './Pages/EmployeeDashboard';
 import EmployeeProfile from './Pages/EmployeeProfile';
 import ManageUsers from './Pages/ManageUsers';
-import PaymentPage from "./Pages/PaymentPage"
 // import ManageApplications from './Pages/Employee/ManageApplications';
 // import Reports from './Pages/Employee/Reports';
 // import Settings from './Pages/Employee/Settings';
@@ -341,7 +340,6 @@ export default function Main() {
           <Route path='/employee-id' element={<EmployeeProtectedRoute><Empidente/></EmployeeProtectedRoute>} />
           <Route path='/manage-applications' element={<EmployeeProtectedRoute><EmpApplication/></EmployeeProtectedRoute>} />
           <Route path='/employee-att' element={<EmployeeProtectedRoute><EmployeeAttendance/></EmployeeProtectedRoute>} />
-          <Route path='/payment' element={<EmployeeProtectedRoute><PaymentPage/></EmployeeProtectedRoute>} />
 
 
 
