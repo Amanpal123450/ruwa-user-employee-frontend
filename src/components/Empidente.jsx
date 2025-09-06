@@ -1772,12 +1772,12 @@ ADDRESS: ${employeeData.address || "N/A"}`;
                             <div className="aadhaar-logo">
                               <span className="icon-emoji">🏥</span>
                               <div>
-                                <h3>जन आरोग्य</h3>
-                                <h4>Jan Arogya</h4>
+                              {/* <h3>जन आरोग्य</h3> */}
+                                <h4 style={{color:"white"}}>Ruwa India</h4>
                               </div>
                             </div>
                             <div className="aadhaar-title">
-                              Healthcare Employee ID Card
+                               Employee ID Card
                             </div>
                           </div>
 
@@ -1801,9 +1801,7 @@ ADDRESS: ${employeeData.address || "N/A"}`;
                                   includeMargin={true}
                                 />
                                 <div className="qr-text">Scan Me</div>
-                                <div className="employee-id-overlay">
-                                  {employeeData.employeeId}
-                                </div>
+                                
                               </div>
                             </div>
 

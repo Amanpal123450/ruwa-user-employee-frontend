@@ -712,1307 +712,983 @@
 //   );
 // }
 
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../components/AuthContext';
 
-const HospitalEmployeeDashboard = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [language, setLanguage] = useState('english');
+export default function ApplicationPortal() {
+  const { user } = useAuth();
+ const [activeTab, setActiveTab] = useState("allUsers");
 
-  // Mock data - in a real app this would come from API calls
-  const patientData = [
-    { id: 1, name: 'Rajesh Kumar', age: 42, condition: 'Hypertension', bed: 'A-12', status: 'Stable' },
-    { id: 2, name: 'Sunita Devi', age: 28, condition: 'Pregnancy Care', bed: 'B-05', status: 'Monitoring' },
-    { id: 3, name: 'Vikram Singh', age: 65, condition: 'Diabetes', bed: 'C-08', status: 'Recovering' },
-  ];
+  const [selectedService, setSelectedService] = useState(null);
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [services, setServices] = useState([]);
+  const [filteredApplications, setFilteredApplications] = useState([]);
 
-  const resourceData = {
-    beds: { total: 50, occupied: 42, available: 8 },
-    ambulances: { total: 3, available: 1 },
-    medicines: { stock: 'Adequate', critical: ['Insulin', 'Paracetamol'] }
-  };
+  // Services data
+  useEffect(() => {
+    // Mock services data
+    const mockServices = [
+      {
+        id: 1,
+        title: "Jan Swabhiman Seva",
+        description: "Apply for various government welfare schemes and services",
+        icon: "👨‍💼",
+        gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      },
+      {
+        id: 2,
+        title: "Jan Arogya Card",
+        description: "Apply for health insurance card providing cashless treatment",
+        icon: "🏥",
+        gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
+      },
+      {
+        id: 3,
+        title: "Health Insurance",
+        description: "Enroll in comprehensive health insurance plans",
+        icon: "🩺",
+        gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
+      },
+      {
+        id: 4,
+        title: "Emergency Ambulance",
+        description: "Request emergency ambulance services",
+        icon: "🚑",
+        gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)"
+      },
+      {
+        id: 5,
+        title: "Jan Arogya Kendra",
+        description: "Find and connect with health and wellness centers",
+        icon: "🏥",
+        gradient: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
+      }
+    ];
+    setServices(mockServices);
+  }, []);
 
-  const emergencyContacts = [
-    { name: 'Hospital Admin', number: '+91-9876543210' },
-    { name: 'Ambulance Dispatch', number: '108' },
-    { name: 'Emergency Ward', number: '+91-9876500000' },
-  ];
+  // Fetch application history from API when tab changes
+ useEffect(() => {
+  if (activeTab === "allUsers") {
+    fetchAllUsers();
+  } else if (activeTab !== "allUsers") {
+    fetchApplicationHistory();
+  }
+}, [activeTab]);
 
-  const getCurrentGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return language === 'hindi' ? 'शुभ प्रभात' : 'Good Morning';
-    if (hour < 17) return language === 'hindi' ? 'शुभ दोपहर' : 'Good Afternoon';
-    return language === 'hindi' ? 'शुभ संध्या' : 'Good Evening';
-  };
+const fetchAllUsers = async () => {
+  setLoading(true);
+  setApplications([]); // 👈 reset to avoid stale data
+  try {
+    const response = await fetch("http://localhost:8000/api/employee/get/patient", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-  const toggleLanguage = () => {
-    setLanguage(language === 'english' ? 'hindi' : 'english');
-  };
+    const data = await response.json();
 
-  // Render the appropriate content based on activeTab
-  const renderTabContent = () => {
-    switch(activeTab) {
-      case 'dashboard':
-        return <DashboardContent language={language} getCurrentGreeting={getCurrentGreeting} resourceData={resourceData} emergencyContacts={emergencyContacts} />;
-      case 'profile':
-        return <ProfileContent language={language} />;
-      case 'work':
-        return <WorkManagementContent language={language} />;
-      case 'patients':
-        return <PatientCareContent language={language} patientData={patientData} />;
-      case 'resources':
-        return <ResourceTrackingContent language={language} resourceData={resourceData} />;
-      case 'community':
-        return <CommunityContent language={language} />;
-      case 'telemedicine':
-        return <TelemedicineContent language={language} />;
-      case 'emergency':
-        return <EmergencyContent language={language} />;
-      case 'training':
-        return <TrainingContent language={language} />;
-      case 'reports':
-        return <ReportsContent language={language} />;
-      default:
-        return <DashboardContent language={language} getCurrentGreeting={getCurrentGreeting} resourceData={resourceData} emergencyContacts={emergencyContacts} />;
+    if (data.success) {
+      setApplications(
+        data.users.map((user, index) => ({
+          id: index + 1,
+          serviceType: "Check Up", // or Patient
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          status: user.status || "N/A",
+          dateApplied: user.createdAt
+            ? new Date(user.createdAt).toLocaleDateString()
+            : "N/A",
+        }))
+      );
+    }
+  } catch (err) {
+    console.error("Error fetching all users:", err);
+  }
+  setLoading(false);
+};
+
+
+  // Filter applications based on active tab
+ useEffect(() => {
+  if (applications.length > 0) {
+    if (activeTab === 'history') {
+      setFilteredApplications(applications);
+    } else {
+      const serviceName = getServiceNameFromTab(activeTab);
+      setFilteredApplications(
+        applications.filter(app => app.serviceType === serviceName)
+      );
+    }
+  }
+}, [applications, activeTab]);
+
+
+  const getServiceNameFromTab = (tab) => {
+    switch(tab) {
+      case 'swabhiman': return 'Jan Swabhiman Seva';
+      case 'arogyaCard': return 'Jan Arogya Card';
+      case 'insurance': return 'Health Insurance';
+      case 'ambulance': return 'Emergency Ambulance';
+      case 'kendra': return 'Jan Arogya Kendra';
+      default: return '';
     }
   };
+const handleUpdate = (id) => {
+  console.log("Update user with id:", id);
+  // navigate to update form or open modal
+};
 
-  return (
-    <div className="hospital-dashboard">
-      {/* Header */}
-      <header className="dashboard-header">
-        <div className="container-fluid">
-          <div className="row align-items-center">
-            <div className="col-md-6">
-              <h1>
-                <i className="fas fa-hospital"></i>
-                RUWA Hospital Dashboard
-              </h1>
-              <p className="tagline">
-                {language === 'hindi' ? 'ग्रामीण स्वास्थ्य सेवा प्रबंधन' : 'Rural Healthcare Management'}
-              </p>
+const handleDelete = (id) => {
+  console.log("Delete user with id:", id);
+  // call API to delete
+};
+
+  const fetchApplicationHistory = async () => {
+  setLoading(true);
+  setApplications([]); // 👈 reset to avoid showing stale data
+  try {
+    let serviceParam = "";
+
+    switch (activeTab) {
+      case "ambulance":
+        serviceParam = "ambulance";
+        break;
+      case "insurance":
+        serviceParam = "insurance";
+        break;
+      case "arogyaCard":
+        serviceParam = "janArogyaApplication";
+        break;
+      case "kendra":
+        serviceParam = "janArogyaApply";
+        break;
+      case "swabhiman":
+        serviceParam = "swabhiman";
+        break;
+      default:
+        serviceParam = "";
+    }
+
+    const url = serviceParam
+      ? `http://localhost:8000/api/employee/service-users?service=${serviceParam}`
+      : `http://localhost:8000/api/employee/service-users`;
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setApplications(
+        data.appliedUsers.map((app, index) => ({
+          id: index + 1,
+          serviceType: data.service || app.serviceType,
+          name: app.name || "No name",
+          email: app.email || "No email",
+          phone: app.phone || "No phone",
+          dateApplied: app.createdAt
+            ? new Date(app.createdAt).toLocaleDateString()
+            : "N/A",
+          status: app.status || "PENDING",
+        }))
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching application history:", error);
+  }
+  setLoading(false);
+};
+
+
+
+  const handleServiceSelect = (service) => {
+    setSelectedService(service);
+  };
+ console.log(applications)
+  const handleBackToServices = () => {
+    setSelectedService(null);
+  };
+ 
+  const renderServiceForm = () => {
+    if (!selectedService) return null;
+    
+    return (
+      <div className="service-detail-page">
+        <div className="page-header">
+          <button className="back-button" onClick={handleBackToServices}>
+            <i className="fas fa-arrow-left"></i> Back to Services
+          </button>
+          <h2>{selectedService.title} Application</h2>
+        </div>
+        
+        <div className="service-content">
+          <div className="service-icon-large">
+            <span className="icon-emoji">{selectedService.icon}</span>
+          </div>
+          
+          <div className="service-form">
+            <h3>User Information</h3>
+            
+            <div className="row">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label htmlFor="fullName">Full Name</label>
+                  <input 
+                    type="text" 
+                    id="fullName" 
+                    placeholder="Enter user's full name"
+                  />
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label htmlFor="aadhaar">Aadhaar Number</label>
+                  <input 
+                    type="text" 
+                    id="aadhaar" 
+                    placeholder="Enter 12-digit Aadhaar number"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="col-md-6 text-end">
-              <button className="btn btn-language" onClick={toggleLanguage}>
-                {language === 'english' ? 'हिंदी' : 'English'}
+            
+            <div className="row">
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label htmlFor="phone">Phone Number</label>
+                  <input 
+                    type="tel" 
+                    id="phone" 
+                    placeholder="Enter phone number"
+                  />
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="form-group">
+                  <label htmlFor="email">Email Address</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Enter email address"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <h3>Application Details</h3>
+            
+            <div className="form-group">
+              <label htmlFor="details">Additional Information</label>
+              <textarea 
+                id="details" 
+                placeholder="Provide any additional information required for this service"
+              ></textarea>
+            </div>
+            
+            <div className="form-actions">
+              <button className="btn-secondary" onClick={handleBackToServices}>
+                Cancel
               </button>
-              <button className="btn btn-emergency">
-                <i className="fas fa-bell"></i>
-                {language === 'hindi' ? 'आपातकाल' : 'Emergency'}
+              <button className="btn-primary">
+                Submit Application
               </button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
+    );
+  };
+ console.log(filteredApplications)
+  const renderStatusBadge = (status) => {
+    const statusClass = `status-${status.toLowerCase()}`;
+    return (
+      <span className={`status-badge ${statusClass}`}>
+        {status}
+      </span>
+    );
+  };
 
-      {/* Navigation Tabs */}
-      <nav className="dashboard-tabs">
-        <div className="container-fluid">
-          <ul className="nav nav-tabs">
-            {[
-              { id: 'dashboard', label: language === 'hindi' ? 'डैशबोर्ड' : 'Dashboard', icon: 'tachometer-alt' },
-              { id: 'profile', label: language === 'hindi' ? 'प्रोफाइल' : 'Profile', icon: 'user' },
-              { id: 'work', label: language === 'hindi' ? 'कार्य प्रबंधन' : 'Work Management', icon: 'tasks' },
-              { id: 'patients', label: language === 'hindi' ? 'मरीज़ देखभाल' : 'Patient Care', icon: 'user-injured' },
-              { id: 'resources', label: language === 'hindi' ? 'संसाधन' : 'Resources', icon: 'procedures' },
-              { id: 'community', label: language === 'hindi' ? 'समुदाय' : 'Community', icon: 'users' },
-              { id: 'telemedicine', label: language === 'hindi' ? 'टेलीमेडिसिन' : 'Telemedicine', icon: 'video' },
-              { id: 'emergency', label: language === 'hindi' ? 'आपातकाल' : 'Emergency', icon: 'exclamation-triangle' },
-              { id: 'training', label: language === 'hindi' ? 'प्रशिक्षण' : 'Training', icon: 'graduation-cap' },
-              { id: 'reports', label: language === 'hindi' ? 'रिपोर्ट' : 'Reports', icon: 'chart-bar' },
-            ].map(tab => (
-              <li className="nav-item" key={tab.id}>
-                <button
-                  className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
-                  onClick={() => setActiveTab(tab.id)}
+  return (
+    <div className="dashboard-container">
+      <div className="container-fluid py-4">
+        <div className="row">
+          <div className="col-12">
+            {/* Header */}
+            <div className="welcome-card mb-4">
+              <div className="welcome-overlay">
+                <div className="row align-items-center">
+                  <div className="col-lg-8 col-md-7">
+                    <div className="welcome-content">
+                      <div className="greeting-badge">
+                        Application Portal 👋
+                      </div>
+                      <h1 className="welcome-title">
+                        {selectedService ? selectedService.title : "Employee Services"}
+                      </h1>
+                      <p className="welcome-subtitle">
+                        {selectedService 
+                          ? "Complete the application form for the user" 
+                          : "Select a service to assist users with healthcare & welfare services"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="col-lg-4 col-md-5 text-center">
+                    <div className="profile-section">
+                      <div className="profile-image-container">
+                        <div className="service-icon-display">
+                          <span className="icon-emoji">
+                            {selectedService ? selectedService.icon : "👨‍💼"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tabs */}
+            {!selectedService && (
+              <div className="portal-tabs mb-4">
+                <button 
+                  className={activeTab === 'allUsers' ? 'tab-active' : ''}
+                  onClick={() => setActiveTab('allUsers')}
                 >
-                  <i className={`fas fa-${tab.icon}`}></i>
-                  {tab.label}
+                  <i className="fas fa-concierge-bell"></i> All Users
                 </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </nav>
+                <button 
+                  className={activeTab === 'swabhiman' ? 'tab-active' : ''}
+                  onClick={() => setActiveTab('swabhiman')}
+                >
+                  <i className="fas fa-history"></i> Jan Swabhiman Seva History
+                </button>
+                <button 
+                  className={activeTab === 'arogyaCard' ? 'tab-active' : ''}
+                  onClick={() => setActiveTab('arogyaCard')}
+                >
+                  <i className="fas fa-history"></i> Jan Arogya Card
+                </button>
+                <button 
+                  className={activeTab === 'insurance' ? 'tab-active' : ''}
+                  onClick={() => setActiveTab('insurance')}
+                >
+                  <i className="fas fa-history"></i> Health Insurance
+                </button>
+                <button 
+                  className={activeTab === 'ambulance' ? 'tab-active' : ''}
+                  onClick={() => setActiveTab('ambulance')}
+                >
+                  <i className="fas fa-history"></i> Emergency Ambulance
+                </button>
+                <button 
+                  className={activeTab === 'kendra' ? 'tab-active' : ''}
+                  onClick={() => setActiveTab('kendra')}
+                >
+                  <i className="fas fa-history"></i> Jan Arogya Kendra
+                </button>
+              </div>
+            )}
 
-      {/* Main Content */}
-      <main className="dashboard-content">
-        <div className="container-fluid">
-          {renderTabContent()}
+            {/* Service Selection Grid */}
+            {/* {!selectedService && activeTab === 'allUsers' && (
+              <div className="services-grid">
+                <div className="row">
+                  {services.map(service => (
+                    <div key={service.id} className="col-lg-4 col-md-6 mb-4">
+                      <div 
+                        className="service-card" 
+                        onClick={() => handleServiceSelect(service)}
+                        style={{'--gradient': service.gradient}}
+                      >
+                        <div className="card-content">
+                          <div className="card-icon">
+                            <span className="icon-emoji">{service.icon}</span>
+                          </div>
+                          <div className="card-info">
+                            <h3 className="card-title">{service.title}</h3>
+                            <p className="card-description">{service.description}</p>
+                          </div>
+                          <div className="service-action">
+                            <span>Apply Now</span>
+                            <i className="fas fa-arrow-right"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )} */}
+
+            {/* Service Form */}
+            {selectedService && renderServiceForm()}
+             
+            {/* Application History for all tabs except allServices */}
+            {!selectedService  && (
+              <div className="applications-history">
+                <div className="card user-table-card">
+                  <div className="card-header-custom">
+                    <h3 className="header-title">
+                      {activeTab === 'history' 
+                        ? 'All Application History' 
+                        :`${getServiceNameFromTab(activeTab)} Applications`}
+                    </h3>
+                    <div className="filter-controls">
+                      <select>
+                        <option>All Status</option>
+                        <option>Inactive</option>
+                        <option>Active</option>
+                        <option>Pending</option>
+                        <option>Suspended</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="card-body">
+                    {loading ? (
+                      <div className="text-center py-5">
+                        <div className="spinner-border text-primary" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="mt-2">Loading application history...</p>
+                      </div>
+                    ) : (
+                      <div className="table-responsive">
+                        <table className="table table-hover">
+                          <thead>
+                            <tr>
+                              <th>Service Type</th>
+                              <th>User Info</th>
+                              <th>Date Applied</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+  {applications.length > 0 ? (
+    applications.map(app => (
+      <tr key={app.id}>
+        <td>
+          <div className="d-flex align-items-center">
+            <div className="app-icon-small me-2">
+              <i className="fas fa-file-alt"></i>
+            </div>
+            {activeTab=="allUsers"?"Check Up" :app.serviceType}
+          </div>
+        </td>
+        <td>
+          <div><strong>{app.name}</strong></div>
+          <div>{app.email}</div>
+          <div>{app.phone}</div>
+        </td>
+        <td>{app.dateApplied}</td>
+        <td>{renderStatusBadge(app.status)}</td>
+        <td>
+          {/* Inside your table row */}
+<td>
+  <div className="action-dropdown">
+    <button className="btn btn-sm btn-outline-primary">
+      <i className="fas fa-ellipsis-v"></i>
+    </button>
+    <div className="dropdown-content">
+      <button
+        className="dropdown-item"
+        onClick={() => handleUpdate(app.id)}
+      >
+        Update
+      </button>
+      <button
+        className="dropdown-item text-danger"
+        onClick={() => handleDelete(app.id)}
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</td>
+
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="5" className="text-center py-4">
+        No applications found for this service.
+      </td>
+    </tr>
+  )}
+</tbody>
+
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
+      </div>
 
       <style jsx>{`
-        .hospital-dashboard {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          background: #f8f9fa;
+        .dashboard-container {
+          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
           min-height: 100vh;
+          padding: 0;
         }
-        
-        .dashboard-header {
-          background: linear-gradient(135deg, #2c6bac 0%, #34a0a4 100%);
+
+        .welcome-card {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 20px;
+          margin-bottom: 2rem;
+          overflow: hidden;
+          position: relative;
+          box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .welcome-overlay {
+          padding: 2rem;
+          position: relative;
+          z-index: 2;
+        }
+
+        .welcome-content {
           color: white;
-          padding: 1rem 0;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
-        .dashboard-header h1 {
-          margin: 0;
-          font-size: 1.8rem;
-          font-weight: 700;
-        }
-        
-        .dashboard-header h1 i {
-          margin-right: 10px;
-        }
-        
-        .tagline {
-          margin: 0;
-          opacity: 0.9;
+
+        .greeting-badge {
+          display: inline-block;
+          background: rgba(255, 255, 255, 0.2);
+          padding: 0.5rem 1rem;
+          border-radius: 50px;
           font-size: 0.9rem;
+          font-weight: 500;
+          margin-bottom: 1rem;
+          backdrop-filter: blur(10px);
         }
-        
-        .btn-language {
-          background: rgba(255,255,255,0.2);
-          color: white;
-          border: 1px solid rgba(255,255,255,0.3);
-          margin-right: 10px;
+
+        .welcome-title {
+          font-size: 2.2rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+          background: linear-gradient(45deg, #ffffff, #f8f9ff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
-        
-        .btn-emergency {
-          background: #e63946;
-          color: white;
-          border: none;
-        }
-        
-        .dashboard-tabs {
-          background: white;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .nav-tabs {
-          border-bottom: none;
-          overflow-x: auto;
-          white-space: nowrap;
-          flex-wrap: nowrap;
-        }
-        
-        .nav-tabs .nav-item {
+
+        .welcome-subtitle {
+          font-size: 1.1rem;
+          opacity: 0.9;
           margin-bottom: 0;
         }
-        
-        .nav-tabs .nav-link {
-          border: none;
-          border-bottom: 3px solid transparent;
-          color: #6c757d;
-          font-weight: 500;
-          padding: 1rem 1.2rem;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        
-        .nav-tabs .nav-link.active {
-          color: #2c6bac;
-          border-bottom-color: #2c6bac;
-          background: transparent;
-        }
-        
-        .nav-tabs .nav-link:hover {
-          border-bottom-color: #dee2e6;
-        }
-        
-        .dashboard-content {
-          padding: 2rem 0;
-        }
-        
-        .card {
-          border: none;
-          border-radius: 10px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-          margin-bottom: 1.5rem;
-        }
-        
-        .card-header {
-          background: white;
-          border-bottom: 1px solid #eee;
-          font-weight: 600;
-          padding: 1rem 1.5rem;
-        }
-        
-        .card-body {
-          padding: 1.5rem;
-        }
-        
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-          background: white;
-          border-radius: 10px;
-          padding: 1.5rem;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-          display: flex;
-          align-items: center;
-        }
-        
-        .stat-icon {
-          width: 60px;
-          height: 60px;
-          border-radius: 12px;
+
+        .service-icon-display {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.2);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1.5rem;
-          margin-right: 1rem;
-          flex-shrink: 0;
+          font-size: 3rem;
+          backdrop-filter: blur(10px);
+          border: 2px solid rgba(255, 255, 255, 0.3);
         }
-        
-        .stat-content h3 {
-          margin: 0;
-          font-weight: 700;
+
+        .portal-tabs {
+          display: flex;
+          border-bottom: 1px solid #e5e7eb;
+          margin-bottom: 2rem;
+          background: white;
+          border-radius: 12px;
+          padding: 0.5rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          overflow-x: auto;
         }
-        
-        .stat-content p {
-          margin: 0;
-          color: #6c757d;
+
+        .portal-tabs button {
+          padding: 1rem 1.5rem;
+          background: none;
+          border: none;
+          font-size: 1rem;
+          font-weight: 500;
+          color: #6b7280;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: all 0.3s ease;
+          flex: 1;
+          justify-content: center;
+          border-radius: 8px;
+          white-space: nowrap;
+          min-width: max-content;
         }
-        
-        .bg-primary-light { background: rgba(44, 107, 172, 0.1); color: #2c6bac; }
-        .bg-success-light { background: rgba(82, 183, 136, 0.1); color: #52b788; }
-        .bg-warning-light { background: rgba(249, 220, 92, 0.1); color: #d4ac0d; }
-        .bg-danger-light { background: rgba(230, 57, 70, 0.1); color: #e63946; }
-        
-        .table th {
-          border-top: none;
+
+        .portal-tabs button:hover {
+          color: #4f46e5;
+          background: #f5f7fa;
+        }
+
+        .portal-tabs .tab-active {
+          color: #4f46e5;
+          background: #eef2ff;
+        }
+
+        .service-card {
+          background: white;
+          border-radius: 16px;
+          padding: 0;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: none;
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          position: relative;
+          overflow: hidden;
+          height: 100%;
+          cursor: pointer;
+        }
+
+        .service-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: var(--gradient);
+          opacity: 0.1;
+          transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-content {
+          padding: 1.5rem;
+          position: relative;
+          z-index: 2;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .card-icon {
+          text-align: center;
+        }
+
+        .icon-emoji {
+          font-size: 2.5rem;
+          display: block;
+        }
+
+        .card-info {
+          flex-grow: 1;
+        }
+
+        .card-title {
+          font-size: 1.2rem;
           font-weight: 600;
-          color: #6c757d;
+          color: #1f2937;
+          margin-bottom: 1rem;
+          text-align: center;
         }
-        
-        .badge-stable { background: #52b788; }
-        .badge-monitoring { background: #f9dc5c; color: #000; }
-        .badge-recovering { background: #4cc9f0; }
-        
+
+        .card-description {
+          color: #6b7280;
+          font-size: 0.9rem;
+          margin: 0;
+          text-align: center;
+        }
+
+        .service-action {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          color: #4f46e5;
+          font-weight: 500;
+        }
+
+        .service-detail-page {
+          background: white;
+          border-radius: 16px;
+          padding: 2rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          margin-bottom: 2rem;
+        }
+
+        .page-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 2rem;
+        }
+
+        .back-button {
+          background: none;
+          border: none;
+          color: #4f46e5;
+          font-weight: 500;
+          cursor: pointer;
+          margin-right: 2rem;
+        }
+
+        .page-header h2 {
+          font-size: 1.8rem;
+          font-weight: 600;
+          color: #1f2937;
+          margin: 0;
+        }
+
+        .service-content {
+          display: flex;
+          gap: 2rem;
+        }
+
+        .service-icon-large {
+          flex: 0 0 120px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 4rem;
+        }
+
+        .service-form {
+          flex: 1;
+        }
+
+        .service-form h3 {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #1f2937;
+          margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+          margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+          display: block;
+          font-weight: 500;
+          color: #374151;
+          margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+          outline: none;
+          border-color: #4f46e5;
+          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-group textarea {
+          min-height: 100px;
+          resize: vertical;
+        }
+
+        .form-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 1rem;
+          margin-top: 2rem;
+        }
+
+        .btn-primary {
+          padding: 0.75rem 1.5rem;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+          opacity: 0.9;
+          transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+          padding: 0.75rem 1.5rem;
+          background: #f3f4f6;
+          color: #374151;
+          border: none;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+          background: #e5e7eb;
+        }
+
+        .user-table-card {
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: none;
+          overflow: hidden;
+        }
+
+        .card-header-custom {
+          padding: 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid #f3f4f6;
+        }
+
+        .header-title {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: #1f2937;
+          margin: 0;
+        }
+
+        .filter-controls {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .filter-controls select {
+          padding: 0.5rem 1rem;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          background: white;
+        }
+
+        .app-icon-small {
+          width: 30px;
+          height: 30px;
+          border-radius: 8px;
+          background: rgba(79, 70, 229, 0.1);
+          color: #4f46e5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.9rem;
+        }
+
+        .status-badge {
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 500;
+        }
+
+        .status-pending {
+          background: #fef3c7;
+          color: #92400e;
+        }
+
+        .status-approved {
+          background: #d1fae5;
+          color: #065f46;
+        }
+
+        .status-rejected {
+          background: #fee2e2;
+          color: #991b1b;
+        }
+
+        .status-completed {
+          background: #dbeafe;
+          color: #1e40af;
+        }
+
+        .status-processing {
+          background: #f3e8ff;
+          color: #7e22ce;
+        }
+
         @media (max-width: 768px) {
-          .nav-tabs .nav-link {
-            padding: 0.8rem 0.6rem;
-            font-size: 0.85rem;
+          .welcome-title {
+            font-size: 1.8rem;
           }
           
-          .stats-grid {
-            grid-template-columns: 1fr;
+          .welcome-overlay {
+            padding: 1.5rem;
           }
+          
+          .service-content {
+            flex-direction: column;
+          }
+          
+          .service-icon-large {
+            margin-bottom: 1rem;
+          }
+          
+          .portal-tabs {
+            flex-direction: column;
+          }
+          
+          .card-header-custom {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+          
+          .filter-controls {
+            width: 100%;
+            flex-direction: column;
+          }
+            .action-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.action-dropdown .dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #fff;
+  min-width: 100px;
+  box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.action-dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
         }
       `}</style>
     </div>
   );
-};
-
-// Content components for each tab
-const DashboardContent = ({ language, getCurrentGreeting, resourceData, emergencyContacts }) => (
-  <div>
-    <div className="welcome-card card mb-4">
-      <div className="card-body">
-        <div className="row">
-          <div className="col-md-8">
-            <h3>{getCurrentGreeting()}, Dr. Sharma!</h3>
-            <p className="text-muted">
-              {language === 'hindi' 
-                ? 'आज आपकी ड्यूटी शेड्यूल और असाइनमेंट' 
-                : 'Your duty schedule and assignments for today'}
-            </p>
-            <div className="d-flex flex-wrap gap-3">
-              <span className="badge bg-primary">
-                <i className="fas fa-id-badge me-1"></i>
-                ID: HS-7890
-              </span>
-              <span className="badge bg-secondary">
-                <i className="fas fa-user-tag me-1"></i>
-                {language === 'hindi' ? 'वरिष्ठ चिकित्सक' : 'Senior Doctor'}
-              </span>
-              <span className="badge bg-info">
-                <i className="fas fa-map-marker-alt me-1"></i>
-                {language === 'hindi' ? 'ग्रामीण स्वास्थ्य केंद्र' : 'Rural Health Center'}
-              </span>
-            </div>
-          </div>
-          <div className="col-md-4 text-end">
-            <div className="d-flex justify-content-end gap-3">
-              <div className="text-center">
-                <div className="fs-2 fw-bold">8</div>
-                <small>{language === 'hindi' ? 'मरीज़' : 'Patients'}</small>
-              </div>
-              <div className="text-center">
-                <div className="fs-2 fw-bold">12</div>
-                <small>{language === 'hindi' ? 'काम' : 'Tasks'}</small>
-              </div>
-              <div className="text-center">
-                <div className="fs-2 fw-bold">3</div>
-                <small>{language === 'hindi' ? 'अलर्ट' : 'Alerts'}</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div className="stats-grid">
-      <div className="stat-card">
-        <div className="stat-icon bg-primary-light">
-          <i className="fas fa-bed"></i>
-        </div>
-        <div className="stat-content">
-          <h4>{resourceData.beds.available}/{resourceData.beds.total}</h4>
-          <p>{language === 'hindi' ? 'बेड उपलब्ध' : 'Beds Available'}</p>
-        </div>
-      </div>
-      
-      <div className="stat-card">
-        <div className="stat-icon bg-success-light">
-          <i className="fas fa-ambulance"></i>
-        </div>
-        <div className="stat-content">
-          <h4>{resourceData.ambulances.available}/{resourceData.ambulances.total}</h4>
-          <p>{language === 'hindi' ? 'एम्बुलेंस उपलब्ध' : 'Ambulances Available'}</p>
-        </div>
-      </div>
-      
-      <div className="stat-card">
-        <div className="stat-icon bg-warning-light">
-          <i className="fas fa-pills"></i>
-        </div>
-        <div className="stat-content">
-          <h4>{resourceData.medicines.stock}</h4>
-          <p>{language === 'hindi' ? 'दवा स्टॉक' : 'Medicine Stock'}</p>
-        </div>
-      </div>
-      
-      <div className="stat-card">
-        <div className="stat-icon bg-danger-light">
-          <i className="fas fa-users"></i>
-        </div>
-        <div className="stat-content">
-          <h4>5/7</h4>
-          <p>{language === 'hindi' ? 'कर्मचारी उपस्थित' : 'Staff Present'}</p>
-        </div>
-      </div>
-    </div>
-
-    <div className="row">
-      <div className="col-md-6">
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-tasks me-2"></i>
-            {language === 'hindi' ? 'आज के कार्य' : 'Today\'s Tasks'}
-          </div>
-          <div className="card-body">
-            <ul className="list-group list-group-flush">
-              <li className="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <i className="fas fa-user-injured text-primary me-2"></i>
-                  {language === 'hindi' ? 'रजेश कुमार का इलाज' : 'Treat Rajesh Kumar'}
-                </div>
-                <span className="badge bg-warning text-dark">
-                  {language === 'hindi' ? 'लंबित' : 'Pending'}
-                </span>
-              </li>
-              <li className="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <i className="fas fa-file-medical text-success me-2"></i>
-                  {language === 'hindi' ? 'मरीज रिपोर्ट अपडेट करें' : 'Update Patient Reports'}
-                </div>
-                <span className="badge bg-warning text-dark">
-                  {language === 'hindi' ? 'लंबित' : 'Pending'}
-                </span>
-              </li>
-              <li className="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <i className="fas fa-syringe text-info me-2"></i>
-                  {language === 'hindi' ? 'टीकाकरण कैंप' : 'Vaccination Camp'}
-                </div>
-                <span className="badge bg-success">
-                  {language === 'hindi' ? 'पूर्ण' : 'Completed'}
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      
-      <div className="col-md-6">
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-phone-alt me-2"></i>
-            {language === 'hindi' ? 'आपातकालीन संपर्क' : 'Emergency Contacts'}
-          </div>
-          <div className="card-body">
-            {emergencyContacts.map((contact, index) => (
-              <div className="d-flex align-items-center mb-3" key={index}>
-                <div className="bg-light rounded-circle p-3 me-3">
-                  <i className="fas fa-phone text-danger"></i>
-                </div>
-                <div>
-                  <h6 className="mb-0">{contact.name}</h6>
-                  <small className="text-muted">{contact.number}</small>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-
-
-const ProfileContent = ({ language }) => {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("https://ruwa-backend.onrender.com/api/employee/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setProfile(data.profile);
-        } else {
-          console.error(data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
-
-  if (loading) {
-    return <p>{language === "hindi" ? "लोड हो रहा है..." : "Loading..."}</p>;
-  }
-
-  if (!profile) {
-    return <p>{language === "hindi" ? "प्रोफ़ाइल उपलब्ध नहीं है" : "Profile not available"}</p>;
-  }
-
-  return (
-    <div className="card">
-      <div className="card-header">
-        <i className="fas fa-user me-2"></i>
-        {language === "hindi" ? "कर्मचारी प्रोफाइल" : "Employee Profile"}
-      </div>
-      <div className="card-body">
-        <div className="row">
-          <div className="col-md-4 text-center">
-            <img
-              src={profile.profilePic || "https://via.placeholder.com/120"}
-              alt="Profile"
-              className="rounded-circle mb-3"
-              width="120"
-              height="120"
-            />
-            <h4>{profile.name}</h4>
-            <p className="text-muted">
-              {profile.position || (language === "hindi" ? "पद" : "Position")}
-            </p>
-          </div>
-          <div className="col-md-8">
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <p>
-                  <strong>{language === "hindi" ? "कर्मचारी आईडी:" : "Employee ID:"}</strong>{" "}
-                  {profile.employeeId}
-                </p>
-              </div>
-              <div className="col-md-6">
-                <p>
-                  <strong>{language === "hindi" ? "संपर्क नंबर:" : "Contact Number:"}</strong>{" "}
-                  {profile.phone}
-                </p>
-              </div>
-            </div>
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <p>
-                  <strong>{language === "hindi" ? "ईमेल:" : "Email:"}</strong>{" "}
-                  {profile.email}
-                </p>
-              </div>
-              <div className="col-md-6">
-                <p>
-                  <strong>{language === "hindi" ? "कार्य स्थान:" : "Work Location:"}</strong>{" "}
-                  {profile.department}
-                </p>
-              </div>
-            </div>
-            <div className="row mb-3">
-              <div className="col-md-6">
-                <p>
-                  <strong>{language === "hindi" ? "शिफ्ट:" : "Shift:"}</strong>{" "}
-                  {profile.shift || (language === "hindi" ? "उपलब्ध नहीं" : "Not Available")}
-                </p>
-              </div>
-              <div className="col-md-6">
-                <p>
-                  <strong>{language === "hindi" ? "अनुभव:" : "Experience:"}</strong>{" "}
-                  {profile.experience
-                    ? `${profile.experience} ${language === "hindi" ? "वर्ष" : "Years"}`
-                    : "-"}
-                </p>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-12">
-                <p>
-                  <strong>{language === "hindi" ? "आपातकालीन संपर्क:" : "Emergency Contact:"}</strong>{" "}
-                  {profile.emergencyContact || "-"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-
-
-const WorkManagementContent = ({ language }) => (
-  <div>
-    <div className="row">
-      <div className="col-md-6">
-        <div className="card mb-4">
-          <div className="card-header">
-            <i className="fas fa-calendar-alt me-2"></i>
-            {language === 'hindi' ? 'शिफ्ट रोस्टर' : 'Shift Roster'}
-          </div>
-          <div className="card-body">
-            <div className="mb-3">
-              <h6>{language === 'hindi' ? 'आज की शिफ्ट' : "Today's Shift"}</h6>
-              <p>9:00 AM - 5:00 PM ({language === 'hindi' ? 'नियमित' : 'Regular'})</p>
-            </div>
-            <div className="mb-3">
-              <h6>{language === 'hindi' ? 'कल की शिफ्ट' : "Tomorrow's Shift"}</h6>
-              <p>12:00 PM - 8:00 PM ({language === 'hindi' ? 'ऑन-कॉल' : 'On-Call'})</p>
-            </div>
-            <button className="btn btn-primary btn-sm">
-              <i className="fas fa-download me-1"></i>
-              {language === 'hindi' ? 'रोस्टर डाउनलोड करें' : 'Download Roster'}
-            </button>
-          </div>
-        </div>
-        
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-calendar-check me-2"></i>
-            {language === 'hindi' ? 'उपस्थिति ट्रैकिंग' : 'Attendance Tracking'}
-          </div>
-          <div className="card-body">
-            <div className="alert alert-success">
-              <i className="fas fa-check-circle me-2"></i>
-              {language === 'hindi' ? 'आज आपने उपस्थिति दर्ज की है' : 'You have marked attendance for today'}
-            </div>
-            <div className="mt-3">
-              <h6>{language === 'hindi' ? 'इस माह की उपस्थिति' : 'This Month Attendance'}</h6>
-              <div className="progress mb-2">
-                <div className="progress-bar bg-success" style={{width: '90%'}}>18/20</div>
-              </div>
-              <small className="text-muted">
-                {language === 'hindi' ? '90% उपस्थिति दर' : '90% attendance rate'}
-              </small>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="col-md-6">
-        <div className="card mb-4">
-          <div className="card-header">
-            <i className="fas fa-tasks me-2"></i>
-            {language === 'hindi' ? 'कार्य असाइनमेंट' : 'Task Assignments'}
-          </div>
-          <div className="card-body">
-            <div className="mb-3 p-3 bg-light rounded">
-              <h6>{language === 'hindi' ? 'मरीज दौरा' : 'Patient Rounds'}</h6>
-              <p className="mb-1">{language === 'hindi' ? 'वार्ड: ए' : 'Ward: A'}</p>
-              <small className="text-muted">9:30 AM - 11:00 AM</small>
-            </div>
-            <div className="mb-3 p-3 bg-light rounded">
-              <h6>{language === 'hindi' ? 'ओपीडी सेवाएं' : 'OPD Services'}</h6>
-              <p className="mb-1">{language === 'hindi' ? 'कक्ष नंबर: 5' : 'Room No: 5'}</p>
-              <small className="text-muted">11:30 AM - 2:00 PM</small>
-            </div>
-            <div className="p-3 bg-light rounded">
-              <h6>{language === 'hindi' ? 'गाँव स्वास्थ्य शिविर' : 'Village Health Camp'}</h6>
-              <p className="mb-1">{language === 'hindi' ? 'स्थान: रामनगर गाँव' : 'Location: Ramnagar Village'}</p>
-              <small className="text-muted">3:00 PM - 5:00 PM</small>
-            </div>
-          </div>
-        </div>
-        
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-umbrella-beach me-2"></i>
-            {language === 'hindi' ? 'अवकाश प्रबंधन' : 'Leave Management'}
-          </div>
-          <div className="card-body">
-            <div className="mb-3">
-              <h6>{language === 'hindi' ? 'शेष अवकाश' : 'Leave Balance'}</h6>
-              <div className="d-flex justify-content-between">
-                <span>{language === 'hindi' ? 'बीमारी के दिन' : 'Sick Days'}: 5</span>
-                <span>{language === 'hindi' ? 'वार्षिक अवकाश' : 'Annual Leave'}: 12</span>
-                <span>{language === 'hindi' ? 'आपातकालीन' : 'Emergency'}: 3</span>
-              </div>
-            </div>
-            <button className="btn btn-primary btn-sm">
-              <i className="fas fa-plus me-1"></i>
-              {language === 'hindi' ? 'अवकाश के लिए आवेदन करें' : 'Apply for Leave'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const PatientCareContent = ({ language, patientData }) => (
-  <div>
-    <div className="card mb-4">
-      <div className="card-header d-flex justify-content-between align-items-center">
-        <span>
-          <i className="fas fa-user-injured me-2"></i>
-          {language === 'hindi' ? 'मरीजों की सूची' : 'Patient List'}
-        </span>
-        <button className="btn btn-primary btn-sm">
-          <i className="fas fa-plus me-1"></i>
-          {language === 'hindi' ? 'नया मरीज' : 'New Patient'}
-        </button>
-      </div>
-      <div className="card-body">
-        <div className="table-responsive">
-          <table className="table table-hover">
-            <thead>
-              <tr>
-                <th>{language === 'hindi' ? 'आईडी' : 'ID'}</th>
-                <th>{language === 'hindi' ? 'नाम' : 'Name'}</th>
-                <th>{language === 'hindi' ? 'उम्र' : 'Age'}</th>
-                <th>{language === 'hindi' ? 'स्थिति' : 'Condition'}</th>
-                <th>{language === 'hindi' ? 'बेड' : 'Bed'}</th>
-                <th>{language === 'hindi' ? 'स्थिति' : 'Status'}</th>
-                <th>{language === 'hindi' ? 'कार्य' : 'Actions'}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patientData.map(patient => (
-                <tr key={patient.id}>
-                  <td>{patient.id}</td>
-                  <td>{patient.name}</td>
-                  <td>{patient.age}</td>
-                  <td>{patient.condition}</td>
-                  <td>{patient.bed}</td>
-                  <td>
-                    <span className={`badge ${
-                      patient.status === 'Stable' ? 'badge-stable' : 
-                      patient.status === 'Monitoring' ? 'badge-monitoring' : 'badge-recovering'
-                    }`}>
-                      {patient.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="btn btn-sm btn-outline-primary me-1">
-                      <i className="fas fa-eye"></i>
-                    </button>
-                    <button className="btn btn-sm btn-outline-success">
-                      <i className="fas fa-edit"></i>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div className="row">
-      <div className="col-md-6">
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-prescription me-2"></i>
-            {language === 'hindi' ? 'दवा प्रिस्क्रिप्शन' : 'Medicine Prescription'}
-          </div>
-          <div className="card-body">
-            <form>
-              <div className="mb-3">
-                <label className="form-label">
-                  {language === 'hindi' ? 'मरीज का नाम' : 'Patient Name'}
-                </label>
-                <select className="form-select">
-                  <option>{language === 'hindi' ? 'चुनें' : 'Select'}</option>
-                  {patientData.map(patient => (
-                    <option key={patient.id}>{patient.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-3">
-                <label className="form-label">
-                  {language === 'hindi' ? 'दवाएं' : 'Medicines'}
-                </label>
-                <textarea className="form-control" rows="3"></textarea>
-              </div>
-              <button type="submit" className="btn btn-primary">
-                {language === 'hindi' ? 'प्रिस्क्रिप्शन जमा करें' : 'Submit Prescription'}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-      
-      <div className="col-md-6">
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-notes-medical me-2"></i>
-            {language === 'hindi' ? 'मेडिकल रिकॉर्ड' : 'Medical Records'}
-          </div>
-          <div className="card-body">
-            <div className="d-grid gap-2">
-              <button className="btn btn-outline-primary text-start">
-                <i className="fas fa-file-medical me-2"></i>
-                {language === 'hindi' ? 'रजेश कुमार - मेडिकल हिस्ट्री' : 'Rajesh Kumar - Medical History'}
-              </button>
-              <button className="btn btn-outline-primary text-start">
-                <i className="fas fa-file-medical me-2"></i>
-                {language === 'hindi' ? 'सुनीता देवी - प्रसव पूर्व देखभाल' : 'Sunita Devi - Prenatal Care'}
-              </button>
-              <button className="btn btn-outline-primary text-start">
-                <i className="fas fa-file-medical me-2"></i>
-                {language === 'hindi' ? 'विक्रम सिंह - मधुमेह प्रबंधन' : 'Vikram Singh - Diabetes Management'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const ResourceTrackingContent = ({ language, resourceData }) => (
-  <div>
-    <div className="row">
-      <div className="col-md-6 mb-4">
-        <div className="card h-100">
-          <div className="card-header">
-            <i className="fas fa-bed me-2"></i>
-            {language === 'hindi' ? 'बेड उपलब्धता' : 'Bed Availability'}
-          </div>
-          <div className="card-body">
-            <div className="progress mb-3" style={{height: '30px'}}>
-              <div 
-                className="progress-bar" 
-                role="progressbar" 
-                style={{width: `${(resourceData.beds.occupied/resourceData.beds.total)*100}%`}}
-              >
-                {resourceData.beds.occupied} {language === 'hindi' ? 'कब्जे वाले' : 'Occupied'}
-              </div>
-              <div 
-                className="progress-bar bg-success" 
-                role="progressbar" 
-                style={{width: `${(resourceData.beds.available/resourceData.beds.total)*100}%`}}
-              >
-                {resourceData.beds.available} {language === 'hindi' ? 'उपलब्ध' : 'Available'}
-              </div>
-            </div>
-            <div className="text-center">
-              <h4>{resourceData.beds.available} / {resourceData.beds.total}</h4>
-              <p className="text-muted">{language === 'hindi' ? 'बेड उपलब्ध' : 'Beds Available'}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="col-md-6 mb-4">
-        <div className="card h-100">
-          <div className="card-header">
-            <i className="fas fa-ambulance me-2"></i>
-            {language === 'hindi' ? 'एम्बुलेंस Status' : 'Ambulance Status'}
-          </div>
-          <div className="card-body">
-            <div className="d-flex justify-content-around text-center">
-              <div>
-                <div className="fs-1 text-success">{resourceData.ambulances.available}</div>
-                <div>{language === 'hindi' ? 'उपलब्ध' : 'Available'}</div>
-              </div>
-              <div>
-                <div className="fs-1 text-warning">{resourceData.ambulances.total - resourceData.ambulances.available}</div>
-                <div>{language === 'hindi' ? 'उपयोग में' : 'In Use'}</div>
-              </div>
-            </div>
-            <div className="mt-4">
-              <button className="btn btn-primary w-100">
-                <i className="fas fa-plus me-1"></i>
-                {language === 'hindi' ? 'एम्बुलेंस अनुरोध' : 'Request Ambulance'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="col-md-6 mb-4">
-        <div className="card h-100">
-          <div className="card-header">
-            <i className="fas fa-pills me-2"></i>
-            {language === 'hindi' ? 'दवा स्टॉक' : 'Medicine Stock'}
-          </div>
-          <div className="card-body">
-            <h5 className="card-title">
-              {resourceData.medicines.stock === 'Adequate' 
-                ? (language === 'hindi' ? 'पर्याप्त स्टॉक' : 'Adequate Stock')
-                : (language === 'hindi' ? 'कम स्टॉक' : 'Low Stock')}
-            </h5>
-            {resourceData.medicines.critical.length > 0 && (
-              <>
-                <p className="text-danger">
-                  <i className="fas fa-exclamation-triangle me-1"></i>
-                  {language === 'hindi' ? 'निम्नलिखित दवाओं का स्टॉक कम है:' : 'Low stock of critical medicines:'}
-                </p>
-                <ul>
-                  {resourceData.medicines.critical.map((medicine, index) => (
-                    <li key={index}>{medicine}</li>
-                  ))}
-                </ul>
-              </>
-            )}
-            <button className="btn btn-outline-primary mt-3">
-              <i className="fas fa-clipboard-list me-1"></i>
-              {language === 'hindi' ? 'पूर्ण स्टॉक देखें' : 'View Full Stock'}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="col-md-6 mb-4">
-        <div className="card h-100">
-          <div className="card-header">
-            <i className="fas fa-tools me-2"></i>
-            {language === 'hindi' ? 'उपकरण अनुरोध' : 'Equipment Request'}
-          </div>
-          <div className="card-body">
-            <form>
-              <div className="mb-3">
-                <label className="form-label">
-                  {language === 'hindi' ? 'उपकरण प्रकार' : 'Equipment Type'}
-                </label>
-                <select className="form-select">
-                  <option>{language === 'hindi' ? 'चुनें' : 'Select'}</option>
-                  <option>{language === 'hindi' ? 'ऑक्सीजन सिलिंडर' : 'Oxygen Cylinder'}</option>
-                  <option>{language === 'hindi' ? 'दवा की मेज' : 'Medicine Trolley'}</option>
-                  <option>{language === 'hindi' ? 'इंजेक्शन' : 'Injections'}</option>
-                  <option>{language === 'hindi' ? 'सर्जिकल उपकरण' : 'Surgical Equipment'}</option>
-                </select>
-              </div>
-              <div className="mb-3">
-                <label className="form-label">
-                  {language === 'hindi' ? 'मात्रा' : 'Quantity'}
-                </label>
-                <input type="number" className="form-control" />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">
-                  {language === 'hindi' ? 'तात्कालिकता' : 'Urgency'}
-                </label>
-                <select className="form-select">
-                  <option>{language === 'hindi' ? 'सामान्य' : 'Normal'}</option>
-                  <option>{language === 'hindi' ? 'जरूरी' : 'Urgent'}</option>
-                  <option>{language === 'hindi' ? 'अत्यावश्यक' : 'Critical'}</option>
-                </select>
-              </div>
-              <button type="submit" className="btn btn-primary">
-                {language === 'hindi' ? 'अनुरोध जमा करें' : 'Submit Request'}
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-// Additional content components (simplified for brevity)
-const CommunityContent = ({ language }) => (
-  <div className="card">
-    <div className="card-header">
-      <i className="fas fa-users me-2"></i>
-      {language === 'hindi' ? 'समुदाय और आउटरीच' : 'Community & Outreach'}
-    </div>
-    <div className="card-body">
-      <h5>{language === 'hindi' ? 'आगामी स्वास्थ्य शिविर' : 'Upcoming Health Camps'}</h5>
-      <ul className="list-group mb-4">
-        <li className="list-group-item">
-          <i className="fas fa-clinic-medical me-2 text-primary"></i>
-          {language === 'hindi' ? 'रामनगर गाँव - टीकाकरण शिविर (25 अगस्त)' : 'Ramnagar Village - Vaccination Camp (25th August)'}
-        </li>
-        <li className="list-group-item">
-          <i className="fas fa-clinic-medical me-2 text-primary"></i>
-          {language === 'hindi' ? 'सुंदरपुर गाँव - प्रसव पूर्व जांच (28 अगस्त)' : 'Sunderpur Village - Prenatal Checkup (28th August)'}
-        </li>
-      </ul>
-      
-      <h5>{language === 'hindi' ? 'मोबाइल क्लिनिक ट्रैकिंग' : 'Mobile Clinic Tracking'}</h5>
-      <div className="alert alert-info">
-        <i className="fas fa-info-circle me-2"></i>
-        {language === 'hindi' 
-          ? 'मोबाइल क्लिनिक आज सुंदरपुर गाँव में है' 
-          : 'Mobile clinic is at Sunderpur village today'}
-      </div>
-    </div>
-  </div>
-);
-
-const TelemedicineContent = ({ language }) => (
-  <div className="card">
-    <div className="card-header">
-      <i className="fas fa-video me-2"></i>
-      {language === 'hindi' ? 'टेलीमेडिसिन एकीकरण' : 'Telemedicine Integration'}
-    </div>
-    <div className="card-body">
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <div className="card bg-light">
-            <div className="card-body text-center">
-              <i className="fas fa-video fs-1 text-primary mb-3"></i>
-              <h5>{language === 'hindi' ? 'वीडियो परामर्श' : 'Video Consultation'}</h5>
-              <button className="btn btn-primary mt-2">
-                {language === 'hindi' ? 'अब शुरू करें' : 'Start Now'}
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-6">
-          <div className="card bg-light">
-            <div className="card-body text-center">
-              <i className="fas fa-upload fs-1 text-success mb-3"></i>
-              <h5>{language === 'hindi' ? 'रिपोर्ट अपलोड' : 'Upload Reports'}</h5>
-              <button className="btn btn-success mt-2">
-                {language === 'hindi' ? 'अपलोड करें' : 'Upload'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <h5>{language === 'hindi' ? 'रेफरल सिस्टम' : 'Referral System'}</h5>
-      <form>
-        <div className="mb-3">
-          <label className="form-label">
-            {language === 'hindi' ? 'मरीज का नाम' : 'Patient Name'}
-          </label>
-          <select className="form-select">
-            <option>{language === 'hindi' ? 'चुनें' : 'Select'}</option>
-            <option>Rajesh Kumar</option>
-            <option>Sunita Devi</option>
-            <option>Vikram Singh</option>
-          </select>
-        </div>
-        <div className="mb-3">
-          <label className="form-label">
-            {language === 'hindi' ? 'विशेषज्ञता आवश्यक' : 'Specialty Required'}
-          </label>
-          <select className="form-select">
-            <option>{language === 'hindi' ? 'चुनें' : 'Select'}</option>
-            <option>{language === 'hindi' ? 'कार्डियोलॉजी' : 'Cardiology'}</option>
-            <option>{language === 'hindi' ? 'न्यूरोलॉजी' : 'Neurology'}</option>
-            <option>{language === 'hindi' ? 'ऑर्थोपेडिक्स' : 'Orthopedics'}</option>
-          </select>
-        </div>
-        <button type="submit" className="btn btn-primary">
-          {language === 'hindi' ? 'रेफरल भेजें' : 'Send Referral'}
-        </button>
-      </form>
-    </div>
-  </div>
-);
-
-const EmergencyContent = ({ language }) => (
-  <div>
-    <div className="alert alert-danger mb-4">
-      <i className="fas fa-exclamation-triangle me-2"></i>
-      {language === 'hindi' 
-        ? 'केवल वास्तविक आपात स्थितियों के लिए उपयोग करें' 
-        : 'Use only for real emergencies'}
-    </div>
-    
-    <div className="row mb-4">
-      <div className="col-md-6">
-        <div className="card">
-          <div className="card-header bg-danger text-white">
-            <i className="fas fa-bell me-2"></i>
-            {language === 'hindi' ? 'आपातकालीन अलर्ट' : 'Emergency Alert'}
-          </div>
-          <div className="card-body text-center">
-            <i className="fas fa-exclamation-circle fs-1 text-danger mb-3"></i>
-            <h4>{language === 'hindi' ? 'आपातकालीन सहायता' : 'Emergency Assistance'}</h4>
-            <p>
-              {language === 'hindi' 
-                ? 'यह बटन दबाने पर प्रशासन और आपातकालीन टीम को सचेत किया जाएगा' 
-                : 'Pressing this button will alert administration and emergency team'}
-            </p>
-            <button className="btn btn-danger btn-lg">
-              <i className="fas fa-bell me-2"></i>
-              {language === 'hindi' ? 'आपातकालीन अलर्ट' : 'Emergency Alert'}
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <div className="col-md-6">
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-phone-alt me-2"></i>
-            {language === 'hindi' ? 'त्वरित संपर्क' : 'Quick Contacts'}
-          </div>
-          <div className="card-body">
-            <div className="d-grid gap-2">
-              <button className="btn btn-outline-danger text-start">
-                <i className="fas fa-ambulance me-2"></i>
-                {language === 'hindi' ? 'एम्बुलेंस - 108' : 'Ambulance - 108'}
-              </button>
-              <button className="btn btn-outline-danger text-start">
-                <i className="fas fa-first-aid me-2"></i>
-                {language === 'hindi' ? 'आपातकालीन वार्ड - 101' : 'Emergency Ward - 101'}
-              </button>
-              <button className="btn btn-outline-danger text-start">
-                <i className="fas fa-user-md me-2"></i>
-                {language === 'hindi' ? 'वरिष्ठ चिकित्सक - 102' : 'Senior Doctor - 102'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div className="card">
-      <div className="card-header">
-        <i className="fas fa-clipboard-list me-2"></i>
-        {language === 'hindi' ? 'घटना रिपोर्टिंग' : 'Incident Reporting'}
-      </div>
-      <div className="card-body">
-        <form>
-          <div className="mb-3">
-            <label className="form-label">
-              {language === 'hindi' ? 'घटना प्रकार' : 'Incident Type'}
-            </label>
-            <select className="form-select">
-              <option>{language === 'hindi' ? 'चुनें' : 'Select'}</option>
-              <option>{language === 'hindi' ? 'सांप काटना' : 'Snake Bite'}</option>
-              <option>{language === 'hindi' ? 'दुर्घटना' : 'Accident'}</option>
-              <option>{language === 'hindi' ? 'संक्रामक रोग' : 'Infectious Disease'}</option>
-              <option>{language === 'hindi' ? 'प्राकृतिक आपदा' : 'Natural Disaster'}</option>
-            </select>
-          </div>
-          <div className="mb-3">
-            <label className="form-label">
-              {language === 'hindi' ? 'विवरण' : 'Description'}
-            </label>
-            <textarea className="form-control" rows="3"></textarea>
-          </div>
-          <div className="mb-3">
-            <label className="form-label">
-              {language === 'hindi' ? 'स्थान' : 'Location'}
-            </label>
-            <input type="text" className="form-control" />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            {language === 'hindi' ? 'रिपोर्ट जमा करें' : 'Submit Report'}
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-);
-
-const TrainingContent = ({ language }) => (
-  <div className="card">
-    <div className="card-header">
-      <i className="fas fa-graduation-cap me-2"></i>
-      {language === 'hindi' ? 'प्रशिक्षण और सहायता' : 'Training & Support'}
-    </div>
-    <div className="card-body">
-      <h5>{language === 'hindi' ? 'ई-लर्निंग मॉड्यूल' : 'E-Learning Modules'}</h5>
-      <div className="row mb-4">
-        <div className="col-md-4 mb-3">
-          <div className="card h-100">
-            <div className="card-body">
-              <i className="fas fa-baby text-primary fs-1 mb-3"></i>
-              <h6>{language === 'hindi' ? 'मातृ स्वास्थ्य देखभाल' : 'Maternal Healthcare'}</h6>
-              <button className="btn btn-outline-primary btn-sm mt-2">
-                {language === 'hindi' ? 'शुरू करें' : 'Start'}
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card h-100">
-            <div className="card-body">
-              <i className="fas fa-syringe text-success fs-1 mb-3"></i>
-              <h6>{language === 'hindi' ? 'बाल टीकाकरण' : 'Child Vaccination'}</h6>
-              <button className="btn btn-outline-success btn-sm mt-2">
-                {language === 'hindi' ? 'शुरू करें' : 'Start'}
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card h-100">
-            <div className="card-body">
-              <i className="fas fa-bacteria text-warning fs-1 mb-3"></i>
-              <h6>{language === 'hindi' ? 'संक्रामक रोग' : 'Infectious Diseases'}</h6>
-              <button className="btn btn-outline-warning btn-sm mt-2">
-                {language === 'hindi' ? 'शुरू करें' : 'Start'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <h5>{language === 'hindi' ? 'सरकारी दिशानिर्देश' : 'Government Guidelines'}</h5>
-      <div className="list-group mb-4">
-        <a href="#" className="list-group-item list-group-item-action">
-          <i className="fas fa-file-pdf text-danger me-2"></i>
-          {language === 'hindi' ? 'मातृ देखभाल प्रोटोकॉल' : 'Maternal Care Protocols'}
-        </a>
-        <a href="#" className="list-group-item list-group-item-action">
-          <i className="fas fa-file-pdf text-danger me-2"></i>
-          {language === 'hindi' ? 'बाल टीकाकरण अनुसूची' : 'Child Vaccination Schedule'}
-        </a>
-        <a href="#" className="list-group-item list-group-item-action">
-          <i className="fas fa-file-pdf text-danger me-2"></i>
-          {language === 'hindi' ? 'आयुष्मान भारत योजना' : 'Ayushman Bharat Scheme'}
-        </a>
-      </div>
-    </div>
-  </div>
-);
-
-const ReportsContent = ({ language }) => (
-  <div>
-    <div className="row mb-4">
-      <div className="col-md-6">
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-chart-line me-2"></i>
-            {language === 'hindi' ? 'मासिक स्वास्थ्य आंकड़े' : 'Monthly Health Statistics'}
-          </div>
-          <div className="card-body">
-            <div className="mb-3">
-              <h6>{language === 'hindi' ? 'मलेरिया के मामले' : 'Malaria Cases'}</h6>
-              <div className="progress mb-2">
-                <div className="progress-bar" style={{width: '65%'}}>65%</div>
-              </div>
-              <small className="text-muted">
-                {language === 'hindi' ? 'पिछले महीने से 12% कम' : 'Down 12% from last month'}
-              </small>
-            </div>
-            <div className="mb-3">
-              <h6>{language === 'hindi' ? 'बाल प्रसव' : 'Child Deliveries'}</h6>
-              <div className="progress mb-2">
-                <div className="progress-bar bg-success" style={{width: '78%'}}>78%</div>
-              </div>
-              <small className="text-muted">
-                {language === 'hindi' ? 'पिछले महीने से 5% अधिक' : 'Up 5% from last month'}
-              </small>
-            </div>
-            <div className="mb-3">
-              <h6>{language === 'hindi' ? 'टीकाकरण दर' : 'Vaccination Rate'}</h6>
-              <div className="progress mb-2">
-                <div className="progress-bar bg-info" style={{width: '92%'}}>92%</div>
-              </div>
-              <small className="text-muted">
-                {language === 'hindi' ? 'लक्ष्य से 7% अधिक' : '7% above target'}
-              </small>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="col-md-6">
-        <div className="card">
-          <div className="card-header">
-            <i className="fas fa-user-check me-2"></i>
-            {language === 'hindi' ? 'कार्य सारांश' : 'Work Summary'}
-          </div>
-          <div className="card-body">
-            <div className="text-center mb-4">
-              <div className="display-4 fw-bold text-primary">156</div>
-              <p className="text-muted">{language === 'hindi' ? 'इलाज किए गए मरीज' : 'Patients Treated'}</p>
-            </div>
-            <div className="d-flex justify-content-around text-center">
-              <div>
-                <div className="fs-3 fw-bold">42</div>
-                <small>{language === 'hindi' ? 'ओपीडी विजिट' : 'OPD Visits'}</small>
-              </div>
-              <div>
-                <div className="fs-3 fw-bold">18</div>
-                <small>{language === 'hindi' ? 'आपातकालीन केस' : 'Emergency Cases'}</small>
-              </div>
-              <div>
-                <div className="fs-3 fw-bold">96</div>
-                <small>{language === 'hindi' ? 'गाँव विजिट' : 'Village Visits'}</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div className="card">
-      <div className="card-header">
-        <i className="fas fa-comment-dots me-2"></i>
-        {language === 'hindi' ? 'प्रतिक्रिया और शिकायतें' : 'Feedback & Complaints'}
-      </div>
-      <div className="card-body">
-        <form>
-          <div className="mb-3">
-            <label className="form-label">
-              {language === 'hindi' ? 'विषय' : 'Subject'}
-            </label>
-            <select className="form-select">
-              <option>{language === 'hindi' ? 'चुनें' : 'Select'}</option>
-              <option>{language === 'hindi' ? 'प्रशंसा' : 'Appreciation'}</option>
-              <option>{language === 'hindi' ? 'सुझाव' : 'Suggestion'}</option>
-              <option>{language === 'hindi' ? 'शिकायत' : 'Complaint'}</option>
-            </select>
-          </div>
-          <div className="mb-3">
-            <label className="form-label">
-              {language === 'hindi' ? 'विवरण' : 'Description'}
-            </label>
-            <textarea className="form-control" rows="4"></textarea>
-          </div>
-          <div className="mb-3">
-            <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="anonymous" />
-              <label className="form-check-label" htmlFor="anonymous">
-                {language === 'hindi' ? 'गुमनाम रूप से जमा करें' : 'Submit anonymously'}
-              </label>
-            </div>
-          </div>
-          <button type="submit" className="btn btn-primary">
-            {language === 'hindi' ? 'जमा करें' : 'Submit'}
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-);
-
-export default HospitalEmployeeDashboard;
+}
