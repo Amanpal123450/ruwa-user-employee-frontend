@@ -781,7 +781,7 @@ const fetchAllUsers = async () => {
   setLoading(true);
   setApplications([]); // 👈 reset to avoid stale data
   try {
-    const response = await fetch("http://localhost:8000/api/employee/get/patient", {
+    const response = await fetch("https://ruwa-backend.onrender.com/api/employee/get/patient", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -873,8 +873,8 @@ const handleDelete = (id) => {
     }
 
     const url = serviceParam
-      ? `http://localhost:8000/api/employee/service-users?service=${serviceParam}`
-      : `http://localhost:8000/api/employee/service-users`;
+      ? `https://ruwa-backend.onrender.com/api/employee/service-users?service=${serviceParam}`
+      : `https://ruwa-backend.onrender.com/api/employee/service-users`;
 
     const response = await fetch(url, {
       headers: {
