@@ -9,14 +9,21 @@ const Arogaycardpage = () => {
   const cardRef = useRef();
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [Application,setApplication]=useState();
 
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await axios.get("https://ruwa-backend.onrender.com/api/services/janarogya/check", {
+        const res = await axios.get("http://localhost:8000/api/services/janarogya/check", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         });
         setMsg(res.data.msg);
+        console.log(res)
+        if (res.data.msg === "APPROVED") {
+        console.log("Application Data:", res.data.application);
+        // You can set it in state if needed
+        setApplication(res.data.application);
+      }
       } catch (err) {
         if (err.response && err.response.status === 404) {
           setMsg("USER NOT FOUND");
@@ -73,7 +80,7 @@ const Arogaycardpage = () => {
               className="d-flex justify-content-center align-items-center gap-4 p-4 border rounded shadow bg-light"
               style={{ flexWrap: "wrap" }}
             >
-              <ArogyaCard />
+              <ArogyaCard Application={Application}/>
               <Healthcardback />
             </div>
             <button
