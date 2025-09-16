@@ -80,7 +80,7 @@
 //   useEffect(() => {
 //     const fetchProfile = async () => {
 //       try {
-//         const res = await fetch("http://localhost:8000/api/auth/profile", {
+//         const res = await fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
 //           headers: {
 //             Authorization: `Bearer ${localStorage.getItem("token")}`,
 //           },
@@ -110,7 +110,7 @@
 //   const handleToggleEdit = async () => {
 //     if (editable) {
 //       try {
-//         const res = await fetch("http://localhost:8000/api/user/put", {
+//         const res = await fetch("https://ruwa-backend.onrender.com/api/user/put", {
 //           method: "PUT",
 //           headers: {
 //             "Content-Type": "application/json",
@@ -278,7 +278,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/auth/profile", {
+        const res = await fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -346,7 +346,7 @@ export default function Profile() {
       const formDataToSend = new FormData();
       formDataToSend.append('image', file);
 
-      const res = await fetch("http://localhost:8000/api/uu/upload-profile", {
+      const res = await fetch("https://ruwa-backend.onrender.com/api/uu/upload-profile", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -381,7 +381,7 @@ export default function Profile() {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/api/uu/upload-DOB", {
+      const res = await fetch("https://ruwa-backend.onrender.com/api/uu/upload-DOB", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -406,7 +406,7 @@ export default function Profile() {
   const handleToggleEdit = async () => {
     if (editable) {
       try {
-        const res = await fetch("http://localhost:8000/api/uu/profile", {
+        const res = await fetch("https://ruwa-backend.onrender.com/api/uu/profile", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

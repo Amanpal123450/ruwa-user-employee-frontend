@@ -35,7 +35,7 @@ const JanArogyaCard = ({Application}) => {
     >
       {/* Photo */}
       <img
-        src="/assets/images/person-sq-1-min.jpg"
+        src={Application.profilePicUser}
         alt="profile"
         style={{
           position: "absolute",
@@ -78,7 +78,7 @@ const JanArogyaCard = ({Application}) => {
       <div
         style={{
           position: "absolute",
-          top: "85px",
+          top: "90px",
           left: "135px",
           fontSize: "15px",
           lineHeight: "1.6"
@@ -97,28 +97,48 @@ const JanArogyaCard = ({Application}) => {
       </div>
 
       {/* Barcode using react-barcode */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "55px",
-          left: "135px"
-        }}
-      >
-        <Barcode
-          value={randomId}
-          format="CODE128"
-          width={1}
-          height={40}
-          displayValue={false}
-          background="transparent"
-        />
-      </div>
+    {/* Barcode + QR Code */}
+<div
+  style={{
+    position: "absolute",
+    bottom: "100px",
+    left: "320px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px"
+  }}
+>
+  {/* Barcode */}
+ {/* <Barcode
+  value={Application?.aadhar || randomId} // aadhar मिल जाए तो वही use होगा
+  format="CODE128"
+  width={2}        // थोड़ा मोटा barcode
+  height={50}      // height ज्यादा ताकि scan easy हो
+  displayValue={false}
+  lineColor="#000000"
+  background="transparent"
+/> */}
+
+
+  {/* QR Code (from Application.Qr) */}
+  {Application?.Qr && (
+    <img
+      src={Application.Qr}
+      alt="QR Code"
+      style={{
+        width: "70px",
+        height: "70px"
+      }}
+    />
+  )}
+</div>
+
 
       {/* ID Number Display */}
       <div
         style={{
           position: "absolute",
-          bottom: "30px",
+          bottom: "40px",
           left: "135px",
           fontSize: "22px",
           fontWeight: "bold",
