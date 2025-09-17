@@ -77,22 +77,27 @@ export default function ApplicationPortal() {
   }, []);
 
 async function handleView(app) {
+  const token = localStorage.getItem("token");
+
   try {
     const res = await axios.get(
-      "https://ruwa-backend.onrender.com/api/services/janarogya/check",
+      `https://ruwa-backend.onrender.com/api/services/janarogya/check?id=${app.id}`, // 👈 query param
       {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
       }
     );
 
     if (res.data.msg === "APPROVED") {
       setApplication(res.data.application);
-      setShowPopup(true); // 👈 modal open
+      setShowPopup(true);
     }
   } catch (err) {
-    console.log(err);
+    console.log(err.response?.data || err.message);
   }
 }
+
 
 
   // Fetch application history from API when tab changes
