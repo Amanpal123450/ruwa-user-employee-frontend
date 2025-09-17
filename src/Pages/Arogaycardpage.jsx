@@ -22,7 +22,7 @@ const Arogaycardpage = () => {
         if (res.data.msg === "APPROVED") {
         console.log("Application Data:", res.data.application);
         // You can set it in state if needed
-        setApplication(res.data.application);
+        setApplication(res.data.application)
       }
       } catch (err) {
         if (err.response && err.response.status === 404) {

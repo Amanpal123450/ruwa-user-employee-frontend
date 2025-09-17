@@ -6,13 +6,17 @@ export default function Empjansewa() {
   const [previews, setPreviews] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
-        mobile: "",
-        aadhar: "",
-        state: "",
-        district: "",
-        income_certificate: null,
-        caste_certificate:null,
-         ration_id:null,
+    mobile: "",
+    aadhar: "",
+    state: "",
+    district: "",
+    DOB: "",
+    gender: "",
+    email: "",
+    income_certificate: null,
+    caste_certificate: null,
+    ration_id: null,
+    profilePicUser: null,
   });
 
   // Fetch employee data on component mount
@@ -80,107 +84,119 @@ export default function Empjansewa() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: files ? files[0] : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
     }));
   };
 
   const handleImageUpload = (e) => {
-  const { name, files } = e.target; // name = "ration_id" ya "income_certificate" etc
-  if (!files || !files.length) return;
+    const { name, files } = e.target; // name = "ration_id" ya "income_certificate" etc
+    if (!files || !files.length) return;
 
-  const file = files[0];
+    const file = files[0];
 
-  // Update state for that particular file
-  setFormData((prev) => ({
-    ...prev,
-    [name]: file, // name ke hisaab se assign kare
-  }));
+    // Update state for that particular file
+    setFormData((prev) => ({
+      ...prev,
+      [name]: file, // name ke hisaab se assign kare
+    }));
 
-  // Optional: set preview for that file
-  setPreviews((prev) => ({
-    ...prev,
-    [name]: URL.createObjectURL(file),
-  }));
-};
+    // Optional: set preview for that file
+    setPreviews((prev) => ({
+      ...prev,
+      [name]: URL.createObjectURL(file),
+    }));
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("You must be logged in to submit an application.");
-      return;
-    }
-
-    // Validate required fields
-    if (!formData.name || !formData.mobile || !formData.aadhar || !formData.state || !formData.district ) {
-      alert("Please fill all required fields.");
-      return;
-    }
-
-    const fd = new FormData();
-    fd.append("name", formData.name);
-    fd.append("mobile", formData.mobile);
-    fd.append("aadhar", formData.aadhar);
-    fd.append("district", formData.district);
-    fd.append("state", formData.state);
-    // fd.append("forUserId", formData.forUserId);
-
-    // Append files only if they exist
-    if (formData.income_certificate instanceof File) fd.append("income_certificate", formData.income_certificate);
-    if (formData.ration_id instanceof File) fd.append("ration_id", formData.ration_id);
-    if (formData.caste_certificate instanceof File) fd.append("caste_certificate", formData.caste_certificate);
-
-
-   
-  
-    // Debug: Log FormData keys
-   
-
-    const res = await fetch("https://ruwa-backend.onrender.com/api/services/janarogya/employee/apply", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}` // no Content-Type for FormData!
-      },
-      body: fd
-    });
-
-    if (!res.ok) {
-      // Try parsing JSON safely
-      let errData = { message: "Failed to submit application" };
-      try {
-        errData = await res.json();
-      } catch (jsonErr) {
-        console.error("Failed to parse JSON:", jsonErr);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to submit an application.");
+        return;
       }
-      throw new Error(errData.message || "Failed to submit application");
+
+      // Validate required fields
+      if (
+        !formData.name ||
+        !formData.mobile ||
+        !formData.aadhar ||
+        !formData.state ||
+        !formData.district
+      ) {
+        alert("Please fill all required fields.");
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("name", formData.name);
+      fd.append("mobile", formData.mobile);
+      fd.append("aadhar", formData.aadhar);
+      fd.append("district", formData.district);
+      fd.append("state", formData.state);
+      fd.append("DOB", formData.DOB);
+      fd.append("gender", formData.gender);
+      fd.append("email", formData.email);
+      // fd.append("forUserId", formData.forUserId);
+
+      // Append files only if they exist
+      if (formData.income_certificate instanceof File)
+        fd.append("income_certificate", formData.income_certificate);
+      if (formData.ration_id instanceof File)
+        fd.append("ration_id", formData.ration_id);
+      if (formData.caste_certificate instanceof File)
+        fd.append("caste_certificate", formData.caste_certificate);
+      if (formData.profilePicUser instanceof File) {
+        fd.append("profilePicUser", formData.profilePicUser);
+      }
+
+      // Debug: Log FormData keys
+
+      const res = await fetch(
+        "https://ruwa-backend.onrender.com/api/services/janarogya/employee/apply",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`, // no Content-Type for FormData!
+          },
+          body: fd,
+        }
+      );
+
+      if (!res.ok) {
+        // Try parsing JSON safely
+        let errData = { message: "Failed to submit application" };
+        try {
+          errData = await res.json();
+        } catch (jsonErr) {
+          console.error("Failed to parse JSON:", jsonErr);
+        }
+        throw new Error(errData.message || "Failed to submit application");
+      }
+
+      setFormSubmitted(true);
+      setTimeout(() => setFormSubmitted(false), 4000);
+
+      // Reset form fields (keep employee info if needed)
+      setFormData({
+        ...formData,
+        name: "",
+        mobile: "",
+        aadhar: "",
+        state: "",
+        district: "",
+        income_certificate: null,
+        caste_certificate: null,
+        ration_id: null,
+      });
+    } catch (err) {
+      console.error("Submission error:", err);
+      alert(err.message || "Something went wrong");
     }
-
-    setFormSubmitted(true);
-    setTimeout(() => setFormSubmitted(false), 4000);
-
-    // Reset form fields (keep employee info if needed)
-    setFormData({
-      ...formData,
-      name: "",
-      mobile: "",
-      aadhar: "",
-      state: "",
-      district: "",
-      income_certificate: null,
-      caste_certificate: null,
-      ration_id: null,
-    });
-  } catch (err) {
-    console.error("Submission error:", err);
-    alert(err.message || "Something went wrong");
-  }
-};
-
+  };
 
   return (
     <div className="dashboard-container">
@@ -193,14 +209,13 @@ export default function Empjansewa() {
                 <div className="row align-items-center">
                   <div className="col-lg-8 col-md-7">
                     <div className="welcome-content">
-                      <div className="greeting-badge">
-                        Employee Portal 👋
-                      </div>
+                      <div className="greeting-badge">Employee Portal 👋</div>
                       <h1 className="welcome-title">
                         Jan Swabhiman Seva Applications
                       </h1>
                       <p className="welcome-subtitle">
-                        Submit welfare applications on behalf of users with your employee reference
+                        Submit welfare applications on behalf of users with your
+                        employee reference
                       </p>
                     </div>
                   </div>
@@ -221,7 +236,10 @@ export default function Empjansewa() {
             <div className="row mb-5">
               {services.map((service, index) => (
                 <div className="col-12 col-md-6 col-lg-3 mb-4" key={index}>
-                  <div className="service-card" style={{ '--gradient': service.gradient }}>
+                  <div
+                    className="service-card"
+                    style={{ "--gradient": service.gradient }}
+                  >
                     <div className="card-background"></div>
                     <div className="card-content">
                       <div className="card-icon">
@@ -245,12 +263,17 @@ export default function Empjansewa() {
             <div className="card user-table-card">
               <div className="card-header-custom">
                 <h3 className="header-title">Employee Application Form</h3>
-                <p className="header-subtitle">Submit Jan Swabhiman Seva applications on behalf of users</p>
+                <p className="header-subtitle">
+                  Submit Jan Swabhiman Seva applications on behalf of users
+                </p>
               </div>
-              
+
               <div className="card-body">
                 {formSubmitted && (
-                  <div className="alert alert-success alert-custom" role="alert">
+                  <div
+                    className="alert alert-success alert-custom"
+                    role="alert"
+                  >
                     <i className="fas fa-check-circle me-2"></i>
                     Application submitted successfully with Employee Reference!
                   </div>
@@ -266,7 +289,6 @@ export default function Empjansewa() {
                       </h5>
                       <hr className="section-divider" />
                     </div>
-                    
                     <div className="col-md-6 mb-3">
                       <label className="form-label-custom">Full Name</label>
                       <input
@@ -292,7 +314,9 @@ export default function Empjansewa() {
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">Aadhaar Number</label>
+                      <label className="form-label-custom">
+                        Aadhaar Number
+                      </label>
                       <input
                         name="aadhar"
                         value={formData.aadhar}
@@ -304,6 +328,44 @@ export default function Empjansewa() {
                       />
                     </div>
                     <div className="col-md-6 mb-3">
+                      <label className="form-label-custom">Date of Birth</label>
+                      <input
+                        name="DOB"
+                        value={formData.DOB}
+                        onChange={handleChange}
+                        type="date"
+                        className="form-control-custom"
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label-custom">Gender</label>
+                      <select
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleChange}
+                        className="form-control-custom"
+                        required
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label-custom">Email</label>
+                      <input
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        type="email"
+                        className="form-control-custom"
+                        placeholder="example@email.com"
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
                       <label className="form-label-custom">District </label>
                       <input
                         name="district"
@@ -311,7 +373,6 @@ export default function Empjansewa() {
                         onChange={handleChange}
                         type="text"
                         className="form-control-custom"
-                        
                         required
                       />
                     </div>
@@ -323,12 +384,12 @@ export default function Empjansewa() {
                         onChange={handleChange}
                         className="form-control-custom"
                         required
-                      >
-                        
-                      </input>
+                      ></input>
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">Income Certificate</label>
+                      <label className="form-label-custom">
+                        Income Certificate
+                      </label>
                       <div className="file-input-container">
                         <input
                           name="income_certificate"
@@ -345,7 +406,9 @@ export default function Empjansewa() {
                       </div>
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">Caste Certificate</label>
+                      <label className="form-label-custom">
+                        Caste Certificate
+                      </label>
                       <div className="file-input-container">
                         <input
                           name="caste_certificate"
@@ -360,7 +423,8 @@ export default function Empjansewa() {
                           Choose file
                         </div>
                       </div>
-                    </div> <div className="col-md-6 mb-3">
+                    </div>{" "}
+                    <div className="col-md-6 mb-3">
                       <label className="form-label-custom">Ration Id</label>
                       <div className="file-input-container">
                         <input
@@ -377,6 +441,24 @@ export default function Empjansewa() {
                         </div>
                       </div>
                     </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label-custom">
+                        Profile Picture
+                      </label>
+                      <div className="file-input-container">
+                        <input
+                          name="profilePicUser"
+                          onChange={handleImageUpload}
+                          type="file"
+                          className="file-input-custom"
+                          accept="image/*"
+                        />
+                        <div className="file-upload-placeholder">
+                          <i className="fas fa-upload me-2"></i>
+                          Upload Profile Picture
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Employee Reference Section */}
@@ -388,7 +470,7 @@ export default function Empjansewa() {
                       </h5>
                       <hr className="section-divider" />
                     </div>
-                    
+
                     {/* <div className="col-md-6 mb-3">
                       <label className="form-label-custom">User ID</label>
                       <input
@@ -402,9 +484,11 @@ export default function Empjansewa() {
                         
                       />
                     </div> */}
-                    
+
                     <div className="col-12 mb-3">
-                      <label className="form-label-custom">Remarks for Admin</label>
+                      <label className="form-label-custom">
+                        Remarks for Admin
+                      </label>
                       <textarea
                         name="remarks"
                         value={formData.remarks}
@@ -417,7 +501,10 @@ export default function Empjansewa() {
                   </div>
 
                   <div className="text-center mt-4">
-                    <button type="submit" className="btn-primary-custom px-5 py-2">
+                    <button
+                      type="submit"
+                      className="btn-primary-custom px-5 py-2"
+                    >
                       <i className="fas fa-paper-plane me-2"></i>
                       Submit Application for User
                     </button>
@@ -507,7 +594,7 @@ export default function Empjansewa() {
         }
 
         .service-card::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 0;
           left: 0;
@@ -697,11 +784,11 @@ export default function Empjansewa() {
           .welcome-title {
             font-size: 1.8rem;
           }
-          
+
           .welcome-overlay {
             padding: 1.5rem;
           }
-          
+
           .service-card {
             margin-bottom: 1rem;
           }
@@ -709,4 +796,4 @@ export default function Empjansewa() {
       `}</style>
     </div>
   );
-} 
+}

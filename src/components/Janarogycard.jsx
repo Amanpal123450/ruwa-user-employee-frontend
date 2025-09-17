@@ -10,6 +10,7 @@ export default function Janarogycard() {
     aadhar: "",
     mobile: "",
       DOB: "", // ✅ Added DOB
+       email: "",   // ✅ new field
        gender: "", 
     state: "",
     district: "",
@@ -150,6 +151,9 @@ export default function Janarogycard() {
     if (!formData.incomeCert)
       errs.incomeCert = "Income Certificate is required";
     if (!formData.gender) errs.gender = "Gender is required";
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email))
+  errs.email = "Valid email is required";
+
     
     return errs;
   };
@@ -185,6 +189,8 @@ export default function Janarogycard() {
   form.append("profilePicUser", formData.profilePicUser);
 form.append("DOB", formData.DOB);
 form.append("gender", formData.gender);
+form.append("email", formData.email);
+
 
 
       try {
@@ -349,6 +355,20 @@ form.append("gender", formData.gender);
     {errors.gender}
   </Form.Control.Feedback>
 </Col>
+<Col md={6}>
+  <Form.Label>Email</Form.Label>
+  <Form.Control
+    type="email"
+    name="email"
+    value={formData.email}
+    onChange={handleChange}
+    isInvalid={!!errors.email}
+  />
+  <Form.Control.Feedback type="invalid">
+    {errors.email}
+  </Form.Control.Feedback>
+</Col>
+
               <Col md={6}>
                 <Form.Label>State</Form.Label>
                 <Form.Control

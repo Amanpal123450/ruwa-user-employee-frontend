@@ -2,6 +2,22 @@ import React, { useState, useEffect, act } from 'react';
 import { useAuth } from '../components/AuthContext';
 import { FaEdit, FaTrash, FaEllipsisV } from "react-icons/fa";
 import axios from 'axios';
+import { 
+  FileText, 
+  MoreVertical, 
+  Edit, 
+  Trash2, 
+  Eye,
+  Calendar,
+  User,
+  Mail,
+  Phone
+} from 'lucide-react';
+// import JanArogyaCard from './HealthCard';
+// // import Healthcardback from "../components/Healthcardback";
+// import Healthcardback from "./Healthcardback";
+// import html2pdf from "html2pdf.js"; // 👈 install karo: npm install html2pdf.js
+import ApplicationPopup from './ApplicationPopupCard';
 
 export default function ApplicationPortal() {
   const { user } = useAuth();
@@ -13,6 +29,8 @@ export default function ApplicationPortal() {
   const [services, setServices] = useState([]);
   const [filteredApplications, setFilteredApplications] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [Application, setApplication] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
 
 
   // Services data
@@ -57,6 +75,25 @@ export default function ApplicationPortal() {
     ];
     setServices(mockServices);
   }, []);
+
+async function handleView(app) {
+  try {
+    const res = await axios.get(
+      "https://ruwa-backend.onrender.com/api/services/janarogya/check",
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+
+    if (res.data.msg === "APPROVED") {
+      setApplication(res.data.application);
+      setShowPopup(true); // 👈 modal open
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 
   // Fetch application history from API when tab changes
  useEffect(() => {
@@ -468,96 +505,153 @@ const handleWithdrawl = async (phone,service) => {
                       </div>
                     ) : (
                       <div className="table-responsive">
-                        <table className="table table-hover">
-                          <thead>
-                            <tr>
-                              <th>Service Type</th>
-                              <th>User Info</th>
-                              <th>Date Applied</th>
-                              <th>Status</th>
-                              <th>Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-  {applications.length > 0 ? (
-    applications.map(app => (
-      <tr key={app.id}>
-        <td>
-          <div className="d-flex align-items-center">
-            <div className="app-icon-small me-2">
-              <i className="fas fa-file-alt"></i>
-            </div>
-            {activeTab=="allUsers"?"Check Up" :app.serviceType}
-          </div>
-        </td>
-        <td>
-          <div><strong>{app.name}</strong></div>
-          <div>{app.email}</div>
-          <div>{app.phone}</div>
-        </td>
-        <td>{app.dateApplied}</td>
-        <td>{renderStatusBadge(app.status)}</td>
-        <td>
-          {/* Inside your table row */}
-<td>
-{app.status !== "WITHDRAWN" && (
-  <div className="action-dropdown">
-    <button 
-      className="btn btn-sm btn-outline-primary"
-      onClick={() => setOpenDropdown(openDropdown === app.id ? null : app.id)}
-    >
-      <FaEllipsisV />
-    </button>
+                        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Service Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                User Info
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date Applied
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {applications.length > 0 ? (
+              applications.map((app) => (
+                <tr key={app.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        <FileText className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {activeTab === "allUsers" ? "Check Up" : app.serviceType}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center text-sm font-medium text-gray-900">
+                        <User className="w-4 h-4 mr-2 text-gray-400" />
+                        {app.name}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Mail className="w-4 h-4 mr-2 text-gray-400" />
+                        {app.email}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                        {app.phone}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center text-sm text-gray-900">
+                      <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                      {app.dateApplied}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {renderStatusBadge(app.status)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {app.status !== "WITHDRAWN" && (
+                      <div className="relative">
+                        <button
+                          className="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                          onClick={() => setOpenDropdown(openDropdown === app.id ? null : app.id)}
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
 
-    {openDropdown === app.id && (
-      <div className="dropdown-content">
-        {activeTab === "allUsers" ? (
-          <>
-            <button
-              className="dropdown-item"
-              onClick={() => handleUpdate(app.id)}
-            >
-              <FaEdit className="me-2" /> Update
-            </button>
-            <button
-              className="dropdown-item text-danger"
-              onClick={() => handleDelete(app.id)}
-            >
-              <FaTrash className="me-2" /> Delete
-            </button>
-          </>
-        ) : (
-          <button
-            className="dropdown-item text-danger"
-            onClick={() => handleWithdrawl(app.phone, app.serviceType)}
-          >
-            <FaTrash className="me-2" /> Delete
-          </button>
-        )}
-      </div>
-    )}
-  </div>
-)}
-
-
-</td>
-
-
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="5" className="text-center py-4">
-        No applications found for this service.
-      </td>
-    </tr>
-  )}
-</tbody>
-
-                        </table>
+                        {openDropdown === app.id && (
+                          <>
+                            {/* Overlay to close dropdown */}
+                            <div 
+                              className="fixed inset-0 z-10" 
+                              onClick={() => setOpenDropdown(null)}
+                            />
+                            
+                            {/* Dropdown Menu */}
+                            <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-20">
+                              <div className="py-1">
+                                {activeTab === "allUsers" ? (
+                                  <>
+                                    <button
+                                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                      onClick={() => handleUpdate(app.id)}
+                                    >
+                                      <Edit className="w-4 h-4 mr-3" />
+                                      Update
+                                    </button>
+                                    <button
+                                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                      onClick={() => handleDelete(app.id)}
+                                    >
+                                      <Trash2 className="w-4 h-4 mr-3" />
+                                      Delete
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                      onClick={() => handleWithdrawl(app.phone, app.serviceType)}
+                                    >
+                                      <Trash2 className="w-4 h-4 mr-3" />
+                                      Withdraw
+                                    </button>
+                                    {app.status === "APPROVED" && (
+                                      <button
+                                        className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 transition-colors"
+                                        onClick={() => handleView(app)}
+                                      >
+                                        <Eye className="w-4 h-4 mr-3" />
+                                        View
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
                     )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="px-6 py-12 text-center">
+                  <div className="flex flex-col items-center justify-center text-gray-500">
+                    <FileText className="w-12 h-12 mb-4 text-gray-300" />
+                    <p className="text-sm">No applications found for this service.</p>
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+                      </div>
+                    )}
+                   {showPopup && Application && (
+  <ApplicationPopup
+    Application={Application}
+    onClose={() => setShowPopup(false)}
+  />
+)}
+
                   </div>
                 </div>
               </div>
@@ -1049,6 +1143,38 @@ const handleWithdrawl = async (phone,service) => {
 .dropdown-item:hover {
   background-color: #f1f1f1;
 }
+  .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+.btn-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 
         }
       `}</style>
