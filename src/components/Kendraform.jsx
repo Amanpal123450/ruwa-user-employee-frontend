@@ -65,6 +65,21 @@ const Empkendra = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+
+   const [paymentData, setPaymentData] = useState({
+      paymentId: "",
+      paymentScreenshot: null,
+    });
+  
+    // const [errors, setErrors] = useState({});
+    const [paymentErrors, setPaymentErrors] = useState({});
+    // const [formSubmitted, setFormSubmitted] = useState(false);
+    const [showPaymentForm, setShowPaymentForm] = useState(false);
+    const [applicationId, setApplicationId] = useState(null);
+  
+    // const [isLoading, setIsLoading] = useState(false);
+    const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+
   const franchiseInfo = [
     {
       icon: "🏥",
@@ -247,7 +262,12 @@ const Empkendra = () => {
         const data = await res.json();
         
         if (res.ok) {
-          setFormSubmitted(true);
+
+           setFormSubmitted(true);
+          setApplicationId(data.applicationId || 'APP' + Date.now()); // Store application ID
+          alert("Application submitted successfully! Please proceed to payment.");
+          // setFormSubmitted(true);
+          setShowPaymentForm(true)
           setTimeout(() => setFormSubmitted(false), 4000);
           
           // Reset form
@@ -301,7 +321,7 @@ const Empkendra = () => {
           });
           
           setErrors({});
-          window.location.href = "https://razorpay.me/@nhsindia?amount=gtjkDOGv69g55ggcfywxBg%3D%3D";
+          // window.location.href = "https://razorpay.me/@nhsindia?amount=gtjkDOGv69g55ggcfywxBg%3D%3D";
         } else {
           alert(data.message || "Something went wrong");
         }
@@ -312,6 +332,100 @@ const Empkendra = () => {
         setIsLoading(false);
       }
     }
+  };
+
+
+   const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    if (validatePayment()) {
+      setIsPaymentLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        
+        const paymentFormData = new FormData();
+        paymentFormData.append("aadhaar", formData.aadhaar);
+        paymentFormData.append("paymentId", paymentData.paymentId);
+        paymentFormData.append("paymentScreenshot", paymentData.paymentScreenshot);
+
+        // Replace with your actual payment verification endpoint
+        const res = await fetch(
+          "https://ruwa-backend.onrender.com/api/services/apply-kendra/verify-payment",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: paymentFormData,
+          }
+        );
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          alert("Payment verified successfully! Your application is now complete.");
+          
+          // Reset both forms
+          setFormData({
+            name: "",
+            aadhaar: "",
+            phone: "",
+            address: "",
+            businessType: "",
+            investmentCapacity: "",
+            proposedLocation: "",
+            category: "",
+            franchiseCategory: "",
+            relevantExperience: "",
+            idProof: null,
+            qualificationCertificate: null,
+            financialStatement: null,
+          });
+          setPaymentData({
+            paymentId: "",
+            paymentScreenshot: null,
+          });
+          setErrors({});
+          setPaymentErrors({});
+          setShowPaymentForm(false);
+          setApplicationId(null);
+        } else {
+          alert(data.message || "Payment verification failed");
+        }
+      } catch (error) {
+        console.error("Network error:", error);
+        alert("Network error. Please try again.");
+      } finally {
+        setIsPaymentLoading(false);
+      }
+    }
+  };
+
+  const handleBackToForm = () => {
+    setShowPaymentForm(false);
+    setPaymentData({
+      paymentId: "",
+      paymentScreenshot: null,
+      adhaar: ""
+    });
+    setPaymentErrors({});
+  };
+
+   const validatePayment = () => {
+    const newErrors = {};
+    if (!paymentData.paymentId.trim()) 
+      newErrors.paymentId = "Payment ID is required";
+    if (!paymentData.paymentScreenshot) 
+      newErrors.paymentScreenshot = "Payment screenshot is required";
+    setPaymentErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+   const handlePaymentChange = (e) => {
+    const { name, value, files } = e.target;
+    setPaymentData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
   };
 
   return (
@@ -327,7 +441,7 @@ const Empkendra = () => {
                     <div className="col-lg-8 col-md-7">
                       <div className="welcome-content">
                         <div className="greeting-badge">
-                          Employee Portal - Franchise Application 👋
+                          User Portal - Franchise Application 👋
                         </div>
                         <h1 className="welcome-title">
                           Jan Arogya Kendra Franchise
@@ -353,7 +467,7 @@ const Empkendra = () => {
 
               {/* Franchise Info Cards */}
               <div className="row mb-5">
-                {franchiseInfo.map((info, index) => (
+                {/* {franchiseInfo.map((info, index) => (
                   <div className="col-12 col-md-6 col-lg-3 mb-4" key={index}>
                     <div
                       className="service-card"
@@ -375,11 +489,175 @@ const Empkendra = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                ))} */}
               </div>
 
               {/* Application Form */}
-              <div className="card user-table-card">
+            
+
+               {!showPaymentForm && (
+                <div className="row mb-5">
+                  {franchiseInfo.map((info, index) => (
+                    <div className="col-12 col-md-6 col-lg-3 mb-4" key={index}>
+                      <div
+                        className="service-card"
+                        style={{ "--gradient": info.gradient }}
+                      >
+                        <div className="card-background"></div>
+                        <div className="card-content">
+                          <div className="card-icon">
+                            <span className="icon-emoji">{info.icon}</span>
+                          </div>
+                          <div className="card-info">
+                            <h4 className="card-title">{info.title}</h4>
+                            <ul className="card-description">
+                              {info.description.map((point, i) => (
+                                <li key={i}>{point}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Payment Form */}
+              {showPaymentForm ? (
+                <div className="card user-table-card">
+                  <div className="card-header-custom">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <h3 className="header-title">Payment Verification</h3>
+                        <p className="header-subtitle">
+                          Please provide payment details to complete your application
+                        </p>
+                        <div className="application-id-badge">
+                          Application ID: {applicationId}
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleBackToForm}
+                        className="btn btn-outline-secondary"
+                      >
+                        <i className="fas fa-arrow-left me-2"></i>
+                        Back to Form
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="card-body">
+                    <div className="payment-info-card mb-4">
+                      <div className="row align-items-center">
+                        <div className="col-md-8">
+                          <h5 className="mb-2">
+                            <i className="fas fa-info-circle text-primary me-2"></i>
+                            Payment Instructions
+                          </h5>
+                          <p className="mb-2">
+                            1. Complete the payment using the Razorpay link (opened in new tab)
+                          </p>
+                          <p className="mb-2">
+                            2. Take a screenshot of the payment confirmation
+                          </p>
+                          <p className="mb-0">
+                            3. Enter the Payment ID and upload the screenshot below
+                          </p>
+                        </div>
+                        <div className="col-md-4 text-center">
+                          <a
+                            href="https://razorpay.me/@nhsindia?amount=EPec5evqGoRk2C8icWNJlQ%3D%3D"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-success"
+                          >
+                            <i className="fas fa-external-link-alt me-2"></i>
+                            Open Payment Page
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handlePaymentSubmit} noValidate>
+                      <div className="row g-3 mb-4">
+                        <div className="col-md-6">
+                          <label className="form-label form-label-custom">
+                            Payment ID *
+                          </label>
+                          <input
+                            type="text"
+                            name="paymentId"
+                            value={paymentData.paymentId}
+                            onChange={handlePaymentChange}
+                            className={`form-control form-control-custom ${
+                              paymentErrors.paymentId ? "is-invalid" : ""
+                            }`}
+                            placeholder="Enter payment transaction ID"
+                          />
+                          {paymentErrors.paymentId && (
+                            <div className="invalid-feedback">
+                              {paymentErrors.paymentId}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="col-md-6">
+                          <div className="file-upload-card">
+                            <label className="form-label form-label-custom">
+                              Payment Screenshot *
+                            </label>
+                            <div className="file-input-container">
+                              <input
+                                type="file"
+                                name="paymentScreenshot"
+                                onChange={handlePaymentChange}
+                                className={`file-input-custom ${
+                                  paymentErrors.paymentScreenshot ? "is-invalid" : ""
+                                }`}
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                required
+                              />
+                              <div className="file-upload-placeholder">
+                                <i className="fas fa-camera me-2"></i>
+                                {paymentData.paymentScreenshot
+                                  ? paymentData.paymentScreenshot.name
+                                  : "Upload Payment Screenshot"}
+                              </div>
+                            </div>
+                            {paymentErrors.paymentScreenshot && (
+                              <div className="invalid-feedback d-block">
+                                {paymentErrors.paymentScreenshot}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-center mt-4">
+                        <button
+                          type="submit"
+                          className="btn btn-success-custom px-5 py-2 me-3"
+                          disabled={isPaymentLoading}
+                        >
+                          <i
+                            className={`fas ${
+                              isPaymentLoading
+                                ? "fa-spinner fa-spin"
+                                : "fa-check-circle"
+                            } me-2`}
+                          ></i>
+                          {isPaymentLoading
+                            ? "Verifying Payment..."
+                            : "Verify Payment & Complete Application"}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              ) : (
+                /* Application Form */
+                 <div className="card user-table-card">
                 <div className="card-header-custom">
                   <h3 className="header-title">Franchise Application Form</h3>
                   <p className="header-subtitle">
@@ -1569,7 +1847,11 @@ const Empkendra = () => {
                   </form>
                 </div>
               </div>
+              )}
             </div>
+
+
+
           </div>
         </div>
 

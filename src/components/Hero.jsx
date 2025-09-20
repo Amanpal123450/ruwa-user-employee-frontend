@@ -494,7 +494,7 @@
 
 
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
@@ -554,6 +554,8 @@ export default function Hero() {
       icon: '💊',
     },
   ];
+
+  
 const navigate = useNavigate();
   return (
      <>
