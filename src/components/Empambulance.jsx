@@ -3,18 +3,18 @@ import axios from "axios";
 
 export default function Empambulance() {
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
     email: "",
+    location: "",
     hospitalPreference: "",
     appointmentDate: "",
     preferredTime: "",
     message: "",
     // forUserId:""
   });
-
-  
 
   const services = [
     {
@@ -67,6 +67,114 @@ export default function Empambulance() {
     });
   };
 
+  // Function to get reverse geocoded address from coordinates using free API
+  const getReverseGeocode = async (latitude, longitude) => {
+    try {
+      // Using Nominatim (OpenStreetMap) - free reverse geocoding service
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'AmbulanceBookingApp/1.0'
+          }
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Geocoding service unavailable');
+      }
+      
+      const data = await response.json();
+      
+      if (data && data.display_name) {
+        return data.display_name;
+      } else {
+        // Try alternative free service - BigDataCloud
+        const fallbackResponse = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+        );
+        
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          if (fallbackData && fallbackData.locality) {
+            return `${fallbackData.locality}, ${fallbackData.city || fallbackData.principalSubdivision}, ${fallbackData.countryName}`;
+          }
+        }
+        
+        // Final fallback: just return a generic location description
+        return `Location coordinates provided (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+      }
+    } catch (error) {
+      console.error('Reverse geocoding failed:', error);
+      // Fallback: create a generic location description
+      return `Current location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+    }
+  };
+
+  // Function to get current location
+  const getCurrentLocation = () => {
+    setLocationLoading(true);
+
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by this browser.");
+      setLocationLoading(false);
+      return;
+    }
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 60000 // Cache location for 1 minute
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Get human-readable address
+          const address = await getReverseGeocode(latitude, longitude);
+          
+          setFormData({
+            ...formData,
+            location: address
+          });
+        } catch (error) {
+          console.error('Error getting address:', error);
+          // Still provide a location description without exact coordinates
+          setFormData({
+            ...formData,
+            location: `Current location detected (${new Date().toLocaleTimeString()})`
+          });
+        }
+        
+        setLocationLoading(false);
+      },
+      (error) => {
+        setLocationLoading(false);
+        let errorMessage = "Unable to get location. ";
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += "Location access denied by user.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += "Location information unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage += "Location request timed out.";
+            break;
+          default:
+            errorMessage += "An unknown error occurred.";
+            break;
+        }
+        
+        alert(errorMessage);
+      },
+      options
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -87,6 +195,7 @@ export default function Empambulance() {
         fullName: formData.fullName, // Keep name
         phone: formData.phone, // Keep phone
         email: formData.email, // Keep email
+        location: "", // Clear location
         hospitalPreference: "",
         appointmentDate: "",
         preferredTime: "",
@@ -189,7 +298,6 @@ export default function Empambulance() {
                         className="form-control-custom" 
                         placeholder="Enter your full name" 
                         required 
-                        
                       />
                     </div>
                     <div className="col-md-6">
@@ -202,7 +310,6 @@ export default function Empambulance() {
                         className="form-control-custom" 
                         placeholder="e.g. 9876543210" 
                         required 
-                        
                       />
                     </div>
                     <div className="col-md-6">
@@ -215,9 +322,41 @@ export default function Empambulance() {
                         className="form-control-custom" 
                         placeholder="your@email.com" 
                         required 
-                        
                       />
                     </div>
+                    
+                    {/* New Location Field */}
+                    <div className="col-md-6">
+                      <label className="form-label-custom">Location</label>
+                      <div className="location-input-group">
+                        <input 
+                          name="location" 
+                          value={formData.location} 
+                          onChange={handleChange} 
+                          type="text" 
+                          className="form-control-custom" 
+                          placeholder="Enter your location or use GPS" 
+                          required 
+                        />
+                        <button 
+                          type="button" 
+                          className="location-btn" 
+                          onClick={getCurrentLocation}
+                          disabled={locationLoading}
+                          title="Get current location"
+                        >
+                          {locationLoading ? (
+                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          ) : (
+                            "📍"
+                          )}
+                        </button>
+                      </div>
+                      <small className="location-help-text">
+                        Click the location icon to automatically detect your current location
+                      </small>
+                    </div>
+                    
                     <div className="col-md-6">
                       <label className="form-label-custom">Hospital Preference</label>
                       <input 
@@ -491,6 +630,49 @@ export default function Empambulance() {
           min-height: 120px;
         }
 
+        /* Location Input Styles */
+        .location-input-group {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+        }
+
+        .location-btn {
+          background: linear-gradient(135deg, #3b82f6, #2563eb);
+          border: none;
+          border-radius: 10px;
+          padding: 0.75rem;
+          color: white;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 1.2rem;
+          min-width: 50px;
+          height: 50px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .location-btn:hover:not(:disabled) {
+          background: linear-gradient(135deg, #2563eb, #1d4ed8);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .location-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .location-help-text {
+          color: #6b7280;
+          font-size: 0.875rem;
+          margin-top: 0.25rem;
+          display: block;
+        }
+
         .btn-primary-custom {
           background: linear-gradient(135deg, #ef4444, #dc2626);
           border: none;
@@ -520,6 +702,15 @@ export default function Empambulance() {
           
           .service-card {
             margin-bottom: 1rem;
+          }
+
+          .location-input-group {
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+
+          .location-btn {
+            width: 100%;
           }
         }
       `}</style>

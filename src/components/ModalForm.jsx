@@ -31,7 +31,7 @@ export default function ModalForm({ isOpen, onClose }) {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:8000/api/popup/submit", {
+      const res = await fetch("https://ruwa-backend.onrender.com/api/popup/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

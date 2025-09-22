@@ -133,7 +133,7 @@ export default function Feedback() {
   e.preventDefault();
 
   try {
-    const response = await fetch("http://localhost:8000/api/feedback", {
+    const response = await fetch("https://ruwa-backend.onrender.com/api/feedback", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

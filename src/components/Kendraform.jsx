@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Empkendra = () => {
   const [formData, setFormData] = useState({
@@ -64,7 +64,7 @@ const Empkendra = () => {
   const [errors, setErrors] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [exists,setExists]=useState(false)
 
    const [paymentData, setPaymentData] = useState({
       paymentId: "",
@@ -79,6 +79,40 @@ const Empkendra = () => {
   
     // const [isLoading, setIsLoading] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+    
+ useEffect(() => {
+    async function checkExists() {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+         
+          return;
+        }
+
+        const res = await fetch(
+          "https://ruwa-backend.onrender.com/api/services/apply-kendra/check",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await res.json();
+        console.log("franchise check response:", data);
+
+        if (res.ok && data.msg?.toLowerCase().includes("exists")) {
+          setExists(true);
+        }
+      } catch (e) {
+        console.log(e.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    checkExists();
+  }, [exists]);
 
   const franchiseInfo = [
     {
@@ -163,6 +197,27 @@ const Empkendra = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+   useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) return; // ✅ skip if not logged in
+
+  fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const user = data?.user || {};
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || "",
+        phone: user.phone || "",
+        aadhaar: user.aadhar || "",
+        email: user.email || "",
+      }));
+    })
+    .catch((err) => console.error("Profile fetch failed:", err));
+}, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -312,7 +367,7 @@ const Empkendra = () => {
             investmentRange: "",
             effortsInitiatives: "",
             reasonsForPartnership: "",
-            aadhaar: "",
+            
             category: "",
             relevantExperience: "",
             idProof: null,
@@ -430,6 +485,7 @@ const Empkendra = () => {
 
   return (
     <>
+    
       <div className="dashboard-container">
         <div className="container-fluid py-4">
           <div className="row">
@@ -497,7 +553,7 @@ const Empkendra = () => {
 
                {!showPaymentForm && (
                 <div className="row mb-5">
-                  {franchiseInfo.map((info, index) => (
+                  {franchiseInfo?.map((info, index) => (
                     <div className="col-12 col-md-6 col-lg-3 mb-4" key={index}>
                       <div
                         className="service-card"

@@ -10,7 +10,7 @@ export default function TestimonialsSlider() {
   useEffect(() => {
   const fetchTestimonials = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/feedback");
+      const res = await fetch("https://ruwa-backend.onrender.com/api/feedback");
       const data = await res.json();
       console.log("Backend response:", data); // ✅ check structure
       // Safe check
@@ -153,7 +153,7 @@ export default function TestimonialsSlider() {
        
         
         
-//         const res = await fetch("http://localhost:8000/api/feedback");
+//         const res = await fetch("https://ruwa-backend.onrender.com/api/feedback");
 //         const data = await res.json();
 //         console.log(data)
         
