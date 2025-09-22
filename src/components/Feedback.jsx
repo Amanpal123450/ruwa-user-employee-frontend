@@ -129,21 +129,36 @@ export default function Feedback() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // TODO: Send to backend API
-    console.log("Feedback Submitted:", formData);
-
-    setSubmitted(true);
-    setFormData({
-      name: '',
-      message: '',
-      rating: ''
+  try {
+    const response = await fetch("http://localhost:8000/api/feedback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
     });
 
-    setTimeout(() => setSubmitted(false), 4000);
-  };
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("Feedback Submitted:", data);
+      setSubmitted(true);
+      setFormData({ name: '', message: '', rating: '' });
+
+      setTimeout(() => setSubmitted(false), 4000);
+    } else {
+      console.error("Error submitting feedback:", data.message);
+      alert("Error: " + data.message);
+    }
+  } catch (error) {
+    console.error("Network error:", error);
+    alert("Network error, try again later");
+  }
+};
+
 
   return (
     <section className="py-5 bg-light">

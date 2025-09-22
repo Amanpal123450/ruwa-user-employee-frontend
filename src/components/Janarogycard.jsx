@@ -28,33 +28,38 @@ export default function Janarogycard() {
 
   // Check if user already applied
   useEffect(() => {
-    async function checkExists() {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/janarogya/check",
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await res.json();
-        console.log("check response:", data);
-
-        if (res.ok && data.msg?.toLowerCase().includes("exists")) {
-          setExists(true);
+  async function checkExists() {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        "https://ruwa-backend.onrender.com/api/services/janarogya/check",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      } catch (e) {
-        console.log(e.message);
-      } finally {
-        setLoading(false);
-      }
-    }
+      );
 
-    checkExists();
-  }, [exists]);
+      const data = await res.json();
+      console.log("check response:", data);
+
+      // ✅ agar application object mila to user already applied
+      if (data.application) {
+        setExists(true);
+      } else {
+        setExists(false);
+      }
+    } catch (e) {
+      console.log("checkExists error:", e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  checkExists();
+}, []);
+
 
   // Generate captcha
   const generateCaptcha = () => {
