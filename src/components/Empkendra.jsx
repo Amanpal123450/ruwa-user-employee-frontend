@@ -249,7 +249,7 @@ const Empkendra = () => {
         });
 
         const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/apply-kendra/apply",
+          "https://ruwa-backend.onrender.com/api/services/apply-kendra/employee/apply",
           {
             method: "POST",
             headers: {

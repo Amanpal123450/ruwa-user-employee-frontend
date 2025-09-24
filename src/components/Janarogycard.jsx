@@ -91,6 +91,8 @@ export default function Janarogycard() {
         name: user.name || "",
         mobile: user.phone || "",
         aadhar: user.aadhar || "",
+        email:user.email || "",
+        DOB:user.DOB
       }));
     })
     .catch((err) => console.error("Profile fetch failed:", err));

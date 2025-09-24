@@ -157,6 +157,28 @@ export default function Insurance() {
     medicalDoc: null,
     incomeCert: null
   });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return; // ✅ skip if not logged in
+  
+    fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const user = data?.user || {};
+        setFormData((prev) => ({
+          ...prev,
+          fullName: user.name || "",
+          phone: user.phone || "",
+          aadhar: user.aadhar || "",
+          email:user.email || "",
+          dob:user.DOB
+        }));
+      })
+      .catch((err) => console.error("Profile fetch failed:", err));
+  }, []);
   const [errors, setErrors] = useState({});
 
   const services = [
@@ -361,12 +383,12 @@ export default function Insurance() {
           <Row className="g-3">
             <Col md={6}>
               <Form.Label>Full Name</Form.Label>
-              <Form.Control name="fullName" value={formData.fullName} onChange={handleChange} isInvalid={!!errors.fullName} placeholder="Enter your full name" required />
+              <Form.Control readOnly name="fullName" value={formData.fullName} onChange={handleChange} isInvalid={!!errors.fullName} placeholder="Enter your full name" required />
               <Form.Control.Feedback type="invalid">{errors.fullName}</Form.Control.Feedback>
             </Col>
             <Col md={6}>
               <Form.Label>Date of Birth</Form.Label>
-              <Form.Control type="date" name="dob" value={formData.dob} onChange={handleChange} isInvalid={!!errors.dob} required />
+              <Form.Control readOnly type="date" name="dob" value={formData.dob} onChange={handleChange} isInvalid={!!errors.dob} required />
               <Form.Control.Feedback type="invalid">{errors.dob}</Form.Control.Feedback>
             </Col>
             <Col md={6}>
@@ -381,17 +403,17 @@ export default function Insurance() {
             </Col>
             <Col md={6}>
               <Form.Label>Email</Form.Label>
-              <Form.Control type="email" name="email" value={formData.email} onChange={handleChange} isInvalid={!!errors.email} placeholder="you@example.com" required />
+              <Form.Control readOnly type="email" name="email" value={formData.email} onChange={handleChange} isInvalid={!!errors.email} placeholder="you@example.com" required />
               <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
             </Col>
             <Col md={6}>
               <Form.Label>Phone Number</Form.Label>
-              <Form.Control name="phone" value={formData.phone} onChange={handleChange} isInvalid={!!errors.phone} placeholder="10-digit number" required />
+              <Form.Control readOnly name="phone" value={formData.phone} onChange={handleChange} isInvalid={!!errors.phone} placeholder="10-digit number" required />
               <Form.Control.Feedback type="invalid">{errors.phone}</Form.Control.Feedback>
             </Col>
             <Col md={6}>
               <Form.Label>Aadhaar Number</Form.Label>
-              <Form.Control name="aadhar" value={formData.aadhar} onChange={handleChange} isInvalid={!!errors.aadhar} placeholder="12-digit Aadhaar" required />
+              <Form.Control readOnly name="aadhar" value={formData.aadhar} onChange={handleChange} isInvalid={!!errors.aadhar} placeholder="12-digit Aadhaar" required />
               <Form.Control.Feedback type="invalid">{errors.aadhar}</Form.Control.Feedback>
             </Col>
             <Col md={12}>
