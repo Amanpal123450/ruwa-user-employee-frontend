@@ -207,7 +207,7 @@ const handleWithdrawl = async (phone,service) => {
     if(service==="insurance") query="apply-insurance";
     if(service==="janArogyaApply") query="apply-kendra";
     if(service==="ambulance") query="ambulance-booking";
-    if(service==="janswabhiman") query="janswabhiman";
+    if(service==="janswabhiman") query="sevaApplication";
     await axios.put(`https://ruwa-backend.onrender.com/api/services/${query}/withdrawn`, { phone }, {
       headers: {
         Authorization: `Bearer ${token}`, // agar tumhare auth middleware me chahiye
@@ -246,7 +246,7 @@ const handleWithdrawl = async (phone,service) => {
         serviceParam = "janArogyaApply";
         break;
       case "swabhiman":
-        serviceParam = "swabhiman";
+        serviceParam = "sevaApplication";
         break;
       default:
         serviceParam = "";

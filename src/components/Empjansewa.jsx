@@ -1,486 +1,21 @@
-// // import React, { useState } from "react";
-
-// // export default function Empjansewa() {
-// //   const [formSubmitted, setFormSubmitted] = useState(false);
-
-// //   const services = [
-// //     {
-// //       icon: "🆔",
-// //       title: "Welfare Eligibility Check",
-// //       description: [
-// //         "Available to low-income families and senior citizens.",
-// //         "Priority for rural and semi-urban areas.",
-// //         "Minimal documentation required.",
-// //       ],
-// //       bgClass: "bg-white",
-// //     },
-// //     {
-// //       icon: "🛡️",
-// //       title: "Social Security Coverage",
-// //       description: [
-// //         "Access to welfare pensions and medical aid.",
-// //         "Education benefits for children.",
-// //         "Subsidized services for women and elderly.",
-// //       ],
-// //       bgClass: "bg-light",
-// //     },
-// //     {
-// //       icon: "🧾",
-// //       title: "Easy Documentation",
-// //       description: [
-// //         "Aadhaar card, income certificate accepted.",
-// //         "Simple one-page application process.",
-// //         "Assistance centers for document upload.",
-// //       ],
-// //       bgClass: "bg-white",
-// //     },
-// //     {
-// //       icon: "🚑",
-// //       title: "Free Ambulance & Emergency Services",
-// //       description: [
-// //         "24/7 ambulance access in rural areas.",
-// //         "Priority support during medical emergencies.",
-// //         "Includes transport to partnered hospitals.",
-// //       ],
-// //       bgClass: "bg-light",
-// //     },
-// //   ];
-
-// //   const handleSubmit = (e) => {
-// //     e.preventDefault();
-// //     // Here you would usually send data to backend with fetch/axios
-// //     // Example: axios.post("/api/employee/apply-swabhiman", formData)
-
-// //     setFormSubmitted(true);
-// //     setTimeout(() => setFormSubmitted(false), 4000);
-// //   };
-
-// //   return (
-// //     <section className="section services__v3 py-5" id="employee-swabhiman">
-// //       <div className="container">
-// //         <div className="row g-4">
-// //           <div className="col-12" data-aos="fade-up">
-// //             <div className="service-card p-4 rounded-4 h-100 d-flex flex-column text-center gap-3 shadow-sm">
-// //               <span className="subtitle text-uppercase mb-2 text-muted fs-6">
-// //                 Employee Portal – Apply for User
-// //               </span>
-// //               <h2 className="fs-5 lh-base">
-// //                 Employees can submit Jan Swabhiman Seva applications on behalf
-// //                 of users. Your reference ID will also be sent to admin for
-// //                 verification.
-// //               </h2>
-// //             </div>
-// //           </div>
-
-// //           {services.map((service, index) => (
-// //             <div
-// //               className="col-12 col-md-6"
-// //               data-aos="fade-up"
-// //               data-aos-delay={index * 200}
-// //               key={index}
-// //             >
-// //               <div
-// //                 className={`service-card p-4 rounded-4 h-100 d-flex flex-column gap-3 shadow-sm ${service.bgClass}`}
-// //               >
-// //                 <div className="text-center fs-2">{service.icon}</div>
-// //                 <h3 className="text-center fs-5 mb-2">{service.title}</h3>
-// //                 <ul className="ps-3 mb-0">
-// //                   {service.description.map((point, i) => (
-// //                     <li key={i} className="mb-2" style={{ lineHeight: "1.6" }}>
-// //                       {point}
-// //                     </li>
-// //                   ))}
-// //                 </ul>
-// //               </div>
-// //             </div>
-// //           ))}
-// //         </div>
-// //       </div>
-
-// //       <div className="container py-5">
-// //         <h2 className="mb-4 text-center">Employee Application Form</h2>
-
-// //         {formSubmitted && (
-// //           <div
-// //             className="alert alert-success text-center fw-semibold"
-// //             role="alert"
-// //           >
-// //             ✅ Application submitted successfully with Employee Reference!
-// //           </div>
-// //         )}
-
-// //         <form onSubmit={handleSubmit}>
-// //           <div className="row g-3">
-// //             {/* User Info */}
-// //             <div className="col-12">
-// //               <h5 className="text-primary">User Details</h5>
-// //               <hr />
-// //             </div>
-// //             <div className="col-md-6">
-// //               <label className="form-label">Full Name</label>
-// //               <input
-// //                 type="text"
-// //                 className="form-control"
-// //                 placeholder="Enter user's full name"
-// //                 required
-// //               />
-// //             </div>
-// //             <div className="col-md-6">
-// //               <label className="form-label">Phone Number</label>
-// //               <input
-// //                 type="tel"
-// //                 className="form-control"
-// //                 placeholder="e.g. 9876543210"
-// //                 required
-// //               />
-// //             </div>
-// //             <div className="col-md-6">
-// //               <label className="form-label">Aadhaar Number</label>
-// //               <input
-// //                 type="text"
-// //                 className="form-control"
-// //                 placeholder="XXXX-XXXX-XXXX"
-// //                 required
-// //               />
-// //             </div>
-// //             <div className="col-md-6">
-// //               <label className="form-label">Annual Family Income</label>
-// //               <input
-// //                 type="number"
-// //                 className="form-control"
-// //                 placeholder="In INR"
-// //                 required
-// //               />
-// //             </div>
-// //             <div className="col-md-6">
-// //               <label className="form-label">Residential Area</label>
-// //               <select className="form-select" required>
-// //                 <option value="">-- Select Area --</option>
-// //                 <option value="Urban">Urban</option>
-// //                 <option value="Rural">Rural</option>
-// //                 <option value="Semi-Urban">Semi-Urban</option>
-// //               </select>
-// //             </div>
-// //             <div className="col-md-6">
-// //               <label className="form-label">Upload User ID Proof</label>
-// //               <input
-// //                 type="file"
-// //                 className="form-control"
-// //                 accept="image/*,application/pdf"
-// //                 required
-// //               />
-// //             </div>
-// //             <div className="col-12">
-// //               <label className="form-label">Additional Notes</label>
-// //               <textarea
-// //                 className="form-control"
-// //                 rows="4"
-// //                 placeholder="Any specific request or condition..."
-// //               />
-// //             </div>
-
-// //             {/* Employee Info */}
-// //             <div className="col-12 mt-4">
-// //               <h5 className="text-success">Employee Reference</h5>
-// //               <hr />
-// //             </div>
-// //             <div className="col-md-6">
-// //               <label className="form-label">Employee ID</label>
-// //               <input
-// //                 type="text"
-// //                 className="form-control"
-// //                 placeholder="Enter your Employee ID"
-// //                 required
-// //               />
-// //             </div>
-// //             <div className="col-md-6">
-// //               <label className="form-label">Employee Name</label>
-// //               <input
-// //                 type="text"
-// //                 className="form-control"
-// //                 placeholder="Enter your name"
-// //                 required
-// //               />
-// //             </div>
-// //             <div className="col-12">
-// //               <label className="form-label">Remarks for Admin</label>
-// //               <textarea
-// //                 className="form-control"
-// //                 rows="3"
-// //                 placeholder="Any remarks for admin (optional)..."
-// //               />
-// //             </div>
-// //           </div>
-
-// //           <div className="text-center mt-4">
-// //             <button
-// //               type="submit"
-// //               className="btn btn-info px-5 text-white fw-semibold"
-// //             >
-// //               Submit Application for User
-// //             </button>
-// //           </div>
-// //         </form>
-// //       </div>
-// //     </section>
-// //   );
-// // }
-
-
-
-// import React, { useState } from "react";
-
-// export default function Empjansewa() {
-//   const [formSubmitted, setFormSubmitted] = useState(false);
-
-//   const services = [
-//     {
-//       icon: "🆔",
-//       title: "Welfare Eligibility Check",
-//       description: [
-//         "Available to low-income families and senior citizens.",
-//         "Priority for rural and semi-urban areas.",
-//         "Minimal documentation required.",
-//       ],
-//       gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-//     },
-//     {
-//       icon: "🛡️",
-//       title: "Social Security Coverage",
-//       description: [
-//         "Access to welfare pensions and medical aid.",
-//         "Education benefits for children.",
-//         "Subsidized services for women and elderly.",
-//       ],
-//       gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-//     },
-//     {
-//       icon: "🧾",
-//       title: "Easy Documentation",
-//       description: [
-//         "Aadhaar card, income certificate accepted.",
-//         "Simple one-page application process.",
-//         "Assistance centers for document upload.",
-//       ],
-//       gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-//     },
-//     {
-//       icon: "🚑",
-//       title: "Free Ambulance & Emergency Services",
-//       description: [
-//         "24/7 ambulance access in rural areas.",
-//         "Priority support during medical emergencies.",
-//         "Includes transport to partnered hospitals.",
-//       ],
-//       gradient: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
-//     },
-//   ];
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     setFormSubmitted(true);
-//     setTimeout(() => setFormSubmitted(false), 4000);
-//   };
-
-//   return (
-//     <section className="swabhiman-dashboard ">
-//       <div className="container">
-//         {/* Intro */}
-//         <div className="text-center mb-5">
-//           <span className="subtitle text-uppercase text-muted fs-6">
-//             Jan Swabhiman Seva
-//           </span>
-//           <h2 className="section-title">Join & Apply for Welfare Support</h2>
-//           <p className="section-subtitle">
-//             Explore key benefits of Jan Swabhiman Seva and complete the
-//             application form below.
-//           </p>
-//         </div>
-
-//         {/* Services Grid */}
-//         <div className="row g-4">
-//           {services.map((service, index) => (
-//             <div key={index} className="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-//               <div
-//                 className="service-card"
-//                 style={{ "--gradient": service.gradient }}
-//               >
-//                 <div className="card-background"></div>
-//                 <div className="card-content text-center">
-//                   <div className="fs-1">{service.icon}</div>
-//                   <h4 className="mt-3 card-title">{service.title}</h4>
-//                   <ul className="list-unstyled mt-3 small text-muted">
-//                     {service.description.map((point, i) => (
-//                       <li key={i} className="mb-1">
-//                         • {point}
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-
-//         {/* Form Section */}
-//         <div className="mt-5">
-//           <div className="application-card p-4 rounded-4 shadow-sm">
-//             <h3 className="fs-4 mb-3 text-center">Apply for Swabhiman Seva</h3>
-
-//             {formSubmitted && (
-//               <div
-//                 className="alert alert-success text-center fw-semibold"
-//                 role="alert"
-//               >
-//                 ✅ Jan Swabhiman Card application submitted successfully!
-//               </div>
-//             )}
-
-//             <form onSubmit={handleSubmit}>
-//               <div className="row g-3">
-//                 <div className="col-md-6">
-//                   <label className="form-label">Full Name</label>
-//                   <input
-//                     type="text"
-//                     className="form-control"
-//                     placeholder="Enter your full name"
-//                     required
-//                   />
-//                 </div>
-//                 <div className="col-md-6">
-//                   <label className="form-label">Phone Number</label>
-//                   <input
-//                     type="tel"
-//                     className="form-control"
-//                     placeholder="e.g. 9876543210"
-//                     required
-//                   />
-//                 </div>
-//                 <div className="col-md-6">
-//                   <label className="form-label">Aadhaar Number</label>
-//                   <input
-//                     type="text"
-//                     className="form-control"
-//                     placeholder="XXXX-XXXX-XXXX"
-//                     required
-//                   />
-//                 </div>
-//                 <div className="col-md-6">
-//                   <label className="form-label">Annual Family Income</label>
-//                   <input
-//                     type="number"
-//                     className="form-control"
-//                     placeholder="In INR"
-//                     required
-//                   />
-//                 </div>
-//                 <div className="col-md-6">
-//                   <label className="form-label">Residential Area</label>
-//                   <select className="form-select" required>
-//                     <option value="">-- Select Area --</option>
-//                     <option value="Urban">Urban</option>
-//                     <option value="Rural">Rural</option>
-//                     <option value="Semi-Urban">Semi-Urban</option>
-//                   </select>
-//                 </div>
-//                 <div className="col-md-6">
-//                   <label className="form-label">Upload ID Proof</label>
-//                   <input
-//                     type="file"
-//                     className="form-control"
-//                     accept="image/*,application/pdf"
-//                     required
-//                   />
-//                 </div>
-//                 <div className="col-12">
-//                   <label className="form-label">Additional Notes</label>
-//                   <textarea
-//                     className="form-control"
-//                     rows="4"
-//                     placeholder="Any specific request or condition..."
-//                   />
-//                 </div>
-//               </div>
-//               <div className="text-center mt-4">
-//                 <button type="submit" className="btn btn-info px-5 text-white">
-//                   Apply for Seva
-//                 </button>
-//               </div>
-//             </form>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Styling */}
-//       <style jsx>{`
-//         .swabhiman-dashboard {
-//           background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-//           min-height: 100vh;
-//         }
-//         .section-title {
-//           font-size: 2rem;
-//           font-weight: 700;
-//           color: #1f2937;
-//         }
-//         .section-subtitle {
-//           color: #6b7280;
-//           font-size: 1.1rem;
-//         }
-//         .service-card {
-//           background: white;
-//           border-radius: 20px;
-//           padding: 1.5rem;
-//           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-//           transition: all 0.3s ease;
-//           position: relative;
-//           overflow: hidden;
-//           height: 100%;
-//         }
-//         .service-card::before {
-//           content: "";
-//           position: absolute;
-//           inset: 0;
-//           background: var(--gradient);
-//           opacity: 0;
-//           transition: opacity 0.3s ease;
-//         }
-//         .service-card:hover::before {
-//           opacity: 0.08;
-//         }
-//         .service-card:hover {
-//           transform: translateY(-6px) scale(1.02);
-//           box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-//         }
-//         .card-content {
-//           position: relative;
-//           z-index: 2;
-//         }
-//         .card-title {
-//           font-size: 1.1rem;
-//           font-weight: 600;
-//           color: #1f2937;
-//         }
-//         .application-card {
-//           background: white;
-//           border-radius: 20px;
-//           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-//         }
-//       `}</style>
-//     </section>
-//   );
-// }
 import React, { useState, useEffect } from "react";
 
 export default function Empjansewa() {
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
   const [formData, setFormData] = useState({
+    // User fields - matching backend expectations
     fullName: "",
-    phone: "",
-    aadhar: "",
-    income: "",
-    area: "",
+    phoneNumber: "",
+    aadhaarNumber: "",
+    annualFamilyIncome: "",
+    residentialArea: "",
+    additionalNotes: "",
     idProof: null,
-    notes: "",
+    
+    // Employee info (auto-filled from profile)
     employeeId: "",
     employeeName: "",
     remarks: ""
@@ -500,7 +35,7 @@ export default function Empjansewa() {
         setFormData((prev) => ({
           ...prev,
           employeeName: user.name || "",
-          employeeId: user.employeeId || "",
+          employeeId: user.employeeId || user._id || "",
         }));
       })
       .catch((err) => console.error("Profile fetch failed:", err));
@@ -559,58 +94,77 @@ export default function Empjansewa() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("You must be logged in to submit an application.");
+        setError("You must be logged in to submit an application.");
         return;
       }
 
+      // Create FormData for file upload
       const fd = new FormData();
+      
+      // Append user fields (matching backend controller expectations)
       fd.append("fullName", formData.fullName);
-      fd.append("phone", formData.phone);
-      fd.append("aadhar", formData.aadhar);
-      fd.append("income", formData.income);
-      fd.append("area", formData.area);
-      fd.append("notes", formData.notes);
+      fd.append("phoneNumber", formData.phoneNumber);
+      fd.append("aadhaarNumber", formData.aadhaarNumber);
+      fd.append("annualFamilyIncome", formData.annualFamilyIncome);
+      fd.append("residentialArea", formData.residentialArea);
+      fd.append("additionalNotes", formData.additionalNotes);
+      
+      // Employee reference info
       fd.append("employeeId", formData.employeeId);
       fd.append("employeeName", formData.employeeName);
       fd.append("remarks", formData.remarks);
       
-      if (formData.idProof) fd.append("id_proof", formData.idProof);
+      // File upload
+      if (formData.idProof) {
+        fd.append("idProof", formData.idProof);
+      }
 
-      const res = await fetch("https://ruwa-backend.onrender.com/api/services/swabhiman/employee/apply", {
+      const res = await fetch("https://ruwa-backend.onrender.com/api/sevaApplication/employee/apply", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`
+          // Don't set Content-Type for FormData
         },
         body: fd
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Failed to submit application");
-      }
+      const result = await res.json();
 
-      setFormSubmitted(true);
-      setTimeout(() => setFormSubmitted(false), 4000);
-      
-      // Reset form but keep employee info
-      setFormData({
-        ...formData,
-        fullName: "",
-        phone: "",
-        aadhar: "",
-        income: "",
-        area: "",
-        idProof: null,
-        notes: "",
-        remarks: ""
-      });
+      if (res.ok) {
+        setFormSubmitted(true);
+        setTimeout(() => setFormSubmitted(false), 4000);
+        
+        // Reset form but keep employee info
+        setFormData(prev => ({
+          ...prev,
+          fullName: "",
+          phoneNumber: "",
+          aadhaarNumber: "",
+          annualFamilyIncome: "",
+          residentialArea: "",
+          additionalNotes: "",
+          idProof: null,
+          remarks: ""
+        }));
+        
+        // Clear file input
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
+        
+      } else {
+        setError(result.message || "Failed to submit application");
+      }
     } catch (err) {
-      console.error(err);
-      alert(err.message || "Something went wrong");
+      console.error("Submission error:", err);
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -684,7 +238,14 @@ export default function Empjansewa() {
                 {formSubmitted && (
                   <div className="alert alert-success alert-custom" role="alert">
                     <i className="fas fa-check-circle me-2"></i>
-                    Application submitted successfully with Employee Reference!
+                    Jan Swabhiman Card application submitted successfully with Employee Reference!
+                  </div>
+                )}
+
+                {error && (
+                  <div className="alert alert-danger alert-custom" role="alert">
+                    <i className="fas fa-exclamation-circle me-2"></i>
+                    {error}
                   </div>
                 )}
 
@@ -714,8 +275,8 @@ export default function Empjansewa() {
                     <div className="col-md-6 mb-3">
                       <label className="form-label-custom">Phone Number</label>
                       <input
-                        name="phone"
-                        value={formData.phone}
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
                         onChange={handleChange}
                         type="tel"
                         className="form-control-custom"
@@ -726,8 +287,8 @@ export default function Empjansewa() {
                     <div className="col-md-6 mb-3">
                       <label className="form-label-custom">Aadhaar Number</label>
                       <input
-                        name="aadhar"
-                        value={formData.aadhar}
+                        name="aadhaarNumber"
+                        value={formData.aadhaarNumber}
                         onChange={handleChange}
                         type="text"
                         className="form-control-custom"
@@ -738,8 +299,8 @@ export default function Empjansewa() {
                     <div className="col-md-6 mb-3">
                       <label className="form-label-custom">Annual Family Income</label>
                       <input
-                        name="income"
-                        value={formData.income}
+                        name="annualFamilyIncome"
+                        value={formData.annualFamilyIncome}
                         onChange={handleChange}
                         type="number"
                         className="form-control-custom"
@@ -750,8 +311,8 @@ export default function Empjansewa() {
                     <div className="col-md-6 mb-3">
                       <label className="form-label-custom">Residential Area</label>
                       <select
-                        name="area"
-                        value={formData.area}
+                        name="residentialArea"
+                        value={formData.residentialArea}
                         onChange={handleChange}
                         className="form-control-custom"
                         required
@@ -782,8 +343,8 @@ export default function Empjansewa() {
                     <div className="col-12 mb-3">
                       <label className="form-label-custom">Additional Notes</label>
                       <textarea
-                        name="notes"
-                        value={formData.notes}
+                        name="additionalNotes"
+                        value={formData.additionalNotes}
                         onChange={handleChange}
                         className="form-control-custom"
                         rows="3"
@@ -842,9 +403,18 @@ export default function Empjansewa() {
                   </div>
 
                   <div className="text-center mt-4">
-                    <button type="submit" className="btn-primary-custom px-5 py-2">
-                      <i className="fas fa-paper-plane me-2"></i>
-                      Submit Application for User
+                    <button type="submit" className="btn-primary-custom px-5 py-2" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-paper-plane me-2"></i>
+                          Submit Application for User
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -1022,8 +592,16 @@ export default function Empjansewa() {
           border: none;
           padding: 1rem 1.5rem;
           margin-bottom: 1.5rem;
+        }
+
+        .alert-success {
           background: linear-gradient(135deg, #d1fae5, #a7f3d0);
           color: #065f46;
+        }
+
+        .alert-danger {
+          background: linear-gradient(135deg, #fee2e2, #fecaca);
+          color: #991b1b;
         }
 
         .section-title-with-icon {
@@ -1112,10 +690,20 @@ export default function Empjansewa() {
           font-size: 1.1rem;
         }
 
-        .btn-primary-custom:hover {
+        .btn-primary-custom:hover:not(:disabled) {
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
           background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+
+        .btn-primary-custom:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .spinner-border-sm {
+          width: 1rem;
+          height: 1rem;
         }
 
         @media (max-width: 768px) {

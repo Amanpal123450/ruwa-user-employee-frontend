@@ -809,3 +809,12 @@ export default function Services() {
     </section>
   );
 }
+
+
+// {
+//     "title":"Jan Swabhiman Seva",
+//      "description": "Empowering communities with welfare services, employment access, and social support through transparent and inclusive administration under Jan Swabhiman Seva.",
+//      "btnClass": "btn btn-info",
+//       "buttonLink":"/apply-swabhiman",
+//     "buttonText":"apply",
+//     "icon":"🧑‍🤝‍🧑"
