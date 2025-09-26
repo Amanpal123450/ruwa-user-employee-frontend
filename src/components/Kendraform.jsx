@@ -12,7 +12,7 @@ const Empkendra = () => {
     gender: "",
     married: "",
     
-    // Educational Qualifications
+    // Educational Qualification
     educationalQualifications: [{ qualification: "", year: "", institution: "" }],
     
     // Current Occupation
