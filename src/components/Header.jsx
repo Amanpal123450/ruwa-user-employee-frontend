@@ -126,10 +126,30 @@ export default function Header() {
           document.getElementById("loginModal")
         );
         loginModal.show();
+
+        createWallet()
       }
     } catch (error) {
       alert(error.response?.data?.message || "Registration failed");
     }
+  };
+
+    const createWallet = async () => {
+    try {
+      const userId = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:8000/create`, {
+        method: 'POST',
+
+        headers: { Authorization: `Bearer ${userId}`,'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      if (data.message) {
+        console.log('Wallet created successfully!');
+       
+      } 
+    } catch (err) {
+      alert('Failed to create wallet');
+    } 
   };
 
   // Get navigation items based on user role

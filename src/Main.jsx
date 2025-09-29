@@ -49,6 +49,7 @@ import EmployeeAttendance from './Pages/EmployeeAttendance';
 import { ToastContainer } from 'react-toastify';
 import Empusers from './Pages/Empusers';
 import LocationTracker from './components/LocationTracker';
+import WalletApp from './components/wallet';
 
 // Scroll to top component
 function ScrollToTop() {
@@ -151,6 +152,7 @@ function AuthWrapper({ showModal, setShowModal }) {
         <Route path='/forgot-password' element={<ForgotPass />} />
         <Route path='/comingsoon' element={<ComingSoonPage />} />
         <Route path='/feedback' element={<FeedbackPage />} />
+        <Route path='/WalletApp' element={<WalletApp />} />
 
         {/* User Protected Routes */}
         <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
