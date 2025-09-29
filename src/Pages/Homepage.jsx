@@ -31,18 +31,11 @@
 
 
 
-import React from 'react'
+
 import Hero from '../components/Hero'
-import About from '../components/About'
-import Services from '../components/Services'
-import Stars from '../components/Stars'
-import Featuers from '../components/Featuers'
-// import Work from '../components/Work'
+
 import Testimonials from '../components/Testimonials'
-import Faq from '../components/Faq'
-import Contact from '../components/Contact'
-import Hrpolicy from '../components/Hrpolicy'
-import Orgstructer from '../components/Orgstructer'
+
 
 export default function Homepage() {
   return (
