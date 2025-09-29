@@ -137,7 +137,7 @@ export default function Header() {
     const createWallet = async () => {
     try {
       const userId = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8000/create`, {
+      const response = await fetch(`https://ruwa-backend.onrender.com/create`, {
         method: 'POST',
 
         headers: { Authorization: `Bearer ${userId}`,'Content-Type': 'application/json' }

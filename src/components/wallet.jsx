@@ -22,7 +22,7 @@ const WalletApp = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [transactionFilter, setTransactionFilter] = useState('');
 
-  const API_BASE = 'http://localhost:8000/api/wallet';
+  const API_BASE = 'https://ruwa-backend.onrender.com/api/wallet';
 
   useEffect(() => {
     if (userId) {

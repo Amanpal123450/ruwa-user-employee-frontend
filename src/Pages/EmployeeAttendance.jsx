@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../components/AuthContext";
 
 export default function EmployeeAttendance() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [attendanceStatus, setAttendanceStatus] = useState("not-checked-in");
   const [attendanceHistory, setAttendanceHistory] = useState([]);
@@ -23,12 +24,12 @@ export default function EmployeeAttendance() {
   const [leaveType, setLeaveType] = useState("paid");
   const [leaveReason, setLeaveReason] = useState("");
 
-  // ✅ Setup axios instance
+  // Setup axios instance
   const api = axios.create({
     baseURL: "https://ruwa-backend.onrender.com",
   });
 
-  // ✅ Attach JWT token automatically
+  // Attach JWT token automatically
   api.interceptors.request.use(
     (config) => {
       const token = localStorage.getItem("token");
@@ -40,11 +41,10 @@ export default function EmployeeAttendance() {
     (error) => Promise.reject(error)
   );
 
-  // ✅ Fetch attendance data
+  // Fetch attendance data
   const fetchAttendanceData = async () => {
     try {
       const response = await api.get("/api/attendance/history");
-      // Fixed: response.data instead of response.json()
       const history = response.data.history || [];
       setAttendanceHistory(history);
 
@@ -66,92 +66,59 @@ export default function EmployeeAttendance() {
       } else {
         setAttendanceStatus("not-checked-in");
       }
-
-      // Calculate monthly stats
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const monthHistory = history.filter((rec) => {
-        const recordDate = new Date(rec.date);
-        return recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear;
-      });
-      
-      const totalWorkingHours = monthHistory.reduce(
-        (sum, rec) => sum + (rec.workingHours || 0),
-        0
-      );
-      const requiredHours = monthHistory.length * 8;
-      const stats = {
-        present: monthHistory.filter((r) => r.status === "present").length,
-        late: monthHistory.filter((r) => r.status === "late").length,
-        absent: monthHistory.filter((r) => r.status === "absent").length,
-        earlyDeparture: monthHistory.filter(
-          (r) => r.status === "early-departure"
-        ).length,
-        paidLeave: monthHistory.filter((r) => r.status === "paid-leave").length,
-        totalWorkingHours,
-        requiredWorkingHours: requiredHours,
-        hoursDifference: totalWorkingHours - requiredHours,
-      };
-      setMonthlyStats(stats);
     } catch (error) {
       console.error("Error fetching attendance data:", error);
     }
   };
 
-  // ✅ Handle Check-in
+  // Fetch summary stats
+  const fetchSummary = async () => {
+    try {
+      const response = await api.get("/api/attendance/summary");
+      const summary = response.data.summary;
+
+      setMonthlyStats({
+        present: parseInt(summary.present) || 0,
+        late: parseInt(summary.lateArrival) || 0,
+        absent: parseInt(summary.absent) || 0,
+        earlyDeparture: parseInt(summary.leftEarly) || 0,
+        paidLeave: parseInt(summary.paidLeave) || 0,
+        totalWorkingHours: parseFloat(summary.totalWorkingHours) || 0,
+        requiredWorkingHours: parseFloat(summary.requiredHours) || 0,
+        hoursDifference: parseFloat(summary.balance) || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching summary stats:", error);
+    }
+  };
+
+  // Handle Check-in
   const handleCheckIn = async () => {
     try {
       await api.post("/api/attendance/check-in");
       setAttendanceStatus("checked-in");
       fetchAttendanceData();
+      fetchSummary();
     } catch (error) {
       console.error("Check-in failed:", error);
       alert("Failed to check in. Please try again.");
     }
   };
-const fetchSummary = async () => {
-  try {
-    const response = await api.get("https://ruwa-backend.onrender.com/api/attendance/summary");
-    const summary = response.data.summary;
 
-    setMonthlyStats({
-      present: parseInt(summary.present) || 0,
-      late: parseInt(summary.lateArrival) || 0,
-      absent: parseInt(summary.absent) || 0,
-      earlyDeparture: parseInt(summary.leftEarly) || 0,
-      paidLeave: parseInt(summary.paidLeave) || 0,
-      totalWorkingHours: parseFloat(summary.totalWorkingHours) || 0,
-      requiredWorkingHours: parseFloat(summary.requiredHours) || 0,
-      hoursDifference: parseFloat(summary.balance) || 0,
-    });
-  } catch (error) {
-    console.error("Error fetching summary stats:", error);
-  }
-};
-
-useEffect(() => {
-  const timer = setInterval(() => {
-    setCurrentTime(new Date());
-  }, 1000);
-
-  fetchAttendanceData();
-  fetchSummary(); // ✅ Fetch summary from backend
-
-  return () => clearInterval(timer);
-}, []);
-  // ✅ Handle Check-out
+  // Handle Check-out
   const handleCheckOut = async () => {
     try {
       await api.post("/api/attendance/check-out");
       setAttendanceStatus("completed");
       fetchAttendanceData();
+      fetchSummary();
     } catch (error) {
       console.error("Check-out failed:", error);
       alert("Failed to check out. Please try again.");
     }
   };
 
-  // ✅ Apply Leave
+  // Apply Leave
   const handleApplyLeave = async () => {
     if (!leaveDate) {
       alert("Please select a date for leave");
@@ -169,10 +136,17 @@ useEffect(() => {
       setShowLeaveModal(false);
       alert("Leave applied successfully!");
       fetchAttendanceData();
+      fetchSummary();
     } catch (error) {
       console.error("Leave application failed:", error);
       alert("Failed to apply leave. Please try again.");
     }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
   // Format date for display
@@ -213,19 +187,98 @@ useEffect(() => {
     return new Date(dateString).getDay() === 0;
   };
 
-  // ✅ Clock updater + fetch data
+  // Clock updater + fetch data
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
     fetchAttendanceData();
+    fetchSummary();
 
     return () => clearInterval(timer);
   }, []);
 
   return (
     <>
+      {/* Navigation Bar */}
+      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div className="container-fluid">
+          <Link className="navbar-brand fw-bold" to="/employee-dashboard">
+            <i className="fas fa-calendar-check me-2 text-primary"></i>
+            Attendance System
+          </Link>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav ms-auto align-items-center">
+              <li className="nav-item">
+                <Link className="nav-link" to="/employee-dashboard">
+                  <i className="fas fa-home me-1"></i>Dashboard
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link active" to="/employee-att">
+                  <i className="fas fa-clock me-1"></i>Attendance
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/manage-applications">
+                  <i className="fas fa-file-alt me-1"></i>Applications
+                </Link>
+              </li>
+              <li className="nav-item dropdown">
+                <a
+                  className="nav-link dropdown-toggle d-flex align-items-center"
+                  href="#"
+                  id="navbarDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                >
+                  <img
+                    src={user?.profile_pic || "https://via.placeholder.com/40"}
+                    alt="Profile"
+                    className="rounded-circle me-2"
+                    style={{ width: "32px", height: "32px", objectFit: "cover" }}
+                  />
+                  <span className="d-none d-md-inline">{user?.name || "User"}</span>
+                </a>
+                <ul className="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <span className="dropdown-item-text">
+                      <small className="text-muted">{user?.email}</small>
+                    </span>
+                  </li>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <Link className="dropdown-item" to="/employee-dashboard">
+                      <i className="fas fa-user me-2"></i>Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to="/settings">
+                      <i className="fas fa-cog me-2"></i>Settings
+                    </Link>
+                  </li>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <button className="dropdown-item text-danger" onClick={handleLogout}>
+                      <i className="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
       <div className="dashboard-container">
         <div className="container-fluid py-4">
           <div className="row">
@@ -299,8 +352,7 @@ useEffect(() => {
                             className="btn btn-success btn-lg px-5 py-3"
                             onClick={handleCheckOut}
                           >
-                            <i className="fas fa-sign-out-alt me-2"></i>Check
-                            Out Now
+                            <i className="fas fa-sign-out-alt me-2"></i>Check Out Now
                           </button>
                         </div>
                       )}
@@ -309,13 +361,9 @@ useEffect(() => {
                         <div>
                           <div className="alert alert-success mb-3">
                             <i className="fas fa-check-circle me-2"></i>
-                            You've completed your attendance for today. Thank
-                            you!
+                            You've completed your attendance for today. Thank you!
                           </div>
-                          <button
-                            className="btn btn-outline-secondary"
-                            disabled
-                          >
+                          <button className="btn btn-outline-secondary" disabled>
                             Attendance Completed
                           </button>
                         </div>
@@ -411,21 +459,15 @@ useEffect(() => {
                           attendanceHistory.map((record, index) => (
                             <tr
                               key={record._id || index}
-                              className={
-                                isToday(record.date) ? "table-active" : ""
-                              }
+                              className={isToday(record.date) ? "table-active" : ""}
                             >
                               <td>
                                 {formatDate(record.date)}
                                 {isToday(record.date) && (
-                                  <span className="badge bg-info ms-2">
-                                    Today
-                                  </span>
+                                  <span className="badge bg-info ms-2">Today</span>
                                 )}
                                 {isSunday(record.date) && (
-                                  <span className="badge bg-secondary ms-2">
-                                    Sunday
-                                  </span>
+                                  <span className="badge bg-secondary ms-2">Sunday</span>
                                 )}
                               </td>
                               <td>{formatTime(record.checkIn)}</td>
@@ -450,9 +492,7 @@ useEffect(() => {
                                     : "Unknown"}
                                 </span>
                               </td>
-                              <td>
-                                {record.leaveReason || "--"}
-                              </td>
+                              <td>{record.leaveReason || "--"}</td>
                             </tr>
                           ))
                         )}
@@ -545,9 +585,30 @@ useEffect(() => {
       )}
 
       <style jsx>{`
+        .navbar {
+          z-index: 1000;
+        }
+
+        .navbar-brand {
+          font-size: 1.25rem;
+        }
+
+        .nav-link {
+          font-weight: 500;
+          transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+          color: #667eea !important;
+        }
+
+        .nav-link.active {
+          color: #667eea !important;
+        }
+
         .dashboard-container {
           background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-          min-height: 100vh;
+          min-height: calc(100vh - 56px);
           padding: 0;
         }
 

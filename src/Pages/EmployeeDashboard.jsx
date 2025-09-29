@@ -906,56 +906,31 @@
 //     </>
 //   );
 // }
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../components/AuthContext';
 
 export default function EmployeeDashboard() {
-  const {user} = useAuth();
-
-  const [stats, setStats] = useState({
-    totalApplications: 0,
-    pendingApplications: 0,
-    todayAppliedCount: 0,
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [workDayStatus, setWorkDayStatus] = useState({
-    checkedIn: true,
-    checkInTime: '09:00 AM',
-    hoursWorked: '7h 30m',
-    status: 'Active',
-    breaksTaken: 2,
-    remainingHours: '0h 30m'
+    status: 'absent',
+    checkInTime: '-',
+    hoursWorked: '0h',
+    breaksTaken: 0,
+    remainingHours: '8h'
   });
 
   const [performance, setPerformance] = useState({
-    weeklyScore: 98,
-    monthlyScore: 95,
-    tasksCompleted: 156,
-    targetTasks: 160,
-    avgResponseTime: '12 mins',
-    satisfactionRate: 4.8
+    totalTasks: 0,
+    completedTasks: 0,
+    performancePercentage: 0
   });
 
-  const [dailyAnalysis, setDailyAnalysis] = useState({
-    applicationsProcessed: 23,
-    usersHelped: 45,
-    callsAttended: 12,
-    emailsResponded: 34,
-    meetingsAttended: 3
-  });
+  const [todaysTasks, setTodaysTasks] = useState([]);
 
-  const [todoList, setTodoList] = useState([
-    { id: 1, task: 'Review pending applications', completed: true, priority: 'high' },
-    { id: 2, task: 'Update user records', completed: true, priority: 'medium' },
-    { id: 3, task: 'Attend team meeting at 2 PM', completed: false, priority: 'high' },
-    { id: 4, task: 'Prepare monthly report', completed: false, priority: 'medium' },
-    { id: 5, task: 'Follow up with clients', completed: false, priority: 'low' }
-  ]);
 
-  const [newTask, setNewTask] = useState('');
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -964,11 +939,24 @@ export default function EmployeeDashboard() {
         const res = await axios.get("https://ruwa-backend.onrender.com/api/employee/dash", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        
         if (res.data.success) {
-          setStats(res.data.dashboard);
+          // Set user profile
+          setUser(res.data.profile);
+          
+          // Set work day status
+          setWorkDayStatus(res.data.workDayStatus);
+          
+          // Set performance stats
+          setPerformance(res.data.performance);
+          
+          // Set today's tasks
+          setTodaysTasks(res.data.todaysTasks || []);
         }
       } catch (err) {
         console.error("Error fetching dashboard:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchDashboard();
@@ -1012,30 +1000,79 @@ export default function EmployeeDashboard() {
     return 'Good Evening';
   };
 
-  const toggleTodo = (id) => {
-    setTodoList(todoList.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
+
+
+  const getStatusColor = (status) => {
+    const colors = {
+      'present': '#10b981',
+      'absent': '#ef4444',
+      'Active': '#10b981',
+      'Inactive': '#6b7280'
+    };
+    return colors[status] || '#6b7280';
   };
 
-  const addTodo = () => {
-    if (newTask.trim()) {
-      setTodoList([...todoList, {
-        id: Date.now(),
-        task: newTask,
-        completed: false,
-        priority: 'medium'
-      }]);
-      setNewTask('');
-    }
-  };
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f5f7fa'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '5px solid #e5e7eb',
+            borderTop: '5px solid #667eea',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p style={{ marginTop: '20px', color: '#6b7280' }}>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const deleteTodo = (id) => {
-    setTodoList(todoList.filter(todo => todo.id !== id));
-  };
+  if (!user) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f5f7fa'
+      }}>
+        <div style={{
+          background: 'white',
+          padding: '40px',
+          borderRadius: '15px',
+          textAlign: 'center',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '20px' }}>⚠️</div>
+          <h2>Unable to load user data</h2>
+          <p style={{ color: '#6b7280', marginTop: '10px' }}>Please try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
+   <>
+   <br />
+   <br />
+   <br />
+   
     <div style={{ backgroundColor: '#f5f7fa', minHeight: '100vh', padding: '20px' }}>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Welcome Header */}
         <div style={{
@@ -1059,21 +1096,21 @@ export default function EmployeeDashboard() {
                 {getCurrentGreeting()} 👋
               </div>
               <h1 style={{ fontSize: '36px', margin: '10px 0', fontWeight: 'bold' }}>
-                {user.name}
+                {user.name || 'Employee'}
               </h1>
               <p style={{ fontSize: '16px', opacity: 0.9, marginBottom: '15px' }}>
-                {user.designation} • {user.department}
+                {user.position || 'N/A'} • {user.department || 'N/A'}
               </p>
               <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', fontSize: '14px' }}>
-                <span>📧 {user.email}</span>
-                <span>📞 {user.contact}</span>
-                <span>🆔 {user.employeeId}</span>
+                <span>📧 {user.email || 'N/A'}</span>
+                <span>📞 {user.phone || 'N/A'}</span>
+                <span>🆔 {user.employeeId || 'N/A'}</span>
               </div>
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <img
-                  src={user.profile_pic}
+                  src={user.profile_pic || 'https://via.placeholder.com/120'}
                   alt="Employee"
                   style={{
                     width: '120px',
@@ -1089,7 +1126,7 @@ export default function EmployeeDashboard() {
                   right: '5px',
                   width: '20px',
                   height: '20px',
-                  background: '#10b981',
+                  background: getStatusColor(workDayStatus.status),
                   borderRadius: '50%',
                   border: '3px solid white'
                 }}></div>
@@ -1110,13 +1147,13 @@ export default function EmployeeDashboard() {
             📋 Employee Profile
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-            <ProfileItem icon="📍" label="Address" value={user.address} />
-            <ProfileItem icon="📱" label="Contact" value={user.contact} />
-            <ProfileItem icon="🏢" label="Area of Work" value={user.areaOfWork} />
-            <ProfileItem icon="👔" label="Designation" value={user.designation} />
-            <ProfileItem icon="🏛️" label="Department" value={user.department} />
-            <ProfileItem icon="💼" label="Work Role" value={user.workRole} />
-            <ProfileItem icon="🩸" label="Blood Group" value={user.bloodGroup} />
+            <ProfileItem icon="📍" label="Address" value={user.address || 'N/A'} />
+            <ProfileItem icon="📱" label="Contact" value={user.phone || 'N/A'} />
+            <ProfileItem icon="🏢" label="Area of Work" value={user.department || 'N/A'} />
+            <ProfileItem icon="👔" label="Designation" value={user.designation || 'N/A'} />
+            <ProfileItem icon="🏛️" label="Department" value={user.department || 'N/A'} />
+            <ProfileItem icon="💼" label="Work Role" value={user.workRole || 'N/A'} />
+            <ProfileItem icon="🩸" label="Blood Group" value={user.bloodGroup || 'N/A'} />
           </div>
         </div>
 
@@ -1135,8 +1172,8 @@ export default function EmployeeDashboard() {
             <StatusCard
               icon="✅"
               label="Status"
-              value={workDayStatus.status}
-              color="#10b981"
+              value={workDayStatus.status.charAt(0).toUpperCase() + workDayStatus.status.slice(1)}
+              color={getStatusColor(workDayStatus.status)}
             />
             <StatusCard
               icon="🕐"
@@ -1178,59 +1215,97 @@ export default function EmployeeDashboard() {
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
             <PerformanceCard
-              label="Weekly Score"
-              value={`${performance.weeklyScore}%`}
-              progress={performance.weeklyScore}
+              label="Performance Score"
+              value={`${performance.performancePercentage}%`}
+              progress={parseFloat(performance.performancePercentage)}
               color="#10b981"
             />
             <PerformanceCard
-              label="Monthly Score"
-              value={`${performance.monthlyScore}%`}
-              progress={performance.monthlyScore}
+              label="Total Tasks"
+              value={performance.totalTasks}
+              progress={100}
               color="#3b82f6"
             />
             <PerformanceCard
-              label="Tasks Progress"
-              value={`${performance.tasksCompleted}/${performance.targetTasks}`}
-              progress={(performance.tasksCompleted / performance.targetTasks) * 100}
+              label="Completed Tasks"
+              value={performance.completedTasks}
+              progress={(performance.completedTasks / (performance.totalTasks || 1)) * 100}
               color="#8b5cf6"
             />
             <PerformanceCard
-              label="Satisfaction Rate"
-              value={`${performance.satisfactionRate}/5.0`}
-              progress={(performance.satisfactionRate / 5) * 100}
+              label="Pending Tasks"
+              value={performance.totalTasks - performance.completedTasks}
+              progress={((performance.totalTasks - performance.completedTasks) / (performance.totalTasks || 1)) * 100}
               color="#f59e0b"
             />
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '30px' }}>
-          <StatsCard
-            icon="👥"
-            title="Total Users"
-            value={stats.totalApplications}
-            change="+12% from last month"
-            gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-          />
-          <StatsCard
-            icon="📋"
-            title="Pending Applications"
-            value={stats.pendingApplications}
-            change="-5% from yesterday"
-            gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
-          />
-          <StatsCard
-            icon="✅"
-            title="Approved Today"
-            value={stats.todayAppliedCount}
-            change="+23% from yesterday"
-            gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
-          />
-        </div>
-
-        {/* Daily Analysis & Todo List */}
+        {/* Admin Tasks & Daily Analysis */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+          {/* Admin Assigned Tasks (Todo List) */}
+          <div style={{
+            background: 'white',
+            borderRadius: '15px',
+            padding: '30px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+          }}>
+            <h2 style={{ fontSize: '20px', marginBottom: '20px', color: '#1f2937' }}>
+              ✅ To-Do List
+            </h2>
+            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              {todaysTasks.length > 0 ? (
+                todaysTasks.map((task) => (
+                  <div key={task._id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px',
+                    marginBottom: '10px',
+                    borderRadius: '8px',
+                    background: '#f9fafb',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={task.status === 'COMPLETED'}
+                      disabled
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        cursor: 'not-allowed',
+                        accentColor: '#667eea'
+                      }}
+                    />
+                    <span style={{
+                      flex: 1,
+                      fontSize: '14px',
+                      color: task.status === 'COMPLETED' ? '#9ca3af' : '#1f2937',
+                      textDecoration: task.status === 'COMPLETED' ? 'line-through' : 'none'
+                    }}>
+                      {task.title || 'Untitled Task'}
+                    </span>
+                    <span style={{
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: '500',
+                      color: 'white',
+                      background: task.priority === 'high' ? '#ef4444' : task.priority === 'medium' ? '#f59e0b' : '#10b981'
+                    }}>
+                      {task.priority || 'medium'}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '10px' }}>📭</div>
+                  <p>No tasks assigned for today</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Daily Analysis Report */}
           <div style={{
             background: 'white',
@@ -1245,85 +1320,33 @@ export default function EmployeeDashboard() {
               <AnalysisItem
                 icon="📝"
                 label="Applications Processed"
-                value={dailyAnalysis.applicationsProcessed}
+                value={23}
                 color="#667eea"
               />
               <AnalysisItem
                 icon="👤"
                 label="Users Helped"
-                value={dailyAnalysis.usersHelped}
+                value={45}
                 color="#f093fb"
               />
               <AnalysisItem
                 icon="📞"
                 label="Calls Attended"
-                value={dailyAnalysis.callsAttended}
+                value={12}
                 color="#4facfe"
               />
               <AnalysisItem
                 icon="✉️"
                 label="Emails Responded"
-                value={dailyAnalysis.emailsResponded}
+                value={34}
                 color="#10b981"
               />
               <AnalysisItem
                 icon="👥"
                 label="Meetings Attended"
-                value={dailyAnalysis.meetingsAttended}
+                value={3}
                 color="#f59e0b"
               />
-            </div>
-          </div>
-
-          {/* Todo List */}
-          <div style={{
-            background: 'white',
-            borderRadius: '15px',
-            padding: '30px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
-          }}>
-            <h2 style={{ fontSize: '20px', marginBottom: '20px', color: '#1f2937' }}>
-              ✅ To-Do List
-            </h2>
-            <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTodo()}
-                placeholder="Add a new task..."
-                style={{
-                  flex: 1,
-                  padding: '10px 15px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-              <button
-                onClick={addTodo}
-                style={{
-                  padding: '10px 20px',
-                  background: '#667eea',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '500'
-                }}
-              >
-                Add
-              </button>
-            </div>
-            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-              {todoList.map(todo => (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={() => toggleTodo(todo.id)}
-                  onDelete={() => deleteTodo(todo.id)}
-                />
-              ))}
             </div>
           </div>
         </div>
@@ -1367,7 +1390,7 @@ export default function EmployeeDashboard() {
         </div>
       </div>
     </div>
-  );
+ </> );
 }
 
 function ProfileItem({ icon, label, value }) {
@@ -1422,23 +1445,6 @@ function PerformanceCard({ label, value, progress, color }) {
   );
 }
 
-function StatsCard({ icon, title, value, change, gradient }) {
-  return (
-    <div style={{
-      background: gradient,
-      borderRadius: '15px',
-      padding: '30px',
-      color: 'white',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-    }}>
-      <div style={{ fontSize: '32px', marginBottom: '10px' }}>{icon}</div>
-      <div style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '5px' }}>{value}</div>
-      <div style={{ fontSize: '14px', marginBottom: '5px' }}>{title}</div>
-      <div style={{ fontSize: '12px', opacity: 0.8 }}>{change}</div>
-    </div>
-  );
-}
-
 function AnalysisItem({ icon, label, value, color }) {
   return (
     <div style={{
@@ -1463,71 +1469,6 @@ function AnalysisItem({ icon, label, value, color }) {
       }}>
         {value}
       </span>
-    </div>
-  );
-}
-
-function TodoItem({ todo, onToggle, onDelete }) {
-  const priorityColors = {
-    high: '#ef4444',
-    medium: '#f59e0b',
-    low: '#10b981'
-  };
-
-  return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      padding: '12px',
-      marginBottom: '10px',
-      borderRadius: '8px',
-      background: '#f9fafb',
-      border: '1px solid #e5e7eb'
-    }}>
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={onToggle}
-        style={{
-          width: '18px',
-          height: '18px',
-          cursor: 'pointer',
-          accentColor: '#667eea'
-        }}
-      />
-      <span style={{
-        flex: 1,
-        fontSize: '14px',
-        color: todo.completed ? '#9ca3af' : '#1f2937',
-        textDecoration: todo.completed ? 'line-through' : 'none'
-      }}>
-        {todo.task}
-      </span>
-      <span style={{
-        padding: '2px 8px',
-        borderRadius: '4px',
-        fontSize: '11px',
-        fontWeight: '500',
-        color: 'white',
-        background: priorityColors[todo.priority]
-      }}>
-        {todo.priority}
-      </span>
-      <button
-        onClick={onDelete}
-        style={{
-          padding: '4px 8px',
-          background: '#fee2e2',
-          color: '#ef4444',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontSize: '12px'
-        }}
-      >
-        🗑️
-      </button>
     </div>
   );
 }
