@@ -91,7 +91,7 @@ const Empkendra = () => {
         }
 
         const res = await fetch(
-          "http://localhost:8000/api/services/apply-kendra/check",
+          "https://ruwa-backend.onrender.com/api/services/apply-kendra/check",
           {
             method: "GET",
             headers: {
@@ -305,7 +305,7 @@ const Empkendra = () => {
         });
 
         const res = await fetch(
-          "http://localhost:8000/api/services/apply-kendra/apply",
+          "https://ruwa-backend.onrender.com/api/services/apply-kendra/apply",
           {
             method: "POST",
             headers: {
