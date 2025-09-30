@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 const Empkendra = () => {
+  const [adhaar,setAadhar]=useState("")
   const [formData, setFormData] = useState({
     // Personal Details
     title: "",
@@ -166,7 +167,9 @@ const Empkendra = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    
+    if(name=="aadhaar"){
+      setAadhar(e.target.value)
+    }
     if (type === "checkbox") {
       if (name === "professionalBackground") {
         setFormData(prev => {
@@ -312,7 +315,7 @@ const Empkendra = () => {
             investmentRange: "",
             effortsInitiatives: "",
             reasonsForPartnership: "",
-            aadhaar: "",
+           
             category: "",
             relevantExperience: "",
             idProof: null,
@@ -343,13 +346,13 @@ const Empkendra = () => {
         const token = localStorage.getItem("token");
         
         const paymentFormData = new FormData();
-        paymentFormData.append("aadhaar", formData.aadhaar);
+        paymentFormData.append("aadhaar", adhaar);
         paymentFormData.append("paymentId", paymentData.paymentId);
         paymentFormData.append("paymentScreenshot", paymentData.paymentScreenshot);
 
         // Replace with your actual payment verification endpoint
         const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/apply-kendra/verify-payment",
+          "http://localhost:8000/api/services/apply-kendra/verify-payment",
           {
             method: "POST",
             headers: {

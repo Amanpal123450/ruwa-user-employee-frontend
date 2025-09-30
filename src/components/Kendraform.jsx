@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const Empkendra = () => {
+  const [verifyAadhar,setverifyAadhar]=useState("")
   const [formData, setFormData] = useState({
     // Personal Details
     title: "",
@@ -90,7 +91,7 @@ const Empkendra = () => {
         }
 
         const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/apply-kendra/check",
+          "http://localhost:8000/api/services/apply-kendra/check",
           {
             method: "GET",
             headers: {
@@ -304,7 +305,7 @@ const Empkendra = () => {
         });
 
         const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/apply-kendra/apply",
+          "http://localhost:8000/api/services/apply-kendra/apply",
           {
             method: "POST",
             headers: {
