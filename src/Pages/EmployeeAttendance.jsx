@@ -201,8 +201,9 @@ export default function EmployeeAttendance() {
 
   return (
     <>
+
       {/* Navigation Bar */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+      {/* <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div className="container-fluid">
           <Link className="navbar-brand fw-bold" to="/employee-dashboard">
             <i className="fas fa-calendar-check me-2 text-primary"></i>
@@ -277,7 +278,7 @@ export default function EmployeeAttendance() {
             </ul>
           </div>
         </div>
-      </nav>
+      </nav> */}
 
       <div className="dashboard-container">
         <div className="container-fluid py-4">
