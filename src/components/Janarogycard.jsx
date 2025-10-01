@@ -9,7 +9,7 @@ export default function Janarogycard() {
     name: "",
     aadhar: "",
     mobile: "",
-      DOB: "", // ✅ Added DOB
+      dob: "", // ✅ Added DOB
        email: "",   // ✅ new field
        gender: "", 
     state: "",
@@ -32,7 +32,7 @@ export default function Janarogycard() {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        "https://ruwa-backend.onrender.com/api/services/janarogya/check",
+        "http://localhost:8000/api/services/janarogya/check",
         {
           method: "GET",
           headers: {
@@ -80,7 +80,7 @@ export default function Janarogycard() {
   const token = localStorage.getItem("token");
   if (!token) return; // ✅ skip if not logged in
 
-  fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
+  fetch("http://localhost:8000/api/auth/profile", {
     headers: { Authorization: `Bearer ${token}` },
   })
     .then((res) => res.json())
@@ -92,12 +92,12 @@ export default function Janarogycard() {
         mobile: user.phone || "",
         aadhar: user.aadhar || "",
         email:user.email || "",
-        DOB:user.DOB
+        dob:user.DOB || ""
       }));
     })
     .catch((err) => console.error("Profile fetch failed:", err));
 }, []);
-
+console.log(formData.dob)
 
   const cardServices = [
     {
@@ -150,7 +150,7 @@ export default function Janarogycard() {
       errs.aadhar = "Aadhaar must be 12 digits";
     if (!formData.mobile || !/^\d{10}$/.test(formData.mobile))
       errs.mobile = "Valid 10-digit mobile number required";
-      if (!formData.DOB) errs.DOB = "Date of Birth is required"; // ✅ DOB validation
+      if (!formData.dob) errs.dob = "Date of Birth is required"; // ✅ DOB validation
     if (!formData.state) errs.state = "State is required";
     if (!formData.district) errs.district = "District is required";
     if (!formData.captcha || formData.captcha !== captchaCode)
@@ -194,7 +194,7 @@ export default function Janarogycard() {
       if (formData.ration_id) form.append("ration_id", formData.ration_id);
       if (formData.profilePicUser)
   form.append("profilePicUser", formData.profilePicUser);
-form.append("DOB", formData.DOB);
+form.append("DOB", formData.dob);
 form.append("gender", formData.gender);
 form.append("email", formData.email);
 
@@ -203,7 +203,7 @@ form.append("email", formData.email);
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/janarogya/user/apply",
+          "http://localhost:8000/api/services/janarogya/user/apply",
           {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
@@ -297,6 +297,7 @@ form.append("email", formData.email);
                 <Form.Label>Full Name</Form.Label>
                 <Form.Control
                   name="name"
+                  readOnly
                   value={formData.name}
                   onChange={handleChange}
                   isInvalid={!!errors.name}
@@ -309,6 +310,7 @@ form.append("email", formData.email);
       <Form.Label>Aadhaar Number</Form.Label>
       <Form.Control
         name="aadhar"
+        readOnly
         value={formData.aadhar}
         onChange={handleChange}
         isInvalid={!!errors.aadhar}
@@ -334,14 +336,15 @@ form.append("email", formData.email);
               <Col md={6}>
   <Form.Label>Date of Birth</Form.Label>
   <Form.Control
-    type="date"
-    name="DOB"
-    value={formData.DOB}
+  readOnly
+    type="text"
+    name="dob"
+    value={formData.dob}
     onChange={handleChange}
-    isInvalid={!!errors.DOB}
+    isInvalid={!!errors.dob}
   />
   <Form.Control.Feedback type="invalid">
-    {errors.DOB}
+    {errors.dob}
   </Form.Control.Feedback>
 </Col>
 

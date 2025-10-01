@@ -120,7 +120,7 @@ export default function Jansawviman() {
       // Get token from localStorage or wherever you store it
       const token = localStorage.getItem('token');
       
-      const response = await fetch('https://ruwa-backend.onrender.com/api/sevaApplication/apply', {
+      const response = await fetch('https://ruwa-backend.onrender.com/api/services/sevaApplication/apply', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

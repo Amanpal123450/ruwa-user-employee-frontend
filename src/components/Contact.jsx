@@ -60,7 +60,7 @@ export default function Contact() {
     try {
       const fullPhone = `${formData.countryCode}${formData.phone}`;
 
-      const res = await fetch(`"https://ruwa-backend.onrender.com/api/contact/submit`, {
+      const res = await fetch(`https://ruwa-backend.onrender.com/api/contact/submit`, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

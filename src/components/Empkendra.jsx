@@ -352,7 +352,7 @@ const Empkendra = () => {
 
         // Replace with your actual payment verification endpoint
         const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/apply-kendra/verify-payment",
+          "http://localhost:8000/api/services/apply-kendra/verify-payment",
           {
             method: "POST",
             headers: {

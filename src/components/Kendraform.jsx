@@ -209,6 +209,7 @@ const Empkendra = () => {
     .then((res) => res.json())
     .then((data) => {
       const user = data?.user || {};
+      setverifyAadhar(user.aadhar)
       setFormData((prev) => ({
         ...prev,
         name: user.name || "",
@@ -399,7 +400,7 @@ const Empkendra = () => {
         const token = localStorage.getItem("token");
         
         const paymentFormData = new FormData();
-        paymentFormData.append("aadhaar", formData.aadhaar);
+        paymentFormData.append("aadhaar", verifyAadhar);
         paymentFormData.append("paymentId", paymentData.paymentId);
         paymentFormData.append("paymentScreenshot", paymentData.paymentScreenshot);
 
@@ -568,7 +569,7 @@ const Empkendra = () => {
                           <div className="card-info">
                             <h4 className="card-title">{info.title}</h4>
                             <ul className="card-description">
-                              {info.description.map((point, i) => (
+                              {info?.description?.map((point, i) => (
                                 <li key={i}>{point}</li>
                               ))}
                             </ul>
@@ -939,7 +940,7 @@ const Empkendra = () => {
                               </tr>
                             </thead>
                             <tbody>
-                              {formData.educationalQualifications.map((qual, index) => (
+                              {formData.educationalQualifications?.map((qual, index) => (
                                 <tr key={index}>
                                   <td>
                                     <input
@@ -1088,7 +1089,7 @@ const Empkendra = () => {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {formData.previousWorkExperience.map((exp, index) => (
+                                  {formData.previousWorkExperience?.map((exp, index) => (
                                     <tr key={index}>
                                       <td>
                                         <input
@@ -1169,7 +1170,7 @@ const Empkendra = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {formData.businessDetails.map((business, index) => (
+                                {formData.businessDetails?.map((business, index) => (
                                   <tr key={index}>
                                     <td>
                                       <input
@@ -1269,7 +1270,7 @@ const Empkendra = () => {
                           Does your professional background involve any of the following?
                         </label>
                         <div className="row">
-                          {professionalBackgroundOptions.map((option, index) => (
+                          {professionalBackgroundOptions?.map((option, index) => (
                             <div key={index} className="col-md-6 mb-2">
                               <div className="form-check">
                                 <input

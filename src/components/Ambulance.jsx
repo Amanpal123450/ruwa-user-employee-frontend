@@ -171,7 +171,7 @@
 
 //   );
 // }
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // import { useState } from "react";
 import axios from "axios";
@@ -392,7 +392,27 @@ export default function Ambulance() {
       alert(error.response?.data?.message || "Failed to book ambulance");
     }
   };
-
+useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (!token) return; // ✅ skip if not logged in
+    
+      fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const user = data?.user || {};
+          setFormData((prev) => ({
+            ...prev,
+            fullName: user.name || "",
+            phone: user.phone || "",
+            email: user.email || "",
+           
+            
+          }));
+        })
+        .catch((err) => console.error("Profile fetch failed:", err));
+    }, []);
   return (
     <section className="section services__v3 py-5" id="services">
       <div className="container">
@@ -434,15 +454,15 @@ export default function Ambulance() {
           <div className="row g-3">
             <div className="col-md-6">
               <label className="form-label">Full Name</label>
-              <input name="fullName" value={formData.fullName} onChange={handleChange} type="text" className="form-control" placeholder="Enter your full name" required />
+              <input name="fullName" value={formData.fullName} readOnly onChange={handleChange} type="text" className="form-control" placeholder="Enter your full name" required />
             </div>
             <div className="col-md-6">
               <label className="form-label">Phone Number</label>
-              <input name="phone" value={formData.phone} onChange={handleChange} type="tel" className="form-control" placeholder="e.g. 9876543210" required />
+              <input name="phone" value={formData.phone} readOnly onChange={handleChange} type="tel" className="form-control" placeholder="e.g. 9876543210" required />
             </div>
             <div className="col-md-6">
               <label className="form-label">Email</label>
-              <input name="email" value={formData.email} onChange={handleChange} type="email" className="form-control" placeholder="your@email.com" required />
+              <input name="email" value={formData.email} readOnly onChange={handleChange} type="email" className="form-control" placeholder="your@email.com" required />
             </div>
             
             {/* New Location Field */}
