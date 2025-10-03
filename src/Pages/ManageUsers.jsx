@@ -185,9 +185,9 @@ export default function ManageUsers() {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('token');
       
-      const response = await axios.delete(`${API_BASE_URL}/users/${userId}`, {
+      const response = await axios.delete(`${API_BASE_URL}/delete/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -559,7 +559,7 @@ export default function ManageUsers() {
                                 </div>
                                 <button
                                   className="btn btn-outline-danger"
-                                  onClick={() => handleDeleteUser(user.id)}
+                                  onClick={() => handleDeleteUser(user._id)}
                                   title="Delete User"
                                 >
                                   <i className="fas fa-trash"></i>
