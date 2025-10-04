@@ -183,6 +183,7 @@ export default function Header() {
       return [
         { label: "My Profile", path: "/profile" },
         { label: "Card", path: "/profilecard" },
+         { label: "Wallet", path: "/WalletApp" },
       ];
     }
   };
