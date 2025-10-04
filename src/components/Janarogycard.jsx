@@ -358,161 +358,203 @@ export default function Janarogycard() {
 };
 
 
-  const AadhaarStyleReceipt = ({ receiptData }) => {
-    if (!receiptData) return null;
+ const AadhaarStyleReceipt = ({ receiptData }) => {
+  if (!receiptData) return null;
 
-    return (
-      <Card id="aadhaar-receipt-content" className="border-dark">
-        <Card.Body className="p-4">
-          <div className="receipt-header text-center mb-4 border-bottom border-dark pb-3">
-            <h4 className="mb-1 fw-bold">Unique Identification Authority of India</h4>
-            <h5 className="mb-0">Government of India</h5>
-            <h6 className="mb-0 mt-2">Acknowledgement/Resident Copy</h6>
-          </div>
-
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Enrolment No:</span>
-              <span>{receiptData.enrollmentNo}</span>
+  return (
+    <div id="aadhaar-receipt-content" className="max-w-4xl mx-auto bg-white shadow-lg">
+      <div className="border-4 border-gray-800 p-8">
+        {/* Header */}
+        <div className="text-center border-b-2 border-gray-800 pb-4 mb-6">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-xl">आ</span>
             </div>
-            <div className="detail-row">
-              <span className="detail-label">Date:</span>
-              <span>{receiptData.submissionDate}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">NPR Rept No:</span>
-              <span>Not Given</span>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Unique Identification Authority of India</h1>
+              <h2 className="text-lg font-semibold text-gray-700">भारतीय विशिष्ट पहचान प्राधिकरण</h2>
             </div>
           </div>
+          <p className="text-sm text-gray-600 mt-2">Government of India / भारत सरकार</p>
+          <h3 className="text-lg font-bold text-gray-800 mt-3 uppercase tracking-wide">
+            Acknowledgement / Resident Copy
+          </h3>
+        </div>
 
-          <hr className="my-3" />
+        {/* Enrollment Details */}
+        <div className="grid grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 border border-gray-300">
+          <div className="flex justify-between">
+            <span className="font-semibold text-gray-700">Enrolment No:</span>
+            <span className="font-mono text-gray-900">{receiptData.enrollmentNo}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold text-gray-700">Date:</span>
+            <span className="text-gray-900">{receiptData.submissionDate}</span>
+          </div>
+          <div className="flex justify-between col-span-2">
+            <span className="font-semibold text-gray-700">NPR Rept No:</span>
+            <span className="text-gray-600 italic">Not Given</span>
+          </div>
+        </div>
 
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label fw-bold">{receiptData.name} ({receiptData.gender})</span>
+        {/* Personal Information */}
+        <div className="mb-6 p-4 border-2 border-gray-800 bg-blue-50">
+          <div className="mb-3">
+            <span className="text-xl font-bold text-gray-900 uppercase">{receiptData.name}</span>
+            <span className="ml-3 text-lg text-gray-700">({receiptData.gender})</span>
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <div className="flex">
+              <span className="font-semibold text-gray-700 w-32">S/O:</span>
+              <span className="text-gray-600 italic">Not Given</span>
             </div>
-            <div className="detail-row">
-              <span className="detail-label">S/O:</span>
-              <span>Not Given</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Address:</span>
-              <span className="text-end">
-                {receiptData.district}<br />
-                {receiptData.state}<br />
-                PIN: Not Given
-              </span>
+            <div className="flex">
+              <span className="font-semibold text-gray-700 w-32">Address:</span>
+              <div className="text-gray-900">
+                <div>{receiptData.district}</div>
+                <div>{receiptData.state}</div>
+                <div className="text-gray-600 italic">PIN: Not Given</div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <hr className="my-3" />
+        {/* Contact & DOB */}
+        <div className="grid grid-cols-1 gap-3 mb-6 p-4 bg-gray-50 border border-gray-300">
+          <div className="flex justify-between">
+            <span className="font-semibold text-gray-700">Date Of Birth:</span>
+            <span className="text-gray-900">{receiptData.DOB} <span className="text-sm text-blue-600">(DECLARED)</span></span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold text-gray-700">Mobile:</span>
+            <span className="font-mono text-gray-900">{receiptData.mobile || "Not Given"}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold text-gray-700">Email:</span>
+            <span className="text-gray-900 break-all">{receiptData.email}</span>
+          </div>
+        </div>
 
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Date Of Birth:</span>
-              <span>{receiptData.DOB} (DECLARED)</span>
+        {/* Documents & Bank */}
+        <div className="space-y-3 mb-6">
+          <div className="flex justify-between p-3 bg-white border border-gray-300">
+            <span className="font-semibold text-gray-700">Documents:</span>
+            <span className="text-gray-900 text-right">Income Certificate, Ration Card</span>
+          </div>
+          <div className="flex justify-between p-3 bg-white border border-gray-300">
+            <span className="font-semibold text-gray-700">Bank details:</span>
+            <span className="text-gray-900 text-right">New Aadhaar enabled bank account/STATE BANK OF INDIA</span>
+          </div>
+          <div className="flex justify-between p-3 bg-white border border-gray-300">
+            <span className="font-semibold text-gray-700">Information Sharing Consent:</span>
+            <span className="text-green-600 font-semibold">Yes</span>
+          </div>
+        </div>
+
+        {/* Registrar & Agency */}
+        <div className="mb-6 p-4 bg-yellow-50 border-2 border-yellow-400">
+          <div className="flex justify-between mb-2">
+            <span className="font-semibold text-gray-700">Registrar:</span>
+            <span className="text-gray-900">{receiptData.registrar}</span>
+          </div>
+          <div className="flex justify-between mb-3">
+            <span className="font-semibold text-gray-700">Enrolment Agency:</span>
+            <span className="text-gray-900">{receiptData.enrollmentAgency}</span>
+          </div>
+          <p className="text-xs text-red-600 font-semibold border-t border-yellow-400 pt-2">
+            ⚠ Correction (if any) of demographic information must be made within 96 hours of enrolment
+          </p>
+        </div>
+
+        {/* Status Message */}
+        <div className={`p-4 mb-6 border-2 ${receiptData.status === "approved" ? "bg-green-50 border-green-500" : "bg-blue-50 border-blue-500"}`}>
+          <p className="text-sm text-gray-800 text-center mb-2">
+            {receiptData.status === "approved" 
+              ? "✓ Your Jan Arogya Card has been approved and will be delivered to your address mentioned on this receipt in around 60-90 days."
+              : "⏳ Your Jan Arogya Card application is under review. You will receive updates on your registered mobile and email."
+            }
+          </p>
+          <p className="text-xs text-gray-700 text-center font-semibold">
+            You can get only one Jan Arogya Card. Please do not enrol again unless asked to.
+          </p>
+        </div>
+
+        {/* Contact Information */}
+        <div className="text-center p-4 bg-gray-100 border border-gray-300 mb-6">
+          <p className="font-semibold text-gray-800 mb-2">For enquiry, please contact:</p>
+          <p className="text-sm text-blue-600">help-janarogya.gov.in</p>
+          <p className="text-sm text-blue-600">http://www.janarogya.gov.in</p>
+          <p className="text-sm font-mono text-gray-800">1800 180 1947</p>
+          <p className="text-xs text-gray-600 mt-2">P.O. Box #1947, New Delhi-110001</p>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t-4 border-double border-gray-800 my-6"></div>
+
+        {/* Biometric Information */}
+        <div className="mb-6 p-4 bg-purple-50 border border-purple-300">
+          <h4 className="font-bold text-gray-800 mb-3">Biometric Information</h4>
+          <div className="space-y-2">
+            <div>
+              <p className="font-semibold text-gray-700 mb-1">Fingerprint quality:</p>
+              <div className="flex gap-4 text-sm">
+                <span className="text-gray-600">Left: ✓</span>
+                <span className="text-gray-600">Right: ✓</span>
+              </div>
+              <p className="text-xs text-green-600 mt-1">✓ Good Quality fingerprint, recommended for authentication.</p>
             </div>
-            <div className="detail-row">
-              <span className="detail-label">Mobile:</span>
-              <span>{receiptData.mobile || "Not Given"}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Email:</span>
-              <span>{receiptData.email}</span>
+            <div className="pt-2 border-t border-purple-200">
+              <span className="font-semibold text-gray-700">Biometrics Captured:</span>
+              <span className="ml-3 text-gray-900">Fingers(10), Iris(2), Face</span>
             </div>
           </div>
+        </div>
 
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Documents:</span>
-              <span>Income Certificate, Ration Card</span>
+        {/* Signature */}
+        <div className="text-right mt-8 pt-6 border-t-2 border-gray-300">
+          <div className="inline-block text-center">
+            <div className="w-48 h-16 border-b-2 border-gray-800 mb-2 flex items-center justify-center">
+              <span className="font-cursive text-lg text-gray-700">Veldandi Sridhar</span>
             </div>
+            <p className="text-sm font-semibold text-gray-800">Enrolment Operator</p>
+            <p className="text-xs text-gray-600">(Authorized Signature)</p>
           </div>
+        </div>
 
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Bank details:</span>
-              <span>New Aadhaar enabled bank account/STATE BANK OF INDIA</span>
-            </div>
-          </div>
+        {/* Footer */}
+        <div className="mt-6 pt-4 border-t border-gray-300 text-center">
+          <p className="text-xs text-gray-500">
+            This is a computer-generated acknowledgement and does not require a physical signature
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Information Sharing Consent</span>
-              <span>Yes</span>
-            </div>
-          </div>
-
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Registrar:</span>
-              <span>{receiptData.registrar}</span>
-            </div>
-            <div className="small text-muted mt-1">
-              Correction (if any) of demographic information must be made within 96 hours of enrolment
-            </div>
-          </div>
-
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Enrolment Agency:</span>
-              <span>{receiptData.enrollmentAgency}</span>
-            </div>
-          </div>
-
-          <div className="section text-center small">
-            <p className="mb-1">
-              {receiptData.status === "approved" 
-                ? "Your Jan Arogya Card has been approved and will be delivered to your address mentioned on this receipt in around 60-90 days."
-                : "Your Jan Arogya Card application is under review. You will receive updates on your registered mobile and email."
-              }
-            </p>
-            <p className="mb-0">
-              You can get only one Jan Arogya Card. Please do not enrol again unless asked to.
-            </p>
-          </div>
-
-          <div className="section text-center small">
-            <p className="mb-1">For enquiry, please contact:</p>
-            <p className="mb-1">help-janarogya.gov.in</p>
-            <p className="mb-1">http://www.janarogya.gov.in</p>
-            <p className="mb-1">1800 180 1947</p>
-            <p className="mb-0">P.O. Box #1947, New Delhi-110001</p>
-          </div>
-
-          <hr className="my-3" />
-          <hr className="my-3" />
-
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Fingerprint quality</span>
-            </div>
-            <div className="detail-row">
-              <span>Left Right</span>
-            </div>
-            <div className="detail-row small">
-              <span>Good Quality fingerprint, recommended for authentication.</span>
-            </div>
-          </div>
-
-          <div className="section">
-            <div className="detail-row">
-              <span className="detail-label">Biometrics Captured:</span>
-              <span>Fingers(10), Iris(2), Face</span>
-            </div>
-          </div>
-
-          <div className="signature mt-5 pt-3">
-            <div className="text-center">
-              <p className="mb-1 fw-bold">Veldandi Sridhar(Signature)</p>
-              <p className="mb-0">Enrolment Operator</p>
-            </div>
-          </div>
-        </Card.Body>
-      </Card>
-    );
+// Demo with sample data
+const Demo = () => {
+  const sampleData = {
+    enrollmentNo: "1234/56789/01234",
+    submissionDate: "04/10/2025",
+    name: "RAJESH KUMAR SHARMA",
+    gender: "Male",
+    district: "Ghaziabad",
+    state: "Uttar Pradesh",
+    DOB: "15/08/1985",
+    mobile: "+91 98765 43210",
+    email: "rajesh.sharma@email.com",
+    registrar: "Ministry of Health and Family Welfare",
+    enrollmentAgency: "Jan Arogya Seva Kendra, Ghaziabad",
+    status: "approved"
   };
 
+  return (
+    <div className="min-h-screen bg-gray-200 p-8">
+      <AadhaarStyleReceipt receiptData={sampleData} />
+    </div>
+  );
+};
   if (loading) {
     return <div className="text-center py-5">Loading...</div>;
   }
