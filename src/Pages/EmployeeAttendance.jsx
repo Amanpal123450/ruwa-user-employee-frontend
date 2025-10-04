@@ -73,24 +73,32 @@ export default function EmployeeAttendance() {
 
   // Fetch summary stats
   const fetchSummary = async () => {
-    try {
-      const response = await api.get("/api/attendance/summary");
-      const summary = response.data.summary;
+  try {
+    const today = new Date();
+    const month = today.getMonth() + 1; // JS month is 0-based
+    const year = today.getFullYear();
 
-      setMonthlyStats({
-        present: parseInt(summary.present) || 0,
-        late: parseInt(summary.lateArrival) || 0,
-        absent: parseInt(summary.absent) || 0,
-        earlyDeparture: parseInt(summary.leftEarly) || 0,
-        paidLeave: parseInt(summary.paidLeave) || 0,
-        totalWorkingHours: parseFloat(summary.totalWorkingHours) || 0,
-        requiredWorkingHours: parseFloat(summary.requiredHours) || 0,
-        hoursDifference: parseFloat(summary.balance) || 0,
-      });
-    } catch (error) {
-      console.error("Error fetching summary stats:", error);
-    }
-  };
+    const response = await api.get(
+      `https://ruwa-backend.onrender.com/api/attendance/summary?month=${month}&year=${year}`
+    );
+
+    const summary = response.data.summary;
+
+    setMonthlyStats({
+      present: parseInt(summary.present) || 0,
+      late: parseInt(summary.lateArrival) || 0,
+      absent: parseInt(summary.absent) || 0,
+      earlyDeparture: parseInt(summary.leftEarly) || 0,
+      paidLeave: parseInt(summary.paidLeave) || 0,
+      totalWorkingHours: parseFloat(summary.totalWorkingHours) || 0,
+      requiredWorkingHours: parseFloat(summary.requiredHours) || 0,
+      hoursDifference: parseFloat(summary.balance) || 0,
+    });
+  } catch (error) {
+    console.error("Error fetching summary stats:", error);
+  }
+};
+
 
   // Handle Check-in
   const handleCheckIn = async () => {

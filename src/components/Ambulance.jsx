@@ -1,184 +1,17 @@
-// import React from 'react';
-
-// export default function Ambulance() {
-// //   const services = [
-// //   {
-// //     icon: '<i class="bi bi-truck-front fs-1 text-info"></i>',
-// //     title: '24x7 Ambulance Service',
-// //     description: [
-// //       'Emergency response: Quick and reliable ambulance dispatch anytime.',
-// //       'GPS tracking: Real-time ambulance location updates.',
-// //       'Certified staff: Trained paramedics for on-the-spot care.',
-// //       'Coverage areas: Available across urban and rural zones.',
-// //     ]
-// //   },
-// //   {
-// //     icon: '<i class="bi bi-truck-front fs-1 text-info"></i>',
-// //     title: 'Advanced Life Support Ambulance',
-// //     description: [
-// //       'Equipped with ICU-grade facilities.',
-// //       'Oxygen support, defibrillator, and critical care monitoring.',
-// //       'Ideal for critical or long-distance transfers.',
-// //     ]
-// //   },
-// //   {
-// //     icon: '<i class="bi bi-truck-front fs-1 text-info"></i>',
-// //     title: 'Free Ambulance for Card Members',
-// //     description: [
-// //       'Zero cost for Lifeline Health Card holders.',
-// //       'Covers up to 10km per ride within city limits.',
-// //       'Priority dispatch in emergencies.',
-// //     ]
-// //   },
-// //   {
-// //     icon: '<i class="bi bi-truck-front fs-1 text-info"></i>',
-// //     title: 'Intercity and Long-Distance Transfers',
-// //     description: [
-// //       'Ambulance services between cities at subsidized rates.',
-// //       'Comfortable and safe patient transport over long distances.',
-// //       'Assisted by trained support staff throughout the journey.',
-// //     ]
-// //   }
-// // ];
-// const services = [
-//   {
-//     icon: '🚑',
-//     title: '24x7 Ambulance Service',
-//     description: [
-//       'Emergency response: Quick and reliable ambulance dispatch anytime.',
-//       'GPS tracking: Real-time ambulance location updates.',
-//       'Certified staff: Trained paramedics for on-the-spot care.',
-//       'Coverage areas: Available across urban and rural zones.'
-//     ],
-//     bgClass: 'bg-white'
-//   },
-//   {
-//     icon: '🧑‍⚕️',
-//     title: 'Advanced Life Support Ambulance',
-//     description: [
-//       'Equipped with ICU-grade facilities.',
-//       'Oxygen support, defibrillator, and critical care monitoring.',
-//       'Ideal for critical or long-distance transfers.'
-//     ],
-//     bgClass: 'bg-light'
-//   },
-//   {
-//     icon: '🪪',
-//     title: 'Free Ambulance for Card Members',
-//     description: [
-//       'Zero cost for Lifeline Health Card holders.',
-//       'Covers up to 10km per ride within city limits.',
-//       'Priority dispatch in emergencies.'
-//     ],
-//     bgClass: 'bg-white'
-//   },
-//   {
-//     icon: '🛣️',
-//     title: 'Intercity & Long-Distance Transfers',
-//     description: [
-//       'Ambulance services between cities at subsidized rates.',
-//       'Comfortable and safe patient transport over long distances.',
-//       'Assisted by trained support staff throughout the journey.'
-//     ],
-//     bgClass: 'bg-light'
-//   }
-// ];
-
-//   return (
-//     <section className="section services__v3 py-5" id="services">
-//       <div className="container">
-//         <div className="row g-4">
-//           {/* Intro Card */}
-//           <div className="col-12" data-aos="fade-up">
-//             <div className="service-card p-4 rounded-4 h-100 d-flex flex-column text-center gap-3 shadow-sm">
-//               <span className="subtitle text-uppercase mb-2 text-muted fs-6">Apply for Jan Arogya Cards</span>
-
-//             </div>
-//           </div>
-//  {services.map((service, index) => (
-//             <div className="col-12" data-aos="fade-up" data-aos-delay={index * 200} key={index}>
-//               <div className="service-card p-4 rounded-4 h-100 d-flex flex-column gap-3 shadow-sm">
-//                 <div className="text-center  fs-2" dangerouslySetInnerHTML={{ __html: service.icon }} />
-//                 <h3 className="text-center fs-5 mb-2">{service.title}</h3>
-//                 <ul className="ps-3 mb-0">
-//                   {service.description.map((point, i) => (
-//                     <li key={i} className="mb-2" style={{ lineHeight: '1.6' }}>{point}</li>
-//                   ))}
-//                 </ul>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//       {/* <div className="container py-5" >
-
-//         <form>
-//           <div className="mb-3">
-//             <label className="form-label">Full Name</label>
-//             <input type="text" className="form-control" required />
-//           </div>
-//           <div className="mb-3">
-//             <label className="form-label">Phone Number</label>
-//             <input type="tel" className="form-control" required />
-//           </div>
-//           <div className="mb-3">
-//             <label className="form-label">Hospital Preference</label>
-//             <input type="text" className="form-control" />
-//           </div>
-//           <button type="submit" className="btn btn-success">Submit</button>
-//         </form>
-//       </div> */}
-//       <div className="container py-5">
-//   <h2 className="mb-4 text-center">Book an Appointment</h2>
-//   <form>
-//     <div className="row g-3">
-//       <div className="col-md-6">
-//         <label className="form-label">Full Name</label>
-//         <input type="text" className="form-control" placeholder="Enter your full name" required />
-//       </div>
-//       <div className="col-md-6">
-//         <label className="form-label">Phone Number</label>
-//         <input type="tel" className="form-control" placeholder="e.g. 9876543210" required />
-//       </div>
-//       <div className="col-md-6">
-//         <label className="form-label">Email</label>
-//         <input type="email" className="form-control" placeholder="your@email.com" required />
-//       </div>
-//       <div className="col-md-6">
-//         <label className="form-label">Hospital Preference</label>
-//         <input type="text" className="form-control" placeholder="Preferred hospital" />
-//       </div>
-//       <div className="col-md-6">
-//         <label className="form-label">Appointment Date</label>
-//         <input type="date" className="form-control" required />
-//       </div>
-//       <div className="col-md-6">
-//         <label className="form-label">Preferred Time</label>
-//         <input type="time" className="form-control" required />
-//       </div>
-//       <div className="col-12">
-//         <label className="form-label">Message / Health Concern</label>
-//         <textarea className="form-control" rows="4" placeholder="Describe your issue..." />
-//       </div>
-//     </div>
-//     <div className="text-center mt-4">
-//       <button type="submit" className="btn btn-success px-5">Submit</button>
-//     </div>
-//   </form>
-// </div>
-
-//     </section>
-
-//   );
-// }
 import React, { useEffect, useState } from 'react';
-
-// import { useState } from "react";
 import axios from "axios";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+
 
 export default function Ambulance() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [showTracker, setShowTracker] = useState(false);
+  
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -246,7 +79,6 @@ export default function Ambulance() {
   // Function to get reverse geocoded address from coordinates using free API
   const getReverseGeocode = async (latitude, longitude) => {
     try {
-      // Using Nominatim (OpenStreetMap) - free reverse geocoding service
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
         {
@@ -265,7 +97,6 @@ export default function Ambulance() {
       if (data && data.display_name) {
         return data.display_name;
       } else {
-        // Try alternative free service - BigDataCloud
         const fallbackResponse = await fetch(
           `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
         );
@@ -277,12 +108,10 @@ export default function Ambulance() {
           }
         }
         
-        // Final fallback: just return a generic location description
         return `Location coordinates provided (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
       }
     } catch (error) {
       console.error('Reverse geocoding failed:', error);
-      // Fallback: create a generic location description
       return `Current location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
     }
   };
@@ -300,7 +129,7 @@ export default function Ambulance() {
     const options = {
       enableHighAccuracy: true,
       timeout: 10000,
-      maximumAge: 60000 // Cache location for 1 minute
+      maximumAge: 60000
     };
 
     navigator.geolocation.getCurrentPosition(
@@ -308,18 +137,16 @@ export default function Ambulance() {
         const { latitude, longitude } = position.coords;
         
         try {
-          // Get human-readable address
           const address = await getReverseGeocode(latitude, longitude);
           
           setFormData({
             ...formData,
             location: address,
-            latitude: "", // Don't store coordinates in form
-            longitude: "" // Don't store coordinates in form
+            latitude: "",
+            longitude: ""
           });
         } catch (error) {
           console.error('Error getting address:', error);
-          // Still provide a location description without exact coordinates
           setFormData({
             ...formData,
             location: `Current location detected (${new Date().toLocaleTimeString()})`,
@@ -355,12 +182,68 @@ export default function Ambulance() {
     );
   };
 
+  // Generate receipt data
+  const generateReceipt = (bookingResponse, currentFormData = null) => {
+    const formDataToUse = currentFormData || bookingResponse;
+    const bookingId = bookingResponse?.bookingId || bookingResponse?._id || "AMB" + Date.now().toString().slice(-8);
+    const bookingDate = new Date().toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const bookingTime = new Date().toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return {
+      bookingId,
+      bookingDate,
+      bookingTime,
+      fullName: formDataToUse.fullName || bookingResponse?.fullName || "N/A",
+      phone: formDataToUse.phone || bookingResponse?.phone || "N/A",
+      email: formDataToUse.email || bookingResponse?.email || "N/A",
+      location: formDataToUse.location || bookingResponse?.location || "N/A",
+      hospitalPreference: formDataToUse.hospitalPreference || bookingResponse?.hospitalPreference || "Nearest Hospital",
+      appointmentDate: formDataToUse.appointmentDate || bookingResponse?.appointmentDate || "N/A",
+      preferredTime: formDataToUse.preferredTime || bookingResponse?.preferredTime || "N/A",
+      message: formDataToUse.message || bookingResponse?.message || "Emergency medical assistance",
+      status: bookingResponse?.status || "Confirmed",
+      estimatedArrival: "15-20 minutes",
+      ambulanceType: "Advanced Life Support",
+      driverName: "Will be assigned shortly",
+      vehicleNumber: "Assigning...",
+      helplineNumber: "1800-180-1947"
+    };
+  };
+
+  // Fetch user bookings
+  const fetchBookings = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        "https://ruwa-backend.onrender.com/api/services/ambulance-booking/user",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      if (response.data && response.data.bookings) {
+        setBookings(response.data.bookings);
+      }
+    } catch (error) {
+      console.error("Failed to fetch bookings:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem("token"); // JWT token
-      await axios.post(
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
         "https://ruwa-backend.onrender.com/api/services/ambulance-booking/user/book",
         formData,
         {
@@ -371,10 +254,20 @@ export default function Ambulance() {
       );
 
       setFormSubmitted(true);
+      
+      // Generate and show receipt
+      const receipt = generateReceipt(response.data);
+      setReceiptData(receipt);
+      setShowReceipt(true);
+      
+      // Refresh bookings list
+      fetchBookings();
+      
+      // Reset form
       setFormData({
-        fullName: "",
-        phone: "",
-        email: "",
+        fullName: formData.fullName,
+        phone: formData.phone,
+        email: formData.email,
         location: "",
         latitude: "",
         longitude: "",
@@ -392,32 +285,324 @@ export default function Ambulance() {
       alert(error.response?.data?.message || "Failed to book ambulance");
     }
   };
-useEffect(() => {
-      const token = localStorage.getItem("token");
-      if (!token) return; // ✅ skip if not logged in
-    
-      fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
-        headers: { Authorization: `Bearer ${token}` },
+
+  // Print receipt
+  const handlePrintReceipt = () => {
+    const receiptContent = document.getElementById('ambulance-receipt-content');
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Ambulance Booking Receipt</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              padding: 20px; 
+              max-width: 600px;
+              margin: 0 auto;
+            }
+            .receipt-header { 
+              text-align: center; 
+              margin-bottom: 20px; 
+              border-bottom: 2px solid #dc3545;
+              padding-bottom: 15px;
+            }
+            .receipt-header h2 {
+              color: #dc3545;
+              margin: 0;
+            }
+            .section { 
+              margin: 20px 0; 
+              padding: 15px;
+              background: #f8f9fa;
+              border-radius: 5px;
+            }
+            .detail-row { 
+              margin: 10px 0; 
+              display: flex;
+              justify-content: space-between;
+              padding: 5px 0;
+            }
+            .detail-label { 
+              font-weight: bold; 
+              color: #495057;
+            }
+            .detail-value {
+              text-align: right;
+            }
+            .status-badge {
+              display: inline-block;
+              padding: 5px 15px;
+              background: #28a745;
+              color: white;
+              border-radius: 20px;
+              font-weight: bold;
+            }
+            .emergency-note {
+              background: #fff3cd;
+              padding: 15px;
+              border-left: 4px solid #ffc107;
+              margin: 20px 0;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 2px solid #dee2e6;
+              color: #6c757d;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          ${receiptContent.innerHTML}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const handleDownloadReceipt = () => {
+  const input = document.getElementById('ambulance-receipt-content');
+  if (!input) return;
+
+  html2canvas(input).then((canvas) => {
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`${receiptData.bookingId || 'Ambulance_Receipt'}.pdf`);
+  });
+};
+
+
+  // Receipt Component
+  const AmbulanceReceipt = ({ receiptData }) => {
+    if (!receiptData) return null;
+
+    return (
+      <div id="ambulance-receipt-content">
+        <div className="receipt-header text-center mb-4">
+          <h2 className="text-danger mb-2">🚑 Emergency Ambulance Service</h2>
+          <h5 className="text-muted mb-0">Booking Confirmation Receipt</h5>
+        </div>
+
+        <div className="section mb-3">
+          <div className="detail-row">
+            <span className="detail-label">Booking ID:</span>
+            <span className="detail-value fw-bold text-primary">{receiptData.bookingId}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Booking Date & Time:</span>
+            <span className="detail-value">{receiptData.bookingDate} at {receiptData.bookingTime}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Status:</span>
+            <span className="status-badge bg-success">{receiptData.status}</span>
+          </div>
+        </div>
+
+        <div className="section mb-3">
+          <h6 className="mb-3 text-primary">Patient Information</h6>
+          <div className="detail-row">
+            <span className="detail-label">Name:</span>
+            <span className="detail-value">{receiptData.fullName}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Phone:</span>
+            <span className="detail-value">{receiptData.phone}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Email:</span>
+            <span className="detail-value">{receiptData.email}</span>
+          </div>
+        </div>
+
+        <div className="section mb-3">
+          <h6 className="mb-3 text-primary">Pickup & Destination</h6>
+          <div className="detail-row">
+            <span className="detail-label">Pickup Location:</span>
+            <span className="detail-value">{receiptData.location}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Hospital Preference:</span>
+            <span className="detail-value">{receiptData.hospitalPreference}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Scheduled Date:</span>
+            <span className="detail-value">{receiptData.appointmentDate}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Preferred Time:</span>
+            <span className="detail-value">{receiptData.preferredTime}</span>
+          </div>
+        </div>
+
+        <div className="section mb-3">
+          <h6 className="mb-3 text-primary">Ambulance Details</h6>
+          <div className="detail-row">
+            <span className="detail-label">Ambulance Type:</span>
+            <span className="detail-value">{receiptData.ambulanceType}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Estimated Arrival:</span>
+            <span className="detail-value text-success fw-bold">{receiptData.estimatedArrival}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Driver Name:</span>
+            <span className="detail-value">{receiptData.driverName}</span>
+          </div>
+          <div className="detail-row">
+            <span className="detail-label">Vehicle Number:</span>
+            <span className="detail-value">{receiptData.vehicleNumber}</span>
+          </div>
+        </div>
+
+        {receiptData.message && (
+          <div className="section mb-3">
+            <h6 className="mb-2 text-primary">Medical Concern:</h6>
+            <p className="mb-0 text-muted">{receiptData.message}</p>
+          </div>
+        )}
+
+        <div className="alert alert-warning mb-3">
+          <strong>⚠️ Important:</strong> Keep your phone accessible. Our team will contact you shortly with ambulance details.
+        </div>
+
+        <div className="section mb-3 text-center">
+          <h6 className="mb-2 text-danger">24/7 Emergency Helpline</h6>
+          <h4 className="mb-0 text-danger fw-bold">{receiptData.helplineNumber}</h4>
+        </div>
+
+        <div className="footer">
+          <p className="mb-1">Thank you for choosing our emergency services.</p>
+          <p className="mb-0">Stay calm, help is on the way!</p>
+        </div>
+      </div>
+    );
+  };
+
+  // Booking Tracker Component
+  const BookingTracker = ({ bookings }) => {
+    const getStatusColor = (status) => {
+      switch(status?.toLowerCase()) {
+        case 'confirmed': return 'success';
+        case 'pending': return 'warning';
+        case 'completed': return 'info';
+        case 'cancelled': return 'danger';
+        default: return 'secondary';
+      }
+    };
+
+    const handleViewReceipt = (booking) => {
+      const receipt = {
+        bookingId: booking.bookingId || booking._id || "AMB" + Date.now().toString().slice(-8),
+        bookingDate: new Date(booking.createdAt || new Date()).toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }),
+        bookingTime: new Date(booking.createdAt || new Date()).toLocaleTimeString('en-IN', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        fullName: booking.fullName || "N/A",
+        phone: booking.phone || "N/A",
+        email: booking.email || "N/A",
+        location: booking.location || "N/A",
+        hospitalPreference: booking.hospitalPreference || "Nearest Hospital",
+        appointmentDate: booking.appointmentDate || "N/A",
+        preferredTime: booking.preferredTime || "N/A",
+        message: booking.message || "Emergency medical assistance",
+        status: booking.status || "Confirmed",
+        estimatedArrival: "15-20 minutes",
+        ambulanceType: "Advanced Life Support",
+        driverName: booking.driverName || "Will be assigned shortly",
+        vehicleNumber: booking.vehicleNumber || "Assigning...",
+        helplineNumber: "1800-180-1947"
+      };
+      
+      setReceiptData(receipt);
+      setShowReceipt(true);
+    };
+
+    return (
+      <div className="mt-4">
+        <h4 className="mb-3">Your Bookings</h4>
+        {bookings.length === 0 ? (
+          <div className="alert alert-info">No bookings found.</div>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-hover">
+              <thead className="table-light">
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Date</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking, index) => (
+                  <tr key={index}>
+                    <td className="fw-bold">{booking.bookingId || booking._id?.slice(-8)}</td>
+                    <td>{new Date(booking.appointmentDate || booking.createdAt).toLocaleDateString('en-IN')}</td>
+                    <td>{booking.location?.slice(0, 30)}...</td>
+                    <td>
+                      <span className={`badge bg-${getStatusColor(booking.status)}`}>
+                        {booking.status || 'Pending'}
+                      </span>
+                    </td>
+                    <td>
+                      <button 
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => handleViewReceipt(booking)}
+                      >
+                        View Receipt
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+  
+    fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const user = data?.user || {};
+        setFormData((prev) => ({
+          ...prev,
+          fullName: user.name || "",
+          phone: user.phone || "",
+          email: user.email || "",
+        }));
       })
-        .then((res) => res.json())
-        .then((data) => {
-          const user = data?.user || {};
-          setFormData((prev) => ({
-            ...prev,
-            fullName: user.name || "",
-            phone: user.phone || "",
-            email: user.email || "",
-           
-            
-          }));
-        })
-        .catch((err) => console.error("Profile fetch failed:", err));
-    }, []);
+      .catch((err) => console.error("Profile fetch failed:", err));
+    
+    // Fetch existing bookings
+    fetchBookings();
+  }, []);
+
   return (
     <section className="section services__v3 py-5" id="services">
       <div className="container">
         <div className="row g-4">
-          <div className="col-12 " data-aos="fade-up">
+          <div className="col-12" data-aos="fade-up">
             <div className="service-card p-4 rounded-4 h-100 d-flex flex-column text-center gap-3 shadow-sm">
               <span className="subtitle text-uppercase mb-2 text-muted fs-6">
                 Book your Ambulance 
@@ -442,13 +627,65 @@ useEffect(() => {
       </div>
 
       <div className="container py-5">
-        <h2 className="mb-4 text-center">Book an Appointment</h2>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2 className="mb-0">Book an Appointment</h2>
+          <button 
+            className="btn btn-outline-primary"
+            onClick={() => setShowTracker(!showTracker)}
+          >
+            {showTracker ? 'Hide' : 'Track'} Bookings
+          </button>
+        </div>
 
         {formSubmitted && (
           <div className="alert alert-success text-center fw-semibold" role="alert">
             ✅ Appointment booked successfully!
           </div>
         )}
+
+        {/* Receipt Modal */}
+        {showReceipt && (
+          <div className="modal show d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-lg modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Ambulance Booking Receipt</h5>
+                  <button 
+                    type="button" 
+                    className="btn-close" 
+                    onClick={() => setShowReceipt(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <AmbulanceReceipt receiptData={receiptData} />
+                </div>
+                <div className="modal-footer">
+                  <button 
+                    className="btn btn-secondary" 
+                    onClick={() => setShowReceipt(false)}
+                  >
+                    Close
+                  </button>
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={handlePrintReceipt}
+                  >
+                    Print Receipt
+                  </button>
+                    <button 
+    className="btn btn-success" 
+    onClick={handleDownloadReceipt}
+  >
+    Download PDF
+  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Booking Tracker */}
+        {showTracker && <BookingTracker bookings={bookings} />}
 
         <form onSubmit={handleSubmit}>
           <div className="row g-3">
@@ -465,7 +702,6 @@ useEffect(() => {
               <input name="email" value={formData.email} readOnly onChange={handleChange} type="email" className="form-control" placeholder="your@email.com" required />
             </div>
             
-            {/* New Location Field */}
             <div className="col-md-6">
               <label className="form-label">Location</label>
               <div className="input-group">
