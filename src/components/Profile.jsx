@@ -346,7 +346,7 @@ export default function Profile() {
       const formDataToSend = new FormData();
       formDataToSend.append('image', file);
 
-      const res = await fetch("https://ruwa-backend.onrender.com/api/uu/upload-profile", {
+      const res = await fetch("https://ruwa-backend.onrender.com/api/update/upload-profile", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -374,39 +374,39 @@ export default function Profile() {
     }
   };
 
-  const handleDOBUpdate = async () => {
-    if (!formData.DOB) {
-      alert("Please select a date of birth");
-      return;
-    }
+  // const handleDOBUpdate = async () => {
+  //   if (!formData.DOB) {
+  //     alert("Please select a date of birth");
+  //     return;
+  //   }
 
-    try {
-      const res = await fetch("https://ruwa-backend.onrender.com/api/uu/upload-DOB", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ DOB: formData.DOB }),
-      });
+  //   try {
+  //     const res = await fetch("https://ruwa-backend.onrender.com/api/uu/upload-DOB", {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //       },
+  //       body: JSON.stringify({ DOB: formData.DOB }),
+  //     });
 
-      if (!res.ok) {
-        throw new Error("Failed to update DOB");
-      }
+  //     if (!res.ok) {
+  //       throw new Error("Failed to update DOB");
+  //     }
 
-      const data = await res.json();
-      setFormData(data.profile);
-      alert("Date of birth updated successfully!");
-    } catch (err) {
-      console.error("Error updating DOB:", err);
-      alert("Error updating date of birth. Please try again.");
-    }
-  };
+  //     const data = await res.json();
+  //     setFormData(data.profile);
+  //     alert("Date of birth updated successfully!");
+  //   } catch (err) {
+  //     console.error("Error updating DOB:", err);
+  //     alert("Error updating date of birth. Please try again.");
+  //   }
+  // };
 
   const handleToggleEdit = async () => {
     if (editable) {
       try {
-        const res = await fetch("https://ruwa-backend.onrender.com/api/uu/profile", {
+        const res = await fetch("https://ruwa-backend.onrender.com/api/update/profile", {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -416,6 +416,7 @@ export default function Profile() {
             name: formData.name,
             phone: formData.phone,
             email: formData.email,
+            DOB: formData.DOB,
           }),
         });
 
@@ -571,13 +572,13 @@ export default function Profile() {
                       className="form-control form-control-sm d-inline-block"
                       style={{ width: "200px" }}
                     />
-                    <button 
+                    {/* <button 
                       className="btn btn-sm btn-outline-primary ms-2"
                       onClick={handleDOBUpdate}
                       type="button"
                     >
                       Update DOB
-                    </button>
+                    </button> */}
                   </div>
                 ) : (
                   <span className="ms-2">{formatDate(formData.DOB) || "Not set"}</span>
