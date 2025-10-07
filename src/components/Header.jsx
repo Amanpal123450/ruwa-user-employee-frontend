@@ -168,6 +168,7 @@ export default function Header() {
         { label: "About Us", path: "/about" },
         { label: "Services", path: "/services" },
         { label: "Contact", path: "/contact" },
+        { label: "Carriers", path: "/career" },
       ];
     }
   };

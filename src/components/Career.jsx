@@ -1,363 +1,186 @@
-// // // import React from "react";
-
-// // // const jobOpenings = [
-// // //   {
-// // //     id: 1,
-// // //     title: "Frontend Developer (React)",
-// // //     location: "Remote / Noida",
-// // //     type: "Full-Time",
-// // //     description:
-// // //       "We are looking for a skilled React developer with strong knowledge of JavaScript, HTML, CSS, and responsive UI/UX design.",
-// // //   },
-// // //   {
-// // //     id: 2,
-// // //     title: "Backend Developer (Node.js)",
-// // //     location: "Remote / Bengaluru",
-// // //     type: "Full-Time",
-// // //     description:
-// // //       "Join our backend team to work on scalable APIs, database architecture, and secure backend systems.",
-// // //   },
-// // //   {
-// // //     id: 3,
-// // //     title: "Graphic Designer",
-// // //     location: "On-Site / Delhi",
-// // //     type: "Part-Time",
-// // //     description:
-// // //       "Looking for a creative designer with experience in Adobe Suite, Canva, and branding design.",
-// // //   },
-// // // ];
-
-// // // export default function Career() {
-// // //   return (
-// // //     <div className="container py-5">
-// // //       <div className="text-center mb-5">
-// // //         <h1 className="fw-bold">🚀 Join Our Team</h1>
-// // //         <p className="lead text-muted">We’re always looking for passionate, skilled individuals to grow with us.</p>
-// // //       </div>
-
-// // //       <div className="row g-4">
-// // //         {jobOpenings.map((job) => (
-// // //           <div className="col-md-6" key={job.id}>
-// // //             <div className="card shadow-sm h-100">
-// // //               <div className="card-body">
-// // //                 <h5 className="card-title">{job.title}</h5>
-// // //                 <h6 className="card-subtitle mb-2 text-muted">{job.location} | {job.type}</h6>
-// // //                 <p className="card-text">{job.description}</p>
-// // //                 <a href="/apply" className="btn btn-primary">Apply Now</a>
-// // //               </div>
-// // //             </div>
-// // //           </div>
-// // //         ))}
-// // //       </div>
-
-// // //       <hr className="my-5" />
-
-// // //       <div className="text-center">
-// // //         <h2 className="fw-bold mb-3">Why Work With Us?</h2>
-// // //         <p className="text-muted mb-4">
-// // //           At RUWA India, we value innovation, creativity, and collaboration. Enjoy flexible work, growth opportunities, and a positive work culture.
-// // //         </p>
-// // //         <a href="/contact" className="btn btn-outline-secondary">Contact HR</a>
-// // //       </div>
-// // //     </div>
-// // //   );
-// // // }
-
-
-
-
-
-
-
-// // by api 
-// // import React, { useEffect, useState } from 'react';
-// // import axios from 'axios';
-
-// // export default function Career() {
-// //   const [jobs, setJobs] = useState([]);
-// //   const [selectedCategory, setSelectedCategory] = useState('All');
-
-// //   const fetchJobs = async (category = 'All') => {
-// //     try {
-// //       const res = await axios.get(`http://192.168.1.6:5000/api/jobs?category=${category}`);
-// //       setJobs(res.data);
-// //     } catch (err) {
-// //       console.error("Failed to fetch jobs", err);
-// //     }
-// //   };
-
-// //   useEffect(() => {
-// //     fetchJobs(selectedCategory);
-// //   }, [selectedCategory]);
-
-// //   const categories = ['All', 'Technology', 'Marketing', 'Operations', 'Support'];
-
-// //   return (
-// //     <div className="container-fluid">
-// //       <div className="row">
-// //         {/* Side Nav */}
-// //         <div className="col-md-3 p-3 border-end">
-// //           <h4>Job Categories</h4>
-// //           <ul className="list-group">
-// //             {categories.map(cat => (
-// //               <li
-// //                 key={cat}
-// //                 className={`list-group-item ${selectedCategory === cat ? 'active' : ''}`}
-// //                 onClick={() => setSelectedCategory(cat)}
-// //                 style={{ cursor: 'pointer' }}
-// //               >
-// //                 {cat}
-// //               </li>
-// //             ))}
-// //           </ul>
-// //         </div>
-
-// //         {/* Job Listings */}
-// //         <div className="col-md-9 p-4">
-// //           <h3>{selectedCategory} Openings</h3>
-// //           {jobs.length > 0 ? (
-// //             jobs.map((job) => (
-// //               <div key={job._id} className="card mb-3 shadow-sm">
-// //                 <div className="card-body">
-// //                   <h5 className="card-title">{job.title}</h5>
-// //                   <p className="card-text"><strong>Location:</strong> {job.location}</p>
-// //                   <p className="card-text"><strong>Description:</strong> {job.description}</p>
-// //                   <p className="card-text"><strong>Requirements:</strong> {job.requirements}</p>
-// //                   <button className="btn btn-primary">Apply</button>
-// //                 </div>
-// //               </div>
-// //             ))
-// //           ) : (
-// //             <p>No openings in this category.</p>
-// //           )}
-// //         </div>
-// //       </div>
-// //     </div>
-// //   );
-// // }
-
-
-
-
-
-// import React, { useState } from 'react';
-// // import './Career.css'; // optional for custom styles
-
-// const Career = () => {
-//   const [selected, setSelected] = useState('jobs');
-
-//   const jobData = [
-//     {
-//       title: 'Frontend Developer',
-//       location: 'Remote',
-//       skills: 'React, Bootstrap, API Integration',
-//     },
-//     {
-//       title: 'Backend Developer',
-//       location: 'Noida (On-site)',
-//       skills: 'Node.js, MongoDB, REST APIs',
-//     },
-//     {
-//       title: 'UI/UX Designer',
-//       location: 'Remote',
-//       skills: 'Figma, Adobe XD, Responsive Design',
-//     },
-//     {
-//       title: 'Marketing Executive',
-//       location: 'Delhi (On-site)',
-//       skills: 'SEO, Google Ads, Social Media Campaigns',
-//     },
-//     {
-//       title: 'Customer Support Associate',
-//       location: 'Remote',
-//       skills: 'Email & Chat Support, CRM Tools, Fluent English',
-//     },
-//   ];
-
-//   const content = {
-//     jobs: (
-//       <>
-//         <h3 className="mb-4">🚀 Current Openings</h3>
-//         <div className="row g-4">
-//           {jobData.map((job, idx) => (
-//             <div key={idx} className="col-md-6">
-//               <div className="card h-100 shadow-sm">
-//                 <div className="card-body">
-//                   <h5 className="card-title">{job.title}</h5>
-//                   <h6 className="card-subtitle mb-2 text-muted">{job.location}</h6>
-//                   <p className="card-text">
-//                     <strong>Skills Required:</strong> {job.skills}
-//                   </p>
-//                   <button className="btn btn-primary w-100">Apply Now</button>
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </>
-//     ),
-//     life: (
-//       <>
-//         <h3 className="mb-3">💼 Life at RUWA</h3>
-//         <p>
-//           At RUWA, we blend professionalism with creativity. Flexible timings, open communication,
-//           and a fun work environment make every day exciting.
-//         </p>
-//         <ul>
-//           <li>Flexible hours</li>
-//           <li>Monthly team outings</li>
-//           <li>Work from home options</li>
-//         </ul>
-//       </>
-//     ),
-//     culture: (
-//       <>
-//         <h3 className="mb-3">🎯 Our Culture</h3>
-//         <p>
-//           We believe in innovation, inclusion, and integrity. We encourage ownership and reward initiative.
-//           Your voice matters here.
-//         </p>
-//         <p>We hire for attitude and train for skill.</p>
-//       </>
-//     ),
-//     locations: (
-//       <>
-//         <h3 className="mb-3">📍 Office Locations</h3>
-//         <ul>
-//           <li>🏢 Head Office – Noida, Uttar Pradesh</li>
-//           <li>💻 Development – Bengaluru, Karnataka</li>
-//           <li>🎨 Design Studio – Delhi</li>
-//           <li>📞 Remote Teams – PAN India</li>
-//         </ul>
-//       </>
-//     ),
-//     apply: (
-//       <>
-//         <h3 className="mb-3">🧾 How to Apply</h3>
-//         <p>
-//           Send your updated resume to <strong>hr@ruwaindia.com</strong> with your portfolio or LinkedIn link.
-//           <br />
-//           We’ll reach out if there’s a match.
-//         </p>
-//         <p>✨ Pro tip: Include a short cover letter highlighting your motivation!</p>
-//       </>
-//     ),
-//   };
-
-//   return (
-//     <div className="container-fluid py-5">
-//       <div className="row">
-//         {/* Sidebar */}
-//         <div className="col-md-3 mb-4 mb-md-0 border-end">
-//           <div className="list-group sticky-top">
-//             {Object.keys(content).map((key) => (
-//               <button
-//                 key={key}
-//                 className={`list-group-item list-group-item-action ${selected === key ? 'active' : ''}`}
-//                 onClick={() => setSelected(key)}
-//               >
-//                 {key === 'jobs' && 'Job Openings'}
-//                 {key === 'life' && 'Life at RUWA'}
-//                 {key === 'culture' && 'Company Culture'}
-//                 {key === 'locations' && 'Office Locations'}
-//                 {key === 'apply' && 'How to Apply'}
-//               </button>
-//             ))}
-//           </div>
-//         </div>
-
-//         {/* Content */}
-//         <div className="col-md-9">
-//           <div className="p-4 bg-light rounded shadow-sm">{content[selected]}</div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Career;
-import React, { useState } from 'react';
-import { FaArrowRight, FaPaperPlane } from 'react-icons/fa';
-import Orgstructer from '../components/Orgstructer'
+import React, { useState, useEffect } from 'react';
+import { FaArrowRight, FaPaperPlane, FaMapMarkerAlt, FaRupeeSign, FaUsers, FaCalendarAlt } from 'react-icons/fa';
+import Orgstructer from '../components/Orgstructer';
 
 const Career = () => {
   const [selected, setSelected] = useState('jobs');
   const [showModal, setShowModal] = useState(false);
   const [activeJob, setActiveJob] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const jobData = [
-    {
-      title: 'Frontend Developer',
-      location: 'Remote',
-      skills: 'React, Bootstrap, API Integration',
-      description:
-        'We’re looking for a skilled Frontend Developer to create amazing user experiences. You should be proficient in React, understand UI/UX principles, and be comfortable with API integration.',
-    },
-    {
-      title: 'Backend Developer',
-      location: 'Remote',
-      skills: 'Node.js, MongoDB, REST APIs',
-      description:
-        'Build robust backend services using Node.js. Knowledge of database design, authentication, and deployment required.',
-    },
-    {
-      title: 'UI/UX Designer',
-      location: 'Remote',
-      skills: 'Figma, Adobe XD, HTML/CSS',
-      description:
-        'Craft beautiful user interfaces and delightful experiences. Translate ideas into prototypes and work with developers to implement designs.',
-    },
-    {
-      title: 'Digital Marketing Manager',
-      location: 'Remote',
-      skills: 'SEO, PPC, Google Analytics',
-      description:
-        'Drive traffic, optimize conversions, and manage campaigns. Experience with Google tools and paid channels is required.',
-    },
-    {
-      title: 'HR Executive',
-      location: 'Remote',
-      skills: 'Recruitment, Payroll, Policies',
-      description:
-        'Manage end-to-end hiring, onboarding, and employee welfare. Maintain HR compliance and payroll processes.',
-    },
-  ];
+  // API base URL - update this to match your backend
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ruwa-backend.onrender.com/api';
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Get auth token from localStorage (adjust based on your auth implementation)
+      const token = localStorage.getItem('token');
+      
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/jobs`, {
+        method: 'GET',
+        headers: headers,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Filter only active/published jobs for public view
+      const activeJobs = data.filter(job => 
+        job.jobStatus === 'active' || job.jobStatus === 'published'
+      );
+      
+      setJobs(activeJobs);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      setError('Unable to load job listings. Please try again later.');
+      // Optionally set empty array or keep sample data
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCardClick = (job) => {
     setActiveJob(job);
     setShowModal(true);
   };
 
+  const getJobTypeBadge = (category) => {
+    const types = {
+      medical: { label: 'Medical', class: 'bg-primary' },
+      driver: { label: 'Driver', class: 'bg-success' },
+      support: { label: 'Support', class: 'bg-warning' },
+      administrative: { label: 'Administrative', class: 'bg-info' },
+      technical: { label: 'Technical', class: 'bg-danger' }
+    };
+    const type = types[category?.toLowerCase()] || { label: 'Other', class: 'bg-secondary' };
+    return <span className={`badge ${type.class} position-absolute top-0 end-0 m-2`}>{type.label}</span>;
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const isApplicationOpen = (endDate) => {
+    if (!endDate) return true;
+    return new Date(endDate) >= new Date();
+  };
+
   const content = {
     jobs: (
       <>
-        <h3 className="mb-4">🚀 Current Openings</h3>
-        <div className="row">
-          {jobData.map((job, index) => (
-            <div className="col-md-6 mb-4" key={index}>
-              <div
-                className="card shadow-sm h-100 border-0 cursor-pointer"
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleCardClick(job)}
-              >
-                <div className="card-body d-flex flex-column justify-content-between">
-                  <div>
-                    <h5 className="card-title">{job.title}</h5>
-                    <p className="text-muted mb-1">
-                      <strong>Location:</strong> {job.location}
-                    </p>
-                    <p className="text-muted">
-                      <strong>Skills:</strong> {job.skills}
-                    </p>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h3 className="mb-0">🚀 Current Openings</h3>
+          <small className="text-muted">
+            Showing {jobs.filter(job => isApplicationOpen(job.applicationEndDate)).length} active positions
+          </small>
+        </div>
+        
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-3">Loading job opportunities...</p>
+          </div>
+        ) : error ? (
+          <div className="alert alert-warning" role="alert">
+            <h5 className="alert-heading">⚠️ Unable to Load Jobs</h5>
+            <p>{error}</p>
+            <button className="btn btn-sm btn-outline-warning" onClick={fetchJobs}>
+              Try Again
+            </button>
+          </div>
+        ) : jobs.filter(job => isApplicationOpen(job.applicationEndDate)).length === 0 ? (
+          <div className="text-center py-5">
+            <div className="text-muted mb-3">
+              <FaUsers size={48} />
+            </div>
+            <h5>No active positions at the moment</h5>
+            <p>Please check back later for new opportunities.</p>
+          </div>
+        ) : (
+          <div className="row">
+            {jobs
+              .filter(job => isApplicationOpen(job.applicationEndDate))
+              .map((job) => (
+              <div className="col-lg-6 mb-4" key={job._id}>
+                <div
+                  className="card shadow-sm h-100 border-0 position-relative hover-shadow"
+                  style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
+                  onClick={() => handleCardClick(job)}
+                >
+                  {getJobTypeBadge(job.jobCategory)}
+                  <div className="card-body d-flex flex-column">
+                    <div className="mb-3">
+                      <h5 className="card-title text-primary mb-2">{job.postName}</h5>
+                      <div className="d-flex flex-wrap gap-2 mb-2">
+                        <small className="text-muted">
+                          <FaMapMarkerAlt className="me-1" />
+                          {job.jobLocation || 'Location TBD'}
+                        </small>
+                        <small className="text-muted">
+                          <FaUsers className="me-1" />
+                          {job.numberOfPosts} {job.numberOfPosts === 1 ? 'post' : 'posts'}
+                        </small>
+                      </div>
+                      <div className="d-flex align-items-center mb-2">
+                        <small className="text-success">
+                          <FaRupeeSign className="me-1" />
+                          {job.payScale}
+                        </small>
+                      </div>
+                      <p className="card-text text-muted small">
+                        {job.jobResponsibilities && job.jobResponsibilities.length > 120 
+                          ? job.jobResponsibilities.substring(0, 120) + '...'
+                          : job.jobResponsibilities || 'Details available on application'
+                        }
+                      </p>
+                    </div>
+                    
+                    <div className="mt-auto">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <small className="text-muted">
+                          <FaCalendarAlt className="me-1" />
+                          Apply before: {formatDate(job.applicationEndDate)}
+                        </small>
+                      </div>
+                      <button className="btn btn-outline-primary w-100">
+                        View Details & Apply <FaArrowRight className="ms-2" />
+                      </button>
+                    </div>
                   </div>
-                  <button className="btn btn-outline-primary mt-auto w-100">
-                    View Details <FaArrowRight className="ms-2" />
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </>
     ),
     life: (
@@ -380,9 +203,9 @@ const Career = () => {
       <>
         <h3 className="mb-3">📍 Office Locations</h3>
         <ul>
-          <li>Head Office – Nashik, Maharashtra</li>
-          <li>Development – Nashik, Maharashtra</li>
-          <li>Design Studio – Nashik, Maharashtra</li>
+          <li>Head Office – Lucknow, Uttar Pradesh</li>
+          <li>Medical Facilities – Across Uttar Pradesh</li>
+          <li>Diagnostic Centers – Multiple Locations</li>
         </ul>
       </>
     ),
@@ -397,7 +220,7 @@ const Career = () => {
         <p>
           Send your updated resume to <strong>hrd@ruwaindia.com</strong> with your portfolio or LinkedIn link.
         </p>
-        <a className="btn btn-success mt-3" href="mailto:hdr@ruwaindia.com">
+        <a className="btn btn-success mt-3" href="mailto:hrd@ruwaindia.com">
           <FaArrowRight className="me-2" /> Apply Now
         </a>
       </>
@@ -437,7 +260,7 @@ const Career = () => {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Job Details Modal */}
       {activeJob && (
         <div
           className={`modal fade ${showModal ? 'show d-block' : ''}`}
@@ -445,25 +268,110 @@ const Career = () => {
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => setShowModal(false)}
         >
-          <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">{activeJob.title}</h5>
+                <div>
+                  <h5 className="modal-title">{activeJob.postName}</h5>
+                  <p className="text-muted mb-0 small">Ref: {activeJob.advertisementNumber}</p>
+                </div>
                 <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body">
-                <p><strong>Location:</strong> {activeJob.location}</p>
-                <p><strong>Required Skills:</strong> {activeJob.skills}</p>
-                <p><strong>Description:</strong> {activeJob.description}</p>
+                <div className="row mb-3">
+                  <div className="col-md-6">
+                    <p><strong><FaMapMarkerAlt className="me-2" />Location:</strong> {activeJob.jobLocation || 'N/A'}</p>
+                    <p><strong><FaRupeeSign className="me-2" />Pay Scale:</strong> {activeJob.payScale}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <p><strong><FaUsers className="me-2" />Vacancies:</strong> {activeJob.numberOfPosts}</p>
+                    <p><strong><FaCalendarAlt className="me-2" />Last Date:</strong> {formatDate(activeJob.applicationEndDate)}</p>
+                  </div>
+                </div>
+
+                {activeJob.educationalQualifications && (
+                  <div className="mb-3">
+                    <h6>Educational Qualifications</h6>
+                    <p className="text-muted">{activeJob.educationalQualifications}</p>
+                  </div>
+                )}
+
+                {activeJob.experienceRequired && (
+                  <div className="mb-3">
+                    <h6>Experience Required</h6>
+                    <p className="text-muted">{activeJob.experienceRequired}</p>
+                  </div>
+                )}
+
+                {(activeJob.minAge || activeJob.maxAge) && (
+                  <div className="mb-3">
+                    <h6>Age Criteria</h6>
+                    <p className="text-muted">
+                      {activeJob.minAge && `Min: ${activeJob.minAge} years`}
+                      {activeJob.minAge && activeJob.maxAge && ' | '}
+                      {activeJob.maxAge && `Max: ${activeJob.maxAge} years`}
+                    </p>
+                    {activeJob.ageRelaxation && (
+                      <small className="text-info">{activeJob.ageRelaxation}</small>
+                    )}
+                  </div>
+                )}
+
+                {activeJob.licenseType && (
+                  <div className="mb-3">
+                    <h6>License Requirements</h6>
+                    <p className="text-muted">{activeJob.licenseType}</p>
+                  </div>
+                )}
+
+                {activeJob.jobResponsibilities && (
+                  <div className="mb-3">
+                    <h6>Job Responsibilities</h6>
+                    <p className="text-muted">{activeJob.jobResponsibilities}</p>
+                  </div>
+                )}
+
+                {activeJob.additionalSkills && (
+                  <div className="mb-3">
+                    <h6>Additional Skills</h6>
+                    <p className="text-muted">{activeJob.additionalSkills}</p>
+                  </div>
+                )}
+
+                {activeJob.applicationFee && (
+                  <div className="mb-3">
+                    <h6>Application Fee</h6>
+                    <p className="text-muted">{activeJob.applicationFee}</p>
+                  </div>
+                )}
+
+                {activeJob.importantNotes && (
+                  <div className="alert alert-info">
+                    <strong>Important Notes:</strong>
+                    <p className="mb-0 mt-2">{activeJob.importantNotes}</p>
+                  </div>
+                )}
               </div>
               <div className="modal-footer">
-                <a
-                  href="mailto:hr@ruwaindia.com?subject=Job Application: [Your Role]"
-                  className="btn btn-primary"
-                >
-                  <FaPaperPlane className="me-2" />
-                  Apply Now
-                </a>
+                {activeJob.applicationMode === 'online' && activeJob.applicationLink ? (
+                  <a
+                    href={activeJob.applicationLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                  >
+                    <FaPaperPlane className="me-2" />
+                    Apply Online
+                  </a>
+                ) : (
+                  <a
+                    href={`mailto:${activeJob.applicationEmail || activeJob.contactEmail || 'hrd@ruwaindia.com'}?subject=Application for ${activeJob.postName}&body=Dear Hiring Team,%0D%0A%0D%0AI am interested in applying for the position of ${activeJob.postName} (Ref: ${activeJob.advertisementNumber}).%0D%0A%0D%0APlease find my details attached.%0D%0A%0D%0ARegards,%0D%0A[Your Name]`}
+                    className="btn btn-primary"
+                  >
+                    <FaPaperPlane className="me-2" />
+                    Apply via Email
+                  </a>
+                )}
                 <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
                   Close
                 </button>
