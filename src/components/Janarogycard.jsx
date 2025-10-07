@@ -3,14 +3,13 @@ import { Form, Button, Col, Row, Card, Modal } from "react-bootstrap";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-
 export default function Janarogycard() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
   const [captchaCode, setCaptchaCode] = useState("");
-  const[applicationId,setApplicationId]=useState("");
-  const [submissionDate,setSubmissionDate]=useState("")
+  const [applicationId, setApplicationId] = useState("");
+  const [submissionDate, setSubmissionDate] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     aadhar: "",
@@ -33,11 +32,14 @@ export default function Janarogycard() {
   // Generate receipt from application data - moved outside useEffect
   const generateReceiptFromApplication = (application) => {
     return {
-      applicationId: application.applicationId || "JAC" + Date.now().toString().slice(-8),
-      submissionDate: new Date(application.createdAt || new Date()).toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+      applicationId:
+        application.applicationId || "JAC" + Date.now().toString().slice(-8),
+      submissionDate: new Date(
+        application.createdAt || new Date()
+      ).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       }),
       name: application.name,
       aadhar: application.aadhar,
@@ -48,9 +50,11 @@ export default function Janarogycard() {
       state: application.state,
       district: application.district,
       status: application.status || "Under Review",
-      enrollmentNo: application.enrollmentNo || Math.random().toString().slice(2, 12),
+      enrollmentNo:
+        application.enrollmentNo || Math.random().toString().slice(2, 12),
       registrar: application.registrar || "Govt of " + application.state,
-      enrollmentAgency: application.enrollmentAgency || "MARS Telecom Systems Pvt Ltd"
+      enrollmentAgency:
+        application.enrollmentAgency || "MARS Telecom Systems Pvt Ltd",
     };
   };
 
@@ -72,14 +76,13 @@ export default function Janarogycard() {
         const data = await res.json();
         console.log("check response:", data);
 
-      if (data.msg === "USER ALREADY EXISTS") {
-  setExists(true);
-setReceiptData(data.application);
-} else {
-  setExists(false);
-  setReceiptData(null); // reset receipt data if user does not exist
-}
-
+        if (data.msg === "USER ALREADY EXISTS") {
+          setExists(true);
+          setReceiptData(data.application);
+        } else {
+          setExists(false);
+          setReceiptData(null); // reset receipt data if user does not exist
+        }
       } catch (e) {
         console.log("checkExists error:", e.message);
       } finally {
@@ -120,7 +123,7 @@ setReceiptData(data.application);
           mobile: user.phone || "",
           aadhar: user.aadhar || "",
           email: user.email || "",
-          DOB: user.DOB || ""
+          DOB: user.DOB || "",
         }));
       })
       .catch((err) => console.error("Profile fetch failed:", err));
@@ -199,41 +202,41 @@ setReceiptData(data.application);
   };
 
   const generateReceipt = (data) => {
-       setReceiptData(data);
-  return {
-    message: "Application submitted successfully",
-    applicationId: data.reciept?.applicationId || applicationId,
-    submissionDate: data.reciept?.submissionDate || submissionDate,
-    name: data.name,
-    aadhar: data.aadhar,
-    mobile: data.mobile,
-    DOB: new Date(data.DOB).toLocaleDateString('en-IN'),
-    email: data.email,
-    gender: data.gender,
-    state: data.state,
-    district: data.district,
-    status: data.status || "Under Review",
-    registrar: "Govt of " + data.state,
-    enrollmentNo: Math.random().toString().slice(2, 12),
-    enrollmentAgency: "MARS Telecom Systems Pvt Ltd",
-    Qr: data.Qr, // include QR from backend if exists
+    setReceiptData(data);
+    return {
+      message: "Application submitted successfully",
+      applicationId: data.reciept?.applicationId || applicationId,
+      submissionDate: data.reciept?.submissionDate || submissionDate,
+      name: data.name,
+      aadhar: data.aadhar,
+      mobile: data.mobile,
+      DOB: new Date(data.DOB).toLocaleDateString("en-IN"),
+      email: data.email,
+      gender: data.gender,
+      state: data.state,
+      district: data.district,
+      status: data.status || "Under Review",
+      registrar: "Govt of " + data.state,
+      enrollmentNo: Math.random().toString().slice(2, 12),
+      enrollmentAgency: "MARS Telecom Systems Pvt Ltd",
+      Qr: data.Qr, // include QR from backend if exists
+    };
   };
-};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-        const ida = "JAC" + Date.now().toString().slice(-8);
-        setApplicationId(ida)
-        console.log(ida)
-    const sd = new Date().toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-    setSubmissionDate(sd)
-    console.log(sd)
+      const ida = "JAC" + Date.now().toString().slice(-8);
+      setApplicationId(ida);
+      console.log(ida);
+      const sd = new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      setSubmissionDate(sd);
+      console.log(sd);
       const form = new FormData();
       form.append("name", formData.name);
       form.append("aadhar", formData.aadhar);
@@ -255,8 +258,6 @@ setReceiptData(data.application);
       if (formData.profilePicUser)
         form.append("profilePicUser", formData.profilePicUser);
 
-    
-
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
@@ -273,11 +274,11 @@ setReceiptData(data.application);
         if (res.ok) {
           setFormSubmitted(true);
           setExists(true);
-          
+
           const receipt = generateReceipt(data.app);
           // setReceiptData(receipt);
           setShowReceipt(true);
-          
+
           generateCaptcha();
         } else {
           alert(data.message || "Something went wrong");
@@ -291,10 +292,10 @@ setReceiptData(data.application);
   };
 
   const handlePrintReceipt = () => {
-    const receiptContent = document.getElementById('aadhaar-receipt-content');
+    const receiptContent = document.getElementById("aadhaar-receipt-content");
     if (!receiptContent) return;
-    
-    const printWindow = window.open('', '_blank');
+
+    const printWindow = window.open("", "_blank");
     printWindow.document.write(`
       <html>
         <head>
@@ -346,9 +347,7 @@ setReceiptData(data.application);
     printWindow.print();
   };
 
-const handleDownloadReceipt = async () => {
-  console.log("Downloading full receipt...");
-
+  const handleDownloadReceipt = async () => {
   const receiptElement = document.getElementById("aadhaar-receipt-content");
   if (!receiptElement) {
     alert("Receipt not found!");
@@ -356,43 +355,37 @@ const handleDownloadReceipt = async () => {
   }
 
   try {
-    // Capture receipt as high-quality canvas
+    await new Promise(resolve => setTimeout(resolve, 1000)); // wait for image load
+
     const canvas = await html2canvas(receiptElement, {
       scale: 2,
       useCORS: true,
-      scrollY: 0,
-      windowWidth: document.documentElement.offsetWidth,
+      logging: false,
     });
 
     const imgData = canvas.toDataURL("image/png");
-
     const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-
     const imgWidth = pdfWidth;
     const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
     let heightLeft = imgHeight;
     let position = 0;
 
-    // ✅ First page
     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
     heightLeft -= pdfHeight;
 
-    // ✅ Add new pages properly
     while (heightLeft > 0) {
-      position = position - pdfHeight;
+      position = heightLeft - imgHeight;
       pdf.addPage();
       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight;
     }
 
-    // ✅ Save clean file
     pdf.save(
       `JanArogyaReceipt_${receiptData?.reciept?.applicationId || Date.now()}.pdf`
     );
-
   } catch (err) {
     console.error("Failed to download receipt:", err);
     alert("Failed to download receipt. Please try again.");
@@ -400,159 +393,236 @@ const handleDownloadReceipt = async () => {
 };
 
 
+  const AadhaarStyleReceipt = ({ receiptData }) => {
+    if (!receiptData) return null;
 
+    console.log(receiptData);
 
- const AadhaarStyleReceipt = ({ receiptData }) => {
-  if (!receiptData) return null;
-
-  console.log(receiptData)
-
-  return (
-    <div
-      id="aadhaar-receipt-content"
-      className="max-w-4xl mx-auto bg-white shadow-lg"
-    >
-      <div className="border-4 border-gray-800 p-8">
-        {/* Header */}
-        <div className="text-center border-b-2 border-gray-800 pb-4 mb-6">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xl">आ</span>
+    return (
+      <div id="aadhaar-receipt-content">
+      <div className="max-w-3xl mx-auto bg-white shadow-lg p-8">
+        <div className="border-2 border-black">
+          {/* Header */}
+          <div className="border-b-2 border-black p-4">
+            <div className="flex items-start gap-4">
+              <img
+                src="https://res.cloudinary.com/dknrega1a/image/upload/v1759834087/WhatsApp_Image_2025-10-06_at_22.00.12_88b58360_cslogj.jpg"
+                alt="UIDAI Logo"
+                className="w-16 h-16"
+              />
+              <div className="flex-1 text-center">
+                <h1 className="text-xl font-bold">
+                  Unique Identification Authority of India
+                </h1>
+                <h2 className="text-base font-semibold">
+                  भारतीय विशिष्ट पहचान प्राधिकरण
+                </h2>
+                <p className="text-sm">Government of India / भारत सरकार</p>
+              </div>
+              <div className="w-16"></div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">
-                Unique Identification Authority of India
-              </h1>
-              <h2 className="text-lg font-semibold text-gray-700">
-                भारतीय विशिष्ट पहचान प्राधिकरण
-              </h2>
+            <h3 className="text-center font-bold mt-2 uppercase">
+              ACKNOWLEDGEMENT / RESIDENT COPY
+            </h3>
+          </div>
+
+          {/* Main Content */}
+          <div className="p-4">
+            {/* Enrollment Details Table */}
+            <div className="mb-4">
+              <table className="w-full text-sm border-collapse">
+                <tbody>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold w-1/3">Enrolment No:</td>
+                    <td className="py-2">{receiptData.enrollmentNo}</td>
+                    <td className="py-2 text-right align-top" rowSpan="5">
+                      <div className="flex flex-col items-center gap-2 ml-auto">
+                        {/* User Profile Photo */}
+                        <div className="border-2 border-black w-24 h-24 overflow-hidden rounded">
+                          <img
+                            src={
+                              receiptData.profilePicUser ||
+                              "https://via.placeholder.com/96"
+                            }
+                            alt="User Photo"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold">NPR Rept No:</td>
+                    <td className="py-2">
+                      {receiptData.reciept?.applicationId || "Not Given"}
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold">S/O:</td>
+                    <td className="py-2">Not Given</td>
+                  </tr>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold">Address:</td>
+                    <td className="py-2">{receiptData.district} , {receiptData.state}</td>
+                  </tr>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold">Date of Birth:</td>
+                    <td className="py-2" colSpan="2">
+                     {new Date(receiptData.DOB).toISOString().split('T')[0].split('-').reverse().join('-')}
+
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold">Mobile:</td>
+                    <td className="py-2" colSpan="2">
+                      {receiptData.mobile || "Not Given"}
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold">Email:</td>
+                    <td className="py-2 break-all" colSpan="2">
+                      {receiptData.email}
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold">Documents:</td>
+                    <td className="py-2" colSpan="2">
+                      Income Certificate, Ration Card
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
-          <p className="text-sm text-gray-600 mt-2">
-            Government of India / भारत सरकार
-          </p>
-          <h3 className="text-lg font-bold text-gray-800 mt-3 uppercase tracking-wide">
-            Acknowledgement / Resident Copy
-          </h3>
-        </div>
 
-        {/* Enrollment Details */}
-        <div className="grid grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 border border-gray-300">
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Enrolment No:</span>
-            <span className="font-mono text-gray-900">
-              {receiptData.enrollmentNo}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Date:</span>
-            <span className="text-gray-900">{receiptData.reciept.submissionDate}</span>
-          </div>
-          <div className="flex justify-between col-span-2">
-            <span className="font-semibold text-gray-700">NPR Rept No:</span>
-            <span className="text-gray-600 italic">
-              {receiptData.reciept.applicationId}
-            </span>
-          </div>
-        </div>
+            {/* Biometric Information */}
+            <div className="mb-4 pb-3 border-b-2 border-black">
+              <h4 className="font-bold mb-2">Biometric Information</h4>
+              <div className="text-sm mb-2">
+                <span className="font-semibold">Fingerprint quality:</span>{" "}
+                Left: ✓ Right: ✓
+              </div>
+              <div className="text-sm mb-2 ml-32">
+                ✓ Good Quality fingerprint, recommended for authentication.
+              </div>
+              <div className="text-sm">
+                <span className="font-semibold">Biometrics Captured:</span>{" "}
+                Fingers(10), Iris(2), Face
+              </div>
+            </div>
 
-        {/* Personal Info */}
-        <div className="mb-6 p-4 border-2 border-gray-800 bg-blue-50">
-          <div className="mb-3">
-            <span className="text-xl font-bold text-gray-900 uppercase">
-              {receiptData.name}
-            </span>
-            <span className="ml-3 text-lg text-gray-700">
-              ({receiptData.gender})
-            </span>
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            <div className="flex">
-              <span className="font-semibold text-gray-700 w-32">Address:</span>
-              <div className="text-gray-900">
-                <div>{receiptData.district}</div>
-                <div>{receiptData.state}</div>
-                {/* <div className="text-gray-600 italic">PIN: Not Given</div> */}
+            {/* Bank Details */}
+            <div className="mb-4 pb-3 border-b border-gray-400">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr>
+                    <td className="py-1 font-semibold w-1/3">Bank Details:</td>
+                    <td className="py-1">
+                      New Aadhaar enabled bank account/STATE BANK OF INDIA
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-1 font-semibold">
+                      Information Sharing Consent:
+                    </td>
+                    <td className="py-1">Yes</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Registrar Info */}
+            <div className="bg-yellow-100 p-3 mb-4">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr>
+                    <td className="py-1 font-semibold w-1/3">Registrar:</td>
+                    <td className="py-1">Govt of undefined</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1 font-semibold">Enrolment Agency:</td>
+                    <td className="py-1">MARS Telecom Systems Pvt Ltd</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p className="text-xs text-center mt-2">
+                A Correction (if any) of demographic information must be made
+                within 96 hours of enrolment
+              </p>
+            </div>
+
+            {/* Status Message */}
+            <div
+              className={`p-3 mb-4 border ${
+                receiptData.status === "approved"
+                  ? "bg-green-50 border-green-600"
+                  : "bg-blue-50 border-blue-600"
+              }`}
+            >
+              <p className="text-sm text-center">
+                {receiptData.status === "approved"
+                  ? "Your Jan Arogya Card has been approved and will be delivered to your address mentioned on this receipt in around 60-90 days. You can get only one Jan Arogya Card. Please do not enrol again unless asked to."
+                  : "Your Jan Arogya Card application is under review. You will receive updates on your registered mobile and email. You can get only one Jan Arogya Card. Please do not enrol again unless asked to."}
+              </p>
+            </div>
+
+            {/* Footer with QR and Contact */}
+            <div className="flex justify-between items-end">
+              <div className="text-xs">
+                <p className="font-bold mb-1">For enquiry, please contact:</p>
+                <p>help-janarogya.gov.in</p>
+                <p>http://www.janarogya.gov.in</p>
+                <p>1800 180 1947</p>
+                <p className="mt-2 text-gray-600">
+                  This is a computer-generated acknowledgement and does not
+                  require a physical signature.
+                </p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="border border-gray-400 p-1 w-24 h-24 flex items-center justify-center bg-white">
+                  <img
+                    src={receiptData.Qr}
+                    alt="QR Code"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="text-xs text-center font-semibold">
+                  <div>Veldandi Sridhar</div>
+                  <div className="text-gray-600">(Authorized Signature)</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* DOB + Contact */}
-        <div className="grid grid-cols-1 gap-3 mb-6 p-4 bg-gray-50 border border-gray-300">
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Date Of Birth:</span>
-            <span className="text-gray-900">
-              {receiptData.DOB}{" "}
-              <span className="text-sm text-blue-600">(DECLARED)</span>
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Mobile:</span>
-            <span className="font-mono text-gray-900">
-              {receiptData.mobile || "Not Given"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="font-semibold text-gray-700">Email:</span>
-            <span className="text-gray-900 break-all">{receiptData.email}</span>
-          </div>
-        </div>
-
-        {/* Status Section */}
-        <div
-          className={`p-4 mb-6 border-2 ${
-            receiptData.status === "approved"
-              ? "bg-green-50 border-green-500"
-              : "bg-blue-50 border-blue-500"
-          }`}
-        >
-          <p className="text-sm text-gray-800 text-center mb-2">
-            {receiptData.status === "approved"
-              ? "✓ Your Jan Arogya Card has been approved and will be delivered to your address mentioned on this receipt in around 60-90 days."
-              : "⏳ Your Jan Arogya Card application is under review. You will receive updates on your registered mobile and email."}
-          </p>
-          <p className="text-xs text-gray-700 text-center font-semibold">
-            You can get only one Jan Arogya Card. Please do not enrol again
-            unless asked to.
-          </p>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-6 pt-4 border-t border-gray-300 text-center">
-          <p className="text-xs text-gray-500">
-            This is a computer-generated acknowledgement and does not require a
-            physical signature
-          </p>
-        </div>
       </div>
-    </div>
-  );
-};
-
-// Demo with sample data
-const Demo = () => {
-  const sampleData = {
-    enrollmentNo: "1234/56789/01234",
-    submissionDate: "04/10/2025",
-    name: "RAJESH KUMAR SHARMA",
-    gender: "Male",
-    district: "Ghaziabad",
-    state: "Uttar Pradesh",
-    DOB: "15/08/1985",
-    mobile: "+91 98765 43210",
-    email: "rajesh.sharma@email.com",
-    registrar: "Ministry of Health and Family Welfare",
-    enrollmentAgency: "Jan Arogya Seva Kendra, Ghaziabad",
-    status: "approved"
+      </div>
+    );
   };
 
-  return (
-    <div className="min-h-screen bg-gray-200 p-8">
-      <AadhaarStyleReceipt receiptData={sampleData} />
-    </div>
-  );
-};
+  // Example usage with sample data
+
+  // Demo with sample data
+  const Demo = () => {
+    const sampleData = {
+      enrollmentNo: "1234/56789/01234",
+      submissionDate: "04/10/2025",
+      name: "RAJESH KUMAR SHARMA",
+      gender: "Male",
+      district: "Ghaziabad",
+      state: "Uttar Pradesh",
+      DOB: "15/08/1985",
+      mobile: "+91 98765 43210",
+      email: "rajesh.sharma@email.com",
+      registrar: "Ministry of Health and Family Welfare",
+      enrollmentAgency: "Jan Arogya Seva Kendra, Ghaziabad",
+      status: "approved",
+    };
+
+    return (
+      <div className="min-h-screen bg-gray-200 p-8">
+        <AadhaarStyleReceipt receiptData={sampleData} />
+      </div>
+    );
+  };
   if (loading) {
     return <div className="text-center py-5">Loading...</div>;
   }
@@ -563,7 +633,9 @@ const Demo = () => {
         <div className="row g-4">
           {cardServices.map((service, index) => (
             <div className="col-12 col-md-6" key={index}>
-              <div className={`service-card p-4 rounded-4 h-100 d-flex flex-column gap-3 shadow-sm ${service.bgClass}`}>
+              <div
+                className={`service-card p-4 rounded-4 h-100 d-flex flex-column gap-3 shadow-sm ${service.bgClass}`}
+              >
                 <div className="text-center fs-2">{service.icon}</div>
                 <h3 className="text-center fs-5 mb-2">{service.title}</h3>
                 <ul className="ps-3 mb-0">
@@ -585,21 +657,20 @@ const Demo = () => {
         {exists && receiptData && (
           <div className="alert alert-info text-center">
             <div className="fw-semibold mb-2">
-              {receiptData.status === "approved" 
+              {receiptData.status === "approved"
                 ? "✅ Your Jan Arogya Card has been approved!"
-                : "📋 Your application is under review."
-              }
+                : "📋 Your application is under review."}
             </div>
-            <Button 
-              variant="success" 
+            <Button
+              variant="success"
               onClick={() => setShowReceipt(true)}
               className="me-2"
             >
               View Receipt
             </Button>
-            <Button 
-              variant="outline-primary" 
-              onClick={()=>handleDownloadReceipt()}
+            <Button
+              variant="outline-primary"
+              onClick={() => handleDownloadReceipt()}
             >
               Download Receipt
             </Button>
@@ -607,44 +678,38 @@ const Demo = () => {
         )}
 
         {formSubmitted && !showReceipt && (
-          <div className="alert alert-success text-center fw-semibold" role="alert">
+          <div
+            className="alert alert-success text-center fw-semibold"
+            role="alert"
+          >
             ✅ Jan Arogya card application submitted successfully!
           </div>
         )}
 
-       <Modal 
-  show={showReceipt} 
-  onHide={() => setShowReceipt(false)} 
-  size="lg" 
-  centered
->
-  <Modal.Header closeButton>
-    <Modal.Title>Jan Arogya Card Application Receipt</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <AadhaarStyleReceipt receiptData={receiptData} />
-  </Modal.Body>
-  <Modal.Footer>
-    <Button 
-      variant="secondary" 
-      onClick={() => setShowReceipt(false)}
-    >
-      Close
-    </Button>
-    <Button 
-      variant="primary" 
-      onClick={handleDownloadReceipt}
-    >
-      Download Receipt
-    </Button>
-    <Button 
-      variant="success" 
-      onClick={handlePrintReceipt}
-    >
-      Print Receipt
-    </Button>
-  </Modal.Footer>
-</Modal>
+        <Modal
+          show={showReceipt}
+          onHide={() => setShowReceipt(false)}
+          size="lg"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Jan Arogya Card Application Receipt</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <AadhaarStyleReceipt receiptData={receiptData} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowReceipt(false)}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handleDownloadReceipt}>
+              Download Receipt
+            </Button>
+            <Button variant="success" onClick={handlePrintReceipt}>
+              Print Receipt
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
         {!exists ? (
           <Form onSubmit={handleSubmit} noValidate>
