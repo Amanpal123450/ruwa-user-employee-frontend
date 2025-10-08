@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaArrowRight, FaPaperPlane, FaMapMarkerAlt, FaRupeeSign, FaUsers, FaCalendarAlt } from 'react-icons/fa';
 import Orgstructer from '../components/Orgstructer';
+import { useNavigate, useNavigation } from 'react-router-dom';
 
 const Career = () => {
   const [selected, setSelected] = useState('jobs');
@@ -9,7 +10,7 @@ const Career = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const navigate=useNavigate()
   // API base URL - update this to match your backend
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ruwa-backend.onrender.com/api';
 
@@ -65,7 +66,10 @@ const Career = () => {
     setActiveJob(job);
     setShowModal(true);
   };
-
+ function handleApply(e){
+  e.preventDefault()
+  navigate("/job-form")
+ }
   const getJobTypeBadge = (category) => {
     const types = {
       medical: { label: 'Medical', class: 'bg-primary' },
@@ -171,7 +175,9 @@ const Career = () => {
                           Apply before: {formatDate(job.applicationEndDate)}
                         </small>
                       </div>
-                      <button className="btn btn-outline-primary w-100">
+                      <button className="btn btn-outline-primary w-100"
+                      onClick={(e)=>handleApply(e)}
+                      >
                         View Details & Apply <FaArrowRight className="ms-2" />
                       </button>
                     </div>

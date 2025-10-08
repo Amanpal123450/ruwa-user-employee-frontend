@@ -50,6 +50,7 @@ import { ToastContainer } from 'react-toastify';
 import Empusers from './Pages/Empusers';
 import LocationTracker from './components/LocationTracker';
 import WalletApp from './components/wallet';
+import JobApplicationForm from './Pages/JobApplicationForm';
 
 // Scroll to top component
 function ScrollToTop() {
@@ -165,6 +166,7 @@ function AuthWrapper({ showModal, setShowModal }) {
         <Route path='/kendr-sop' element={<ProtectedRoute><KendraSopPage /></ProtectedRoute>} />
         <Route path='/apply-kendrform' element={<ProtectedRoute><KendraformPage /></ProtectedRoute>} />
         <Route path='/career' element={<ProtectedRoute><CareerPage /></ProtectedRoute>} />
+        <Route path='/job-form' element={<ProtectedRoute><JobApplicationForm /></ProtectedRoute>} />
         <Route path='/feedback' element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
 
         {/* Employee Protected Routes */}
