@@ -50,6 +50,7 @@ import { ToastContainer } from 'react-toastify';
 import Empusers from './Pages/Empusers';
 import LocationTracker from './components/LocationTracker';
 import WalletApp from './components/wallet';
+import KycPortal from './components/KycPortal';
 
 // Scroll to top component
 function ScrollToTop() {
@@ -166,6 +167,7 @@ function AuthWrapper({ showModal, setShowModal }) {
         <Route path='/apply-kendrform' element={<ProtectedRoute><KendraformPage /></ProtectedRoute>} />
         <Route path='/career' element={<ProtectedRoute><CareerPage /></ProtectedRoute>} />
         <Route path='/feedback' element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
+        <Route path='/kyc' element={<ProtectedRoute><KycPortal /></ProtectedRoute>} />
 
         {/* Employee Protected Routes */}
         <Route path='/employee-dashboard' element={<EmployeeProtectedRoute><EmployeeDashboard /></EmployeeProtectedRoute>} />
