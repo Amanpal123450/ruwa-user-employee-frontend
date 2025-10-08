@@ -76,7 +76,7 @@ export default function Janarogycard() {
         const data = await res.json();
         console.log("check response:", data);
 
-        if (data.msg === "USER ALREADY EXISTS") {
+        if (data.msg === "USER ALREADY EXISTS" || data.msg === "APPROVED") {
           setExists(true);
           setReceiptData(data.application);
         } else {
@@ -657,7 +657,7 @@ export default function Janarogycard() {
         {exists && receiptData && (
           <div className="alert alert-info text-center">
             <div className="fw-semibold mb-2">
-              {receiptData.status === "approved"
+              {receiptData.status === "APPROVED"
                 ? "✅ Your Jan Arogya Card has been approved!"
                 : "📋 Your application is under review."}
             </div>
