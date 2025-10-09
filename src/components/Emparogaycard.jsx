@@ -141,7 +141,7 @@ export default function Empjansewa() {
       if (formData.ration_id instanceof File)
         fd.append("ration_id", formData.ration_id);
       if (formData.caste_certificate instanceof File)
-        fd.append("caste_certificate", formData.caste_certificate);
+        fd.append("caste_certificate", formData.caste_certificate)
       if (formData.profilePicUser instanceof File)
         fd.append("profilePicUser", formData.profilePicUser)
 
