@@ -8,8 +8,8 @@ export default function Janarogycard() {
   const [showReceipt, setShowReceipt] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
   const [captchaCode, setCaptchaCode] = useState("");
-  const [applicationId, setApplicationId] = useState("");
-  const [submissionDate, setSubmissionDate] = useState("");
+  // const [applicationId, setApplicationId] = useState("");
+  // const [submissionDate, setSubmissionDate] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     aadhar: "",
@@ -205,8 +205,8 @@ export default function Janarogycard() {
     setReceiptData(data);
     return {
       message: "Application submitted successfully",
-      applicationId: data.reciept?.applicationId || applicationId,
-      submissionDate: data.reciept?.submissionDate || submissionDate,
+      applicationId: data.reciept?.applicationId ,
+      submissionDate: data.reciept?.submissionDate ,
       name: data.name,
       aadhar: data.aadhar,
       mobile: data.mobile,
@@ -227,16 +227,13 @@ export default function Janarogycard() {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
-      const ida = "JAC" + Date.now().toString().slice(-8);
-      setApplicationId(ida);
-      console.log(ida);
-      const sd = new Date().toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-      setSubmissionDate(sd);
-      console.log(sd);
+
+       const applicationId = "JAC" + Date.now().toString().slice(-8);
+    const submissionDate = new Date().toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
       const form = new FormData();
       form.append("name", formData.name);
       form.append("aadhar", formData.aadhar);
@@ -261,7 +258,7 @@ export default function Janarogycard() {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/janarogya/user/apply",
+          "http://localhost:8000/api/services/janarogya/user/apply",
           {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },

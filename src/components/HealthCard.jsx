@@ -145,7 +145,7 @@ const JanArogyaCard = ({Application}) => {
           letterSpacing: "2px"
         }}
       >
-        {Application.aadhar}
+          {Application.aadhar}
       </div>
     </div>
   );
