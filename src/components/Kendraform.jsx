@@ -121,7 +121,6 @@ const Empkendra = () => {
     },
   ];
 
-  // Check if user already has an application
   useEffect(() => {
     async function checkExists() {
       try {
@@ -138,9 +137,7 @@ const Empkendra = () => {
 
         const data = await res.json();
 
-        // Handle response based on msg field
         if (data.application.status === "APPROVED" ) {
-          // Redirect to E-KYC if approved
           alert("Your Franchaise Application Approved Please Fill E-KYC")
           navigate(`/E-KYC?applicationId=${data.application.applicationId}`);
         } else if (data.status === "PENDING" && data.application) {
@@ -158,7 +155,6 @@ const Empkendra = () => {
     checkExists();
   }, [navigate]);
 
-  // Load user profile data
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -229,6 +225,35 @@ const Empkendra = () => {
         [name]: value,
       }));
     }
+  };
+
+  const handleArrayChange = (index, field, value, arrayName) => {
+    setFormData((prev) => {
+      const newArray = [...prev[arrayName]];
+      newArray[index] = { ...newArray[index], [field]: value };
+      return { ...prev, [arrayName]: newArray };
+    });
+  };
+
+  const addArrayItem = (arrayName, defaultItem) => {
+    setFormData((prev) => ({
+      ...prev,
+      [arrayName]: [...prev[arrayName], defaultItem],
+    }));
+  };
+
+  const removeArrayItem = (arrayName, index) => {
+    setFormData((prev) => ({
+      ...prev,
+      [arrayName]: prev[arrayName].filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSiteDetailsChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      siteDetails: { ...prev.siteDetails, [field]: value },
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -757,6 +782,149 @@ const Empkendra = () => {
                 </div>
 
                 <div className="mb-8">
+                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Educational Qualifications</h5>
+                  {formData.educationalQualifications.map((qual, index) => (
+                    <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                      <div className="flex justify-between mb-2">
+                        <h6 className="font-semibold">Qualification {index + 1}</h6>
+                        {index > 0 && (
+                          <button type="button" onClick={() => removeArrayItem("educationalQualifications", index)}
+                            className="text-red-500 text-sm hover:underline">Remove</button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" placeholder="Qualification" value={qual.qualification}
+                          onChange={(e) => handleArrayChange(index, "qualification", e.target.value, "educationalQualifications")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                        <input type="text" placeholder="Year" value={qual.year}
+                          onChange={(e) => handleArrayChange(index, "year", e.target.value, "educationalQualifications")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                        <input type="text" placeholder="Institution" value={qual.institution}
+                          onChange={(e) => handleArrayChange(index, "institution", e.target.value, "educationalQualifications")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => addArrayItem("educationalQualifications", { qualification: "", year: "", institution: "" })}
+                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">+ Add Qualification</button>
+                </div>
+
+                <div className="mb-8">
+                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Work / Occupation Details</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <label className="block font-semibold mb-2">Current Occupation</label>
+                      <input type="text" name="currentOccupation" value={formData.currentOccupation} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Current occupation" />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-2">Current Employer</label>
+                      <input type="text" name="currentEmployer" value={formData.currentEmployer} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Employer name" />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-2">Designation</label>
+                      <input type="text" name="designation" value={formData.designation} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Your designation" />
+                    </div>
+                  </div>
+
+                  <h6 className="font-semibold mb-3">Previous Work Experience</h6>
+                  {formData.previousWorkExperience.map((exp, index) => (
+                    <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                      <div className="flex justify-between mb-2">
+                        <h6 className="font-semibold">Experience {index + 1}</h6>
+                        {index > 0 && (
+                          <button type="button" onClick={() => removeArrayItem("previousWorkExperience", index)}
+                            className="text-red-500 text-sm hover:underline">Remove</button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                        <input type="text" placeholder="Period (e.g., 2018-2020)" value={exp.period}
+                          onChange={(e) => handleArrayChange(index, "period", e.target.value, "previousWorkExperience")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                        <input type="text" placeholder="Organization" value={exp.organization}
+                          onChange={(e) => handleArrayChange(index, "organization", e.target.value, "previousWorkExperience")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="Designation" value={exp.designation}
+                          onChange={(e) => handleArrayChange(index, "designation", e.target.value, "previousWorkExperience")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                        <input type="text" placeholder="Responsibilities" value={exp.responsibilities}
+                          onChange={(e) => handleArrayChange(index, "responsibilities", e.target.value, "previousWorkExperience")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => addArrayItem("previousWorkExperience", { period: "", organization: "", designation: "", responsibilities: "" })}
+                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">+ Add Experience</button>
+                </div>
+
+                <div className="mb-8">
+                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Business Details (if applicable)</h5>
+                  {formData.businessDetails.map((business, index) => (
+                    <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                      <div className="flex justify-between mb-2">
+                        <h6 className="font-semibold">Business {index + 1}</h6>
+                        {index > 0 && (
+                          <button type="button" onClick={() => removeArrayItem("businessDetails", index)}
+                            className="text-red-500 text-sm hover:underline">Remove</button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                        <input type="text" placeholder="Company Name" value={business.companyName}
+                          onChange={(e) => handleArrayChange(index, "companyName", e.target.value, "businessDetails")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                        <input type="text" placeholder="Business Type" value={business.businessType}
+                          onChange={(e) => handleArrayChange(index, "businessType", e.target.value, "businessDetails")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                        <input type="text" placeholder="Nature of Business" value={business.nature}
+                          onChange={(e) => handleArrayChange(index, "nature", e.target.value, "businessDetails")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                        <input type="text" placeholder="Products/Services" value={business.products}
+                          onChange={(e) => handleArrayChange(index, "products", e.target.value, "businessDetails")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" placeholder="Years in Business" value={business.years}
+                          onChange={(e) => handleArrayChange(index, "years", e.target.value, "businessDetails")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                        <input type="text" placeholder="No. of Employees" value={business.employees}
+                          onChange={(e) => handleArrayChange(index, "employees", e.target.value, "businessDetails")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                        <input type="text" placeholder="Turnover (Lacs)" value={business.turnover}
+                          onChange={(e) => handleArrayChange(index, "turnover", e.target.value, "businessDetails")}
+                          className="px-4 py-3 border border-gray-300 rounded-lg" />
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => addArrayItem("businessDetails", { companyName: "", businessType: "", nature: "", products: "", years: "", employees: "", turnover: "" })}
+                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">+ Add Business</button>
+                </div>
+
+                <div className="mb-8">
+                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Professional Background</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    {["Healthcare", "Pharmaceuticals", "Medical Devices", "Hospital Management", "Clinical Research", "Others"].map((bg) => (
+                      <label key={bg} className="flex items-center space-x-2">
+                        <input type="checkbox" name="professionalBackground" value={bg}
+                          checked={formData.professionalBackground.includes(bg)} onChange={handleChange} className="w-5 h-5" />
+                        <span>{bg}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div>
+                    <label className="block font-semibold mb-2">Professional Associations</label>
+                    <textarea name="professionalAssociations" value={formData.professionalAssociations} onChange={handleChange} rows={2}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      placeholder="Professional associations, memberships, etc." />
+                  </div>
+                </div>
+
+                <div className="mb-8">
                   <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Proposed Centre Details</h5>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
@@ -787,6 +955,24 @@ const Empkendra = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
+                      <label className="block font-semibold mb-2">Existing Entity</label>
+                      <select name="existingEntity" value={formData.existingEntity} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">Existing Entity Name</label>
+                      <input type="text" name="existingEntityName" value={formData.existingEntityName} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Entity name (if applicable)" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
                       <label className="block font-semibold mb-2">Proposed City *</label>
                       <input type="text" name="proposedCity" value={formData.proposedCity} onChange={handleChange}
                         className={`w-full px-4 py-3 border rounded-lg ${errors.proposedCity ? "border-red-500" : "border-gray-300"}`}
@@ -800,6 +986,87 @@ const Empkendra = () => {
                         className={`w-full px-4 py-3 border rounded-lg ${errors.proposedState ? "border-red-500" : "border-gray-300"}`}
                         placeholder="State" />
                       {errors.proposedState && <p className="text-red-500 text-sm mt-1">{errors.proposedState}</p>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block font-semibold mb-2">Setup Timeline</label>
+                      <input type="text" name="setupTimeline" value={formData.setupTimeline} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Expected setup time" />
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">Site Possession</label>
+                      <select name="sitePossession" value={formData.sitePossession} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Select</option>
+                        <option value="Own">Own</option>
+                        <option value="Leased">Leased</option>
+                        <option value="Rented">Rented</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                    <h6 className="font-semibold mb-3">Site Details</h6>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                      <select value={formData.siteDetails.agreementType} onChange={(e) => handleSiteDetailsChange("agreementType", e.target.value)}
+                        className="px-4 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Agreement Type</option>
+                        <option value="Lease">Lease</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Own">Own</option>
+                      </select>
+                      <input type="text" placeholder="Area (sq. ft)" value={formData.siteDetails.area}
+                        onChange={(e) => handleSiteDetailsChange("area", e.target.value)}
+                        className="px-4 py-3 border border-gray-300 rounded-lg" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                      <input type="date" placeholder="Lease From" value={formData.siteDetails.leaseFrom}
+                        onChange={(e) => handleSiteDetailsChange("leaseFrom", e.target.value)}
+                        className="px-4 py-3 border border-gray-300 rounded-lg" />
+                      <input type="date" placeholder="Lease To" value={formData.siteDetails.leaseTo}
+                        onChange={(e) => handleSiteDetailsChange("leaseTo", e.target.value)}
+                        className="px-4 py-3 border border-gray-300 rounded-lg" />
+                    </div>
+                    <select value={formData.siteDetails.locationType} onChange={(e) => handleSiteDetailsChange("locationType", e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-2">
+                      <option value="">Location Type</option>
+                      <option value="Commercial">Commercial</option>
+                      <option value="Residential">Residential</option>
+                      <option value="Mixed">Mixed</option>
+                    </select>
+                    <textarea placeholder="Site Address" value={formData.siteDetails.address} rows={2}
+                      onChange={(e) => handleSiteDetailsChange("address", e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <label className="block font-semibold mb-2">Site in Mind</label>
+                      <select name="siteInMind" value={formData.siteInMind} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">Plan to Rent</label>
+                      <select name="planToRent" value={formData.planToRent} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold mb-2">Within Months</label>
+                      <input type="text" name="withinMonths" value={formData.withinMonths} onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="e.g., 3-6 months" />
                     </div>
                   </div>
 
@@ -820,6 +1087,20 @@ const Empkendra = () => {
                       </label>
                     </div>
                     {errors.investmentRange && <p className="text-red-500 text-sm mt-1">{errors.investmentRange}</p>}
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block font-semibold mb-2">Efforts & Initiatives</label>
+                    <textarea name="effortsInitiatives" value={formData.effortsInitiatives} onChange={handleChange} rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      placeholder="Describe your efforts and initiatives" />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block font-semibold mb-2">Reasons for Partnership</label>
+                    <textarea name="reasonsForPartnership" value={formData.reasonsForPartnership} onChange={handleChange} rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                      placeholder="Why do you want to partner with Jan Arogya Kendra?" />
                   </div>
                 </div>
 
