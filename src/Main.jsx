@@ -50,11 +50,11 @@ import { ToastContainer } from 'react-toastify';
 import Empusers from './Pages/Empusers';
 import LocationTracker from './components/LocationTracker';
 import WalletApp from './components/wallet';
-<<<<<<< HEAD
+// <<<<<<< HEAD
 import JobApplicationForm from './Pages/JobApplicationForm';
-=======
+
 import KycPortal from './components/KycPortal';
->>>>>>> b553ad28b121055e1597fe590e7e428f541162de
+// >>>>>>> b553ad28b121055e1597fe590e7e428f541162de
 
 // Scroll to top component
 function ScrollToTop() {

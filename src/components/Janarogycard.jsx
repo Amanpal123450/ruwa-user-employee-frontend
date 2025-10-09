@@ -254,7 +254,7 @@ export default function Janarogycard() {
         form.append("income_certificate", formData.incomeCert);
       if (formData.casteCert)
         form.append("caste_certificate", formData.casteCert);
-      if (formData.ration_id) form.append("ration_id", formData.ration_id);
+      if (formData.ration_id) form.append("ration_id", formData.ration_id)
       if (formData.profilePicUser)
         form.append("profilePicUser", formData.profilePicUser);
 
@@ -393,210 +393,245 @@ export default function Janarogycard() {
 };
 
 
-  const AadhaarStyleReceipt = ({ receiptData }) => {
-    if (!receiptData) return null;
-
-    console.log(receiptData);
-
+ const AadhaarStyleReceipt = ({ receiptData }) => {
+  if (!receiptData) {
     return (
-      <div id="aadhaar-receipt-content">
-      <div className="max-w-3xl mx-auto bg-white shadow-lg p-8">
-        <div className="border-2 border-black">
-          {/* Header */}
-          <div className="border-b-2 border-black p-4">
-            <div className="flex items-start gap-4">
-              <img
-                src="https://res.cloudinary.com/dknrega1a/image/upload/v1759834087/WhatsApp_Image_2025-10-06_at_22.00.12_88b58360_cslogj.jpg"
-                alt="UIDAI Logo"
-                className="w-16 h-16"
-              />
-              <div className="flex-1 text-center">
-                <h1 className="text-xl font-bold">
-                  Unique Identification Authority of India
-                </h1>
-                <h2 className="text-base font-semibold">
-                  भारतीय विशिष्ट पहचान प्राधिकरण
-                </h2>
-                <p className="text-sm">Government of India / भारत सरकार</p>
-              </div>
-              <div className="w-16"></div>
-            </div>
-            <h3 className="text-center font-bold mt-2 uppercase">
-              ACKNOWLEDGEMENT / RESIDENT COPY
-            </h3>
-          </div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <p className="text-gray-500">No receipt data available</p>
+      </div>
+    );
+  }
 
-          {/* Main Content */}
-          <div className="p-4">
-            {/* Enrollment Details Table */}
-            <div className="mb-4">
-              <table className="w-full text-sm border-collapse">
-                <tbody>
-                  <tr className="border-b border-gray-400">
-                    <td className="py-2 font-semibold w-1/3">Enrolment No:</td>
-                    <td className="py-2">{receiptData.enrollmentNo}</td>
-                    <td className="py-2 text-right align-top" rowSpan="5">
-                      <div className="flex flex-col items-center gap-2 ml-auto">
-                        {/* User Profile Photo */}
-                        <div className="border-2 border-black w-24 h-24 overflow-hidden rounded">
-                          <img
-                            src={
-                              receiptData.profilePicUser ||
-                              "https://via.placeholder.com/96"
-                            }
-                            alt="User Photo"
-                            className="w-full h-full object-cover"
-                          />
+  console.log(receiptData);
+
+  // Format date function
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not Given';
+    try {
+      return new Date(dateString)
+        .toISOString()
+        .split('T')[0]
+        .split('-')
+        .reverse()
+        .join('-');
+    } catch {
+      return 'Invalid Date';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 py-2 xs:py-4 md:py-8 px-2 xs:px-3 md:px-4">
+      <div id="aadhaar-receipt-content" className="max-w-4xl mx-auto">
+        <div className="bg-white shadow-2xl p-2 xs:p-3 md:p-8">
+          <div className="border-2 border-black">
+            {/* Header */}
+            <div className="border-b-2 border-black p-2 md:p-4">
+              <div className="flex items-start gap-1 xs:gap-2 md:gap-4">
+                <img
+                  src="https://res.cloudinary.com/dknrega1a/image/upload/v1759834087/WhatsApp_Image_2025-10-06_at_22.00.12_88b58360_cslogj.jpg"
+                  alt="UIDAI Logo"
+                  className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 flex-shrink-0"
+                />
+                <div className="flex-1 text-center min-w-0">
+                  <h1 className="text-xs xs:text-sm md:text-xl font-bold leading-tight">
+                    Unique Identification Authority of India
+                  </h1>
+                  <h2 className="text-xs md:text-base font-semibold leading-tight">
+                    भारतीय विशिष्ट पहचान प्राधिकरण
+                  </h2>
+                  <p className="text-xs md:text-sm leading-tight">Government of India / भारत सरकार</p>
+                </div>
+                <div className="w-8 xs:w-10 sm:w-12 md:w-16 flex-shrink-0"></div>
+              </div>
+              <h3 className="text-center font-bold mt-1 md:mt-2 text-xs md:text-base uppercase">
+                ACKNOWLEDGEMENT / RESIDENT COPY
+              </h3>
+            </div>
+
+            {/* Main Content */}
+            <div className="p-2 md:p-4">
+              {/* Enrollment Details Table */}
+              <div className="mb-3 md:mb-4 overflow-x-auto">
+                <table className="w-full text-xs md:text-sm border-collapse">
+                  <tbody>
+                    <tr className="border-b border-gray-400">
+                      <td className="py-1 md:py-2 font-semibold w-2/5 md:w-1/3 pr-1">Enrolment No:</td>
+                      <td className="py-1 md:py-2 text-xs md:text-sm">{receiptData.enrollmentNo || 'Not Given'}</td>
+                      <td className="py-1 md:py-2 text-right align-top" rowSpan="5">
+                        <div className="flex flex-col items-center gap-1 md:gap-2 ml-auto">
+                          <div className="border-2 border-black w-16 h-16 xs:w-20 xs:h-20 md:w-24 md:h-24 overflow-hidden rounded flex-shrink-0">
+                            <img
+                              src={receiptData.profilePicUser || "https://via.placeholder.com/96"}
+                              alt="User Photo"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-gray-400">
-                    <td className="py-2 font-semibold">NPR Rept No:</td>
-                    <td className="py-2">
-                      {receiptData.reciept?.applicationId || "Not Given"}
-                    </td>
-                  </tr>
-                  <tr className="border-b border-gray-400">
-                    <td className="py-2 font-semibold">S/O:</td>
-                    <td className="py-2">Not Given</td>
-                  </tr>
-                  <tr className="border-b border-gray-400">
-                    <td className="py-2 font-semibold">Address:</td>
-                    <td className="py-2">{receiptData.district} , {receiptData.state}</td>
-                  </tr>
-                  <tr className="border-b border-gray-400">
-                    <td className="py-2 font-semibold">Date of Birth:</td>
-                    <td className="py-2" colSpan="2">
-                     {new Date(receiptData.DOB).toISOString().split('T')[0].split('-').reverse().join('-')}
-
-                    </td>
-                  </tr>
-                  <tr className="border-b border-gray-400">
-                    <td className="py-2 font-semibold">Mobile:</td>
-                    <td className="py-2" colSpan="2">
-                      {receiptData.mobile || "Not Given"}
-                    </td>
-                  </tr>
-                  <tr className="border-b border-gray-400">
-                    <td className="py-2 font-semibold">Email:</td>
-                    <td className="py-2 break-all" colSpan="2">
-                      {receiptData.email}
-                    </td>
-                  </tr>
-                  <tr className="border-b border-gray-400">
-                    <td className="py-2 font-semibold">Documents:</td>
-                    <td className="py-2" colSpan="2">
-                      Income Certificate, Ration Card
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Biometric Information */}
-            <div className="mb-4 pb-3 border-b-2 border-black">
-              <h4 className="font-bold mb-2">Biometric Information</h4>
-              <div className="text-sm mb-2">
-                <span className="font-semibold">Fingerprint quality:</span>{" "}
-                Left: ✓ Right: ✓
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-400">
+                      <td className="py-1 md:py-2 font-semibold pr-1">NPR Rept No:</td>
+                      <td className="py-1 md:py-2 text-xs md:text-sm break-all">
+                        {receiptData.reciept?.applicationId || "Not Given"}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-400">
+                      <td className="py-1 md:py-2 font-semibold pr-1">S/O:</td>
+                      <td className="py-1 md:py-2 text-xs md:text-sm">{receiptData.parentName || "Not Given"}</td>
+                    </tr>
+                    <tr className="border-b border-gray-400">
+                      <td className="py-1 md:py-2 font-semibold pr-1">Address:</td>
+                      <td className="py-1 md:py-2 text-xs md:text-sm">
+                        {receiptData.district && receiptData.state 
+                          ? `${receiptData.district}, ${receiptData.state}`
+                          : 'Not Given'}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-400">
+                      <td className="py-1 md:py-2 font-semibold pr-1">Date of Birth:</td>
+                      <td className="py-1 md:py-2 text-xs md:text-sm" colSpan="2">
+                        {formatDate(receiptData.DOB)}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-400">
+                      <td className="py-1 md:py-2 font-semibold pr-1">Mobile:</td>
+                      <td className="py-1 md:py-2 text-xs md:text-sm" colSpan="2">
+                        {receiptData.mobile || "Not Given"}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-400">
+                      <td className="py-1 md:py-2 font-semibold pr-1">Email:</td>
+                      <td className="py-1 md:py-2 text-xs md:text-sm break-all" colSpan="2">
+                        {receiptData.email || "Not Given"}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-400">
+                      <td className="py-1 md:py-2 font-semibold pr-1">Documents:</td>
+                      <td className="py-1 md:py-2 text-xs md:text-sm" colSpan="2">
+                        {receiptData.documents || "Income Certificate, Ration Card"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-              <div className="text-sm mb-2 ml-32">
-                ✓ Good Quality fingerprint, recommended for authentication.
+
+              {/* Biometric Information */}
+              <div className="mb-3 md:mb-4 pb-2 md:pb-3 border-b-2 border-black">
+                <h4 className="font-bold mb-1 md:mb-2 text-xs md:text-sm">Biometric Information</h4>
+                <div className="text-xs md:text-sm mb-1 md:mb-2">
+                  <span className="font-semibold">Fingerprint quality:</span>{" "}
+                  Left: ✓ Right: ✓
+                </div>
+                <div className="text-xs md:text-sm mb-1 md:mb-2 md:ml-32">
+                  ✓ Good Quality fingerprint, recommended for authentication.
+                </div>
+                <div className="text-xs md:text-sm">
+                  <span className="font-semibold">Biometrics Captured:</span>{" "}
+                  Fingers(10), Iris(2), Face
+                </div>
               </div>
-              <div className="text-sm">
-                <span className="font-semibold">Biometrics Captured:</span>{" "}
-                Fingers(10), Iris(2), Face
+
+              {/* Bank Details */}
+              <div className="mb-3 md:mb-4 pb-2 md:pb-3 border-b border-gray-400">
+                <table className="w-full text-xs md:text-sm">
+                  <tbody>
+                    <tr>
+                      <td className="py-1 font-semibold w-2/5 md:w-1/3 pr-1">Bank Details:</td>
+                      <td className="py-1 text-xs md:text-sm">
+                        {receiptData.bankDetails || "New Aadhaar enabled bank account/STATE BANK OF INDIA"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-1 font-semibold pr-1">Information Sharing Consent:</td>
+                      <td className="py-1 text-xs md:text-sm">{receiptData.consent || "Yes"}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            </div>
 
-            {/* Bank Details */}
-            <div className="mb-4 pb-3 border-b border-gray-400">
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr>
-                    <td className="py-1 font-semibold w-1/3">Bank Details:</td>
-                    <td className="py-1">
-                      New Aadhaar enabled bank account/STATE BANK OF INDIA
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-1 font-semibold">
-                      Information Sharing Consent:
-                    </td>
-                    <td className="py-1">Yes</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Registrar Info */}
-            <div className="bg-yellow-100 p-3 mb-4">
-              <table className="w-full text-sm">
-                <tbody>
-                  <tr>
-                    <td className="py-1 font-semibold w-1/3">Registrar:</td>
-                    <td className="py-1">Govt of undefined</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1 font-semibold">Enrolment Agency:</td>
-                    <td className="py-1">MARS Telecom Systems Pvt Ltd</td>
-                  </tr>
-                </tbody>
-              </table>
-              <p className="text-xs text-center mt-2">
-                A Correction (if any) of demographic information must be made
-                within 96 hours of enrolment
-              </p>
-            </div>
-
-            {/* Status Message */}
-            <div
-              className={`p-3 mb-4 border ${
-                receiptData.status === "approved"
-                  ? "bg-green-50 border-green-600"
-                  : "bg-blue-50 border-blue-600"
-              }`}
-            >
-              <p className="text-sm text-center">
-                {receiptData.status === "approved"
-                  ? "Your Jan Arogya Card has been approved and will be delivered to your address mentioned on this receipt in around 60-90 days. You can get only one Jan Arogya Card. Please do not enrol again unless asked to."
-                  : "Your Jan Arogya Card application is under review. You will receive updates on your registered mobile and email. You can get only one Jan Arogya Card. Please do not enrol again unless asked to."}
-              </p>
-            </div>
-
-            {/* Footer with QR and Contact */}
-            <div className="flex justify-between items-end">
-              <div className="text-xs">
-                <p className="font-bold mb-1">For enquiry, please contact:</p>
-                <p>help-janarogya.gov.in</p>
-                <p>http://www.janarogya.gov.in</p>
-                <p>1800 180 1947</p>
-                <p className="mt-2 text-gray-600">
-                  This is a computer-generated acknowledgement and does not
-                  require a physical signature.
+              {/* Registrar Info */}
+              <div className="bg-yellow-100 p-2 md:p-3 mb-3 md:mb-4 rounded">
+                <table className="w-full text-xs md:text-sm">
+                  <tbody>
+                    <tr>
+                      <td className="py-1 font-semibold w-2/5 md:w-1/3 pr-1">Registrar:</td>
+                      <td className="py-1 text-xs md:text-sm">
+                        {receiptData.registrar || `Govt of ${receiptData.state || 'India'}`}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-1 font-semibold pr-1">Enrolment Agency:</td>
+                      <td className="py-1 text-xs md:text-sm">
+                        {receiptData.agency || "MARS Telecom Systems Pvt Ltd"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="text-xs text-center mt-1 md:mt-2 font-medium leading-tight">
+                  A Correction (if any) of demographic information must be made
+                  within 96 hours of enrolment
                 </p>
               </div>
-              <div className="flex flex-col items-center">
-                <div className="border border-gray-400 p-1 w-24 h-24 flex items-center justify-center bg-white">
-                  <img
-                    src={receiptData.Qr}
-                    alt="QR Code"
-                    className="w-full h-full object-contain"
-                  />
+
+              {/* Status Message */}
+              <div
+                className={`p-2 md:p-3 mb-3 md:mb-4 border rounded ${
+                  receiptData.status === "approved"
+                    ? "bg-green-50 border-green-600"
+                    : "bg-blue-50 border-blue-600"
+                }`}
+              >
+                <p className="text-xs md:text-sm text-center font-medium leading-tight">
+                  {receiptData.status === "approved"
+                    ? "Your Jan Arogya Card has been approved and will be delivered to your address mentioned on this receipt in around 60-90 days. You can get only one Jan Arogya Card. Please do not enrol again unless asked to."
+                    : "Your Jan Arogya Card application is under review. You will receive updates on your registered mobile and email. You can get only one Jan Arogya Card. Please do not enrol again unless asked to."}
+                </p>
+              </div>
+
+              {/* Footer with QR and Contact */}
+              <div className="flex flex-col md:flex-row justify-between items-center md:items-end gap-3 md:gap-4">
+                <div className="text-xs order-2 md:order-1 text-center md:text-left">
+                  <p className="font-bold mb-1">For enquiry, please contact:</p>
+                  <p>help-janarogya.gov.in</p>
+                  <p>http://www.janarogya.gov.in</p>
+                  <p>1800 180 1947</p>
+                  <p className="mt-1 md:mt-2 text-gray-600 leading-tight">
+                    This is a computer-generated acknowledgement and does not
+                    require a physical signature.
+                  </p>
                 </div>
-                <div className="text-xs text-center font-semibold">
-                  <div>Veldandi Sridhar</div>
-                  <div className="text-gray-600">(Authorized Signature)</div>
+                <div className="flex flex-col items-center order-1 md:order-2">
+                  <div className="border border-gray-400 p-1 w-16 h-16 xs:w-20 xs:h-20 md:w-24 md:h-24 flex items-center justify-center bg-white flex-shrink-0">
+                    {receiptData.Qr ? (
+                      <img
+                        src={receiptData.Qr}
+                        alt="QR Code"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-xs text-gray-400 text-center">QR Code</div>
+                    )}
+                  </div>
+                  <div className="text-xs text-center font-semibold mt-1 md:mt-2">
+                    <div>{receiptData.authorizedPerson || "Veldandi Sridhar"}</div>
+                    <div className="text-gray-600">(Authorized Signature)</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
-    );
-  };
+    </div>
+  );
+};
+
+// Sample data for testing
+
+
+
+
+
 
   // Example usage with sample data
 

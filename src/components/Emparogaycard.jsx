@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 export default function Empjansewa() {
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [imageFiles, setImageFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
+  const [receiptData, setReceiptData] = useState(null);
+  const [previews, setPreviews] = useState({});
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -17,27 +20,8 @@ export default function Empjansewa() {
     caste_certificate: null,
     ration_id: null,
     profilePicUser: null,
+    remarks: "",
   });
-
-  // Fetch employee data on component mount
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) return;
-
-  //   fetch("http://backendnow-pem2.onrender.com/api/auth/profile", {
-  //     headers: { Authorization: `Bearer ${token}` },
-  //   })
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       const user = data?.user || {};
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         employeeName: user.name || "",
-  //         forUserId: user.forUserId || "",
-  //       }));
-  //     })
-  //     .catch((err) => console.error("Profile fetch failed:", err));
-  // }, []);
 
   const services = [
     {
@@ -91,18 +75,15 @@ export default function Empjansewa() {
   };
 
   const handleImageUpload = (e) => {
-    const { name, files } = e.target; // name = "ration_id" ya "income_certificate" etc
+    const { name, files } = e.target;
     if (!files || !files.length) return;
 
     const file = files[0];
-
-    // Update state for that particular file
     setFormData((prev) => ({
       ...prev,
-      [name]: file, // name ke hisaab se assign kare
+      [name]: file,
     }));
 
-    // Optional: set preview for that file
     setPreviews((prev) => ({
       ...prev,
       [name]: URL.createObjectURL(file),
@@ -111,11 +92,13 @@ export default function Empjansewa() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         alert("You must be logged in to submit an application.");
+        setLoading(false);
         return;
       }
 
@@ -128,10 +111,18 @@ export default function Empjansewa() {
         !formData.district
       ) {
         alert("Please fill all required fields.");
+        setLoading(false);
         return;
       }
 
       const fd = new FormData();
+      const applicationId = "JAC" + Date.now().toString().slice(-8);
+      const submissionDate = new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
       fd.append("name", formData.name);
       fd.append("mobile", formData.mobile);
       fd.append("aadhar", formData.aadhar);
@@ -140,7 +131,9 @@ export default function Empjansewa() {
       fd.append("DOB", formData.DOB);
       fd.append("gender", formData.gender);
       fd.append("email", formData.email);
-      // fd.append("forUserId", formData.forUserId);
+      fd.append("applicationId", applicationId);
+      fd.append("submissionDate", submissionDate);
+      fd.append("remarks", formData.remarks || "");
 
       // Append files only if they exist
       if (formData.income_certificate instanceof File)
@@ -149,53 +142,398 @@ export default function Empjansewa() {
         fd.append("ration_id", formData.ration_id);
       if (formData.caste_certificate instanceof File)
         fd.append("caste_certificate", formData.caste_certificate);
-      if (formData.profilePicUser instanceof File) {
+      if (formData.profilePicUser instanceof File)
         fd.append("profilePicUser", formData.profilePicUser);
-      }
 
-      // Debug: Log FormData keys
-
+      // Send request to backend
       const res = await fetch(
         "https://ruwa-backend.onrender.com/api/services/janarogya/employee/apply",
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`, // no Content-Type for FormData!
+            Authorization: `Bearer ${token}`,
           },
           body: fd,
         }
       );
 
+      const data = await res.json();
+      console.log("Submission response:", data);
+
       if (!res.ok) {
-        // Try parsing JSON safely
-        let errData = { message: "Failed to submit application" };
-        try {
-          errData = await res.json();
-        } catch (jsonErr) {
-          console.error("Failed to parse JSON:", jsonErr);
-        }
-        throw new Error(errData.message || "Failed to submit application");
+        throw new Error(data.message || "Failed to submit application");
       }
 
+      // Success
       setFormSubmitted(true);
-      setTimeout(() => setFormSubmitted(false), 4000);
+      setReceiptData(data.app);
+      
+      // Scroll to receipt
+      setTimeout(() => {
+        document.getElementById("aadhaar-receipt-content")?.scrollIntoView({ 
+          behavior: "smooth" 
+        });
+      }, 100);
 
-      // Reset form fields (keep employee info if needed)
+      // Reset form
       setFormData({
-        ...formData,
         name: "",
         mobile: "",
         aadhar: "",
         state: "",
         district: "",
+        DOB: "",
+        gender: "",
+        email: "",
         income_certificate: null,
         caste_certificate: null,
         ration_id: null,
+        profilePicUser: null,
+        remarks: "",
       });
+      setPreviews({});
+
+      setTimeout(() => setFormSubmitted(false), 4000);
+
     } catch (err) {
       console.error("Submission error:", err);
       alert(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
+  };
+
+ const handlePrintReceipt = () => {
+    const receiptContent = document.getElementById("aadhaar-receipt-content");
+    if (!receiptContent) return;
+
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Jan Arogya Card Application Receipt</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              padding: 20px; 
+              max-width: 600px;
+              margin: 0 auto;
+              border: 1px solid #000;
+            }
+            .receipt-header { 
+              text-align: center; 
+              margin-bottom: 20px; 
+              border-bottom: 2px solid #000;
+              padding-bottom: 10px;
+            }
+            .section { 
+              margin: 15px 0; 
+              padding: 10px 0;
+              border-bottom: 1px solid #ddd;
+            }
+            .detail-row { 
+              margin: 8px 0; 
+              display: flex;
+              justify-content: space-between;
+            }
+            .detail-label { 
+              font-weight: bold; 
+              min-width: 200px;
+            }
+            .signature {
+              margin-top: 50px;
+              border-top: 1px solid #000;
+              padding-top: 10px;
+            }
+            @media print {
+              body { border: none; }
+            }
+          </style>
+        </head>
+        <body>
+          ${receiptContent.innerHTML}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+   const handleDownloadReceipt = async () => {
+  const receiptElement = document.getElementById("aadhaar-receipt-content");
+  if (!receiptElement) {
+    alert("Receipt not found!");
+    return;
+  }
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // wait for image load
+
+    const canvas = await html2canvas(receiptElement, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pdfWidth;
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+
+    pdf.save(
+      `JanArogyaReceipt_${receiptData?.reciept?.applicationId || Date.now()}.pdf`
+    );
+  } catch (err) {
+    console.error("Failed to download receipt:", err);
+    alert("Failed to download receipt. Please try again.");
+  }
+};
+
+  const AadhaarStyleReceipt = ({ receiptData }) => {
+    if (!receiptData) {
+      return null;
+    }
+
+    const formatDate = (dateString) => {
+      if (!dateString) return 'Not Given';
+      try {
+        return new Date(dateString)
+          .toISOString()
+          .split('T')[0]
+          .split('-')
+          .reverse()
+          .join('-');
+      } catch {
+        return 'Invalid Date';
+      }
+    };
+
+    return (
+      <div className="receipt-container">
+        <div id="aadhaar-receipt-content" className="receipt-wrapper">
+          <div className="receipt-card">
+            <div className="receipt-border">
+              {/* Header */}
+              <div className="receipt-header">
+                <div className="header-content">
+                  <img
+                    src="https://res.cloudinary.com/dknrega1a/image/upload/v1759834087/WhatsApp_Image_2025-10-06_at_22.00.12_88b58360_cslogj.jpg"
+                    alt="UIDAI Logo"
+                    className="header-logo"
+                  />
+                  <div className="header-text">
+                    <h1 className="header-title">
+                      Unique Identification Authority of India
+                    </h1>
+                    <h2 className="header-subtitle">
+                      भारतीय विशिष्ट पहचान प्राधिकरण
+                    </h2>
+                    <p className="header-govt">Government of India / भारत सरकार</p>
+                  </div>
+                  <div className="header-spacer"></div>
+                </div>
+                <h3 className="acknowledgement-title">
+                  ACKNOWLEDGEMENT / RESIDENT COPY
+                </h3>
+              </div>
+
+              {/* Main Content */}
+              <div className="receipt-body">
+                {/* Enrollment Details Table */}
+                <div className="details-section">
+                  <table className="details-table">
+                    <tbody>
+                      <tr>
+                        <td className="label-cell">Enrolment No:</td>
+                        <td className="value-cell">{receiptData.enrollmentNo || 'Not Given'}</td>
+                        <td className="photo-cell" rowSpan="5">
+                          <div className="photo-container">
+                            <img
+                              src={receiptData.profilePicUser || "https://via.placeholder.com/96"}
+                              alt="User Photo"
+                              className="user-photo"
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Application ID:</td>
+                        <td className="value-cell">
+                          {receiptData.reciept?.applicationId || receiptData.applicationId || "Not Given"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Name:</td>
+                        <td className="value-cell">{receiptData.name || "Not Given"}</td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Address:</td>
+                        <td className="value-cell">
+                          {receiptData.district && receiptData.state 
+                            ? `${receiptData.district}, ${receiptData.state}`
+                            : 'Not Given'}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Date of Birth:</td>
+                        <td className="value-cell">
+                          {formatDate(receiptData.DOB)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Mobile:</td>
+                        <td className="value-cell" colSpan="2">
+                          {receiptData.mobile || "Not Given"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Email:</td>
+                        <td className="value-cell" colSpan="2">
+                          {receiptData.email || "Not Given"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Gender:</td>
+                        <td className="value-cell" colSpan="2">
+                          {receiptData.gender || "Not Given"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Documents:</td>
+                        <td className="value-cell" colSpan="2">
+                          {receiptData.documents || "Income Certificate, Ration Card, Caste Certificate"}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Biometric Information */}
+                <div className="biometric-section">
+                  <h4 className="section-heading">Biometric Information</h4>
+                  <div className="biometric-text">
+                    <span className="bold-text">Fingerprint quality:</span> Left: ✓ Right: ✓
+                  </div>
+                  <div className="biometric-text indent">
+                    ✓ Good Quality fingerprint, recommended for authentication.
+                  </div>
+                  <div className="biometric-text">
+                    <span className="bold-text">Biometrics Captured:</span> Fingers(10), Iris(2), Face
+                  </div>
+                </div>
+
+                {/* Bank Details */}
+                <div className="bank-section">
+                  <table className="bank-table">
+                    <tbody>
+                      <tr>
+                        <td className="label-cell">Bank Details:</td>
+                        <td className="value-cell">
+                          {receiptData.bankDetails || "New Aadhaar enabled bank account/STATE BANK OF INDIA"}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Information Sharing Consent:</td>
+                        <td className="value-cell">{receiptData.consent || "Yes"}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Registrar Info */}
+                <div className="registrar-section">
+                  <table className="registrar-table">
+                    <tbody>
+                      <tr>
+                        <td className="label-cell">Registrar:</td>
+                        <td className="value-cell">
+                          {receiptData.registrar || `Govt of ${receiptData.state || 'India'}`}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="label-cell">Enrolment Agency:</td>
+                        <td className="value-cell">
+                          {receiptData.agency || "MARS Telecom Systems Pvt Ltd"}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p className="correction-note">
+                    A Correction (if any) of demographic information must be made
+                    within 96 hours of enrolment
+                  </p>
+                </div>
+
+                {/* Status Message */}
+                <div className={`status-section ${receiptData.status === "approved" ? "approved" : "pending"}`}>
+                  <p className="status-text">
+                    {receiptData.status === "approved"
+                      ? "Your Jan Arogya Card has been approved and will be delivered to your address mentioned on this receipt in around 60-90 days. You can get only one Jan Arogya Card. Please do not enrol again unless asked to."
+                      : "Your Jan Arogya Card application is under review. You will receive updates on your registered mobile and email. You can get only one Jan Arogya Card. Please do not enrol again unless asked to."}
+                  </p>
+                </div>
+
+                {/* Footer with QR and Contact */}
+                <div className="footer-section">
+                  <div className="contact-info">
+                    <p className="contact-title">For enquiry, please contact:</p>
+                    <p>help-janarogya.gov.in</p>
+                    <p>http://www.janarogya.gov.in</p>
+                    <p>1800 180 1947</p>
+                    <p className="disclaimer">
+                      This is a computer-generated acknowledgement and does not
+                      require a physical signature.
+                    </p>
+                  </div>
+                  <div className="qr-section">
+                    <div className="qr-container">
+                      {receiptData.Qr ? (
+                        <img
+                          src={receiptData.Qr}
+                          alt="QR Code"
+                          className="qr-image"
+                        />
+                      ) : (
+                        <div className="qr-placeholder">QR Code</div>
+                      )}
+                    </div>
+                    <div className="signature-info">
+                      <div>{receiptData.authorizedPerson || "Veldandi Sridhar"}</div>
+                      <div className="signature-label">(Authorized Signature)</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="action-buttons no-print">
+          <button onClick={handlePrintReceipt} className="btn-print">
+            🖨️ Print Receipt
+          </button>
+          <button onClick={handleDownloadReceipt} className="btn-download">
+            📥 Download PDF
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -259,6 +597,9 @@ export default function Empjansewa() {
               ))}
             </div>
 
+            {/* Receipt Section */}
+            {receiptData && <AadhaarStyleReceipt receiptData={receiptData} />}
+
             {/* Application Form */}
             <div className="card user-table-card">
               <div className="card-header-custom">
@@ -290,7 +631,7 @@ export default function Empjansewa() {
                       <hr className="section-divider" />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">Full Name</label>
+                      <label className="form-label-custom">Full Name *</label>
                       <input
                         name="name"
                         value={formData.name}
@@ -302,7 +643,7 @@ export default function Empjansewa() {
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">mobile Number</label>
+                      <label className="form-label-custom">Mobile Number *</label>
                       <input
                         name="mobile"
                         value={formData.mobile}
@@ -310,12 +651,13 @@ export default function Empjansewa() {
                         type="tel"
                         className="form-control-custom"
                         placeholder="e.g. 9876543210"
+                        pattern="[0-9]{10}"
                         required
                       />
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label-custom">
-                        Aadhaar Number
+                        Aadhaar Number *
                       </label>
                       <input
                         name="aadhar"
@@ -324,11 +666,13 @@ export default function Empjansewa() {
                         type="text"
                         className="form-control-custom"
                         placeholder="XXXX-XXXX-XXXX"
+                        pattern="[0-9]{12}"
+                        maxLength="12"
                         required
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">Date of Birth</label>
+                      <label className="form-label-custom">Date of Birth *</label>
                       <input
                         name="DOB"
                         value={formData.DOB}
@@ -339,7 +683,7 @@ export default function Empjansewa() {
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">Gender</label>
+                      <label className="form-label-custom">Gender *</label>
                       <select
                         name="gender"
                         value={formData.gender}
@@ -354,7 +698,7 @@ export default function Empjansewa() {
                       </select>
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">Email</label>
+                      <label className="form-label-custom">Email *</label>
                       <input
                         name="email"
                         value={formData.email}
@@ -366,29 +710,37 @@ export default function Empjansewa() {
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">District </label>
+                      <label className="form-label-custom">District *</label>
                       <input
                         name="district"
                         value={formData.district}
                         onChange={handleChange}
                         type="text"
                         className="form-control-custom"
+                        placeholder="Enter district"
                         required
                       />
                     </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">state</label>
+                      <label className="form-label-custom">State *</label>
                       <input
                         name="state"
                         value={formData.state}
                         onChange={handleChange}
+                        type="text"
                         className="form-control-custom"
+                        placeholder="Enter state"
                         required
-                      ></input>
+                      />
+                    </div>
+                    
+                    {/* File Uploads */}
+                    <div className="col-12 mt-3 mb-2">
+                      <h6 className="section-subtitle">Document Uploads *</h6>
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label-custom">
-                        Income Certificate
+                        Income Certificate *
                       </label>
                       <div className="file-input-container">
                         <input
@@ -401,13 +753,13 @@ export default function Empjansewa() {
                         />
                         <div className="file-upload-placeholder">
                           <i className="fas fa-upload me-2"></i>
-                          Choose file
+                          {formData.income_certificate ? formData.income_certificate.name : "Choose file"}
                         </div>
                       </div>
                     </div>
                     <div className="col-md-6 mb-3">
                       <label className="form-label-custom">
-                        Caste Certificate
+                        Caste Certificate *
                       </label>
                       <div className="file-input-container">
                         <input
@@ -420,12 +772,12 @@ export default function Empjansewa() {
                         />
                         <div className="file-upload-placeholder">
                           <i className="fas fa-upload me-2"></i>
-                          Choose file
+                          {formData.caste_certificate ? formData.caste_certificate.name : "Choose file"}
                         </div>
                       </div>
-                    </div>{" "}
+                    </div>
                     <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">Ration Id</label>
+                      <label className="form-label-custom">Ration Card *</label>
                       <div className="file-input-container">
                         <input
                           name="ration_id"
@@ -437,7 +789,7 @@ export default function Empjansewa() {
                         />
                         <div className="file-upload-placeholder">
                           <i className="fas fa-upload me-2"></i>
-                          Choose file
+                          {formData.ration_id ? formData.ration_id.name : "Choose file"}
                         </div>
                       </div>
                     </div>
@@ -455,36 +807,21 @@ export default function Empjansewa() {
                         />
                         <div className="file-upload-placeholder">
                           <i className="fas fa-upload me-2"></i>
-                          Upload Profile Picture
+                          {formData.profilePicUser ? formData.profilePicUser.name : "Upload Profile Picture (Optional)"}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Employee Reference Section */}
+                  {/* Remarks Section */}
                   <div className="row mb-4">
                     <div className="col-12">
                       <h5 className="section-title-with-icon">
-                        <i className="fas fa-id-card me-2"></i>
-                        User Reference
+                        <i className="fas fa-comment me-2"></i>
+                        Additional Information
                       </h5>
                       <hr className="section-divider" />
                     </div>
-
-                    {/* <div className="col-md-6 mb-3">
-                      <label className="form-label-custom">User ID</label>
-                      <input
-                        name="forUserId"
-                        value={formData.forUserId}
-                        onChange={handleChange}
-                        type="text"
-                        className="form-control-custom"
-                        placeholder="Enter your USER ID"
-                        required
-                        
-                      />
-                    </div> */}
-
                     <div className="col-12 mb-3">
                       <label className="form-label-custom">
                         Remarks for Admin
@@ -494,7 +831,7 @@ export default function Empjansewa() {
                         value={formData.remarks}
                         onChange={handleChange}
                         className="form-control-custom"
-                        rows="2"
+                        rows="3"
                         placeholder="Any remarks for admin (optional)..."
                       />
                     </div>
@@ -504,9 +841,19 @@ export default function Empjansewa() {
                     <button
                       type="submit"
                       className="btn-primary-custom px-5 py-2"
+                      disabled={loading}
                     >
-                      <i className="fas fa-paper-plane me-2"></i>
-                      Submit Application for User
+                      {loading ? (
+                        <>
+                          <i className="fas fa-spinner fa-spin me-2"></i>
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-paper-plane me-2"></i>
+                          Submit Application for User
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -557,9 +904,6 @@ export default function Empjansewa() {
           font-size: 2.2rem;
           font-weight: 700;
           margin-bottom: 0.5rem;
-          background: linear-gradient(45deg, #ffffff, #f8f9ff);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
         }
 
         .welcome-subtitle {
@@ -696,6 +1040,12 @@ export default function Empjansewa() {
           align-items: center;
         }
 
+        .section-subtitle {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #4b5563;
+        }
+
         .section-divider {
           border-color: #e5e7eb;
           opacity: 0.7;
@@ -723,11 +1073,6 @@ export default function Empjansewa() {
           outline: none;
         }
 
-        .form-control-custom[readonly] {
-          background-color: #f9fafb;
-          color: #6b7280;
-        }
-
         textarea.form-control-custom {
           resize: vertical;
           min-height: 100px;
@@ -745,6 +1090,7 @@ export default function Empjansewa() {
           width: 100%;
           height: 100%;
           cursor: pointer;
+          z-index: 10;
         }
 
         .file-upload-placeholder {
@@ -755,6 +1101,7 @@ export default function Empjansewa() {
           color: #6b7280;
           text-align: center;
           transition: all 0.3s ease;
+          pointer-events: none;
         }
 
         .file-input-container:hover .file-upload-placeholder {
@@ -772,12 +1119,355 @@ export default function Empjansewa() {
           box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
           color: white;
           font-size: 1.1rem;
+          cursor: pointer;
         }
 
-        .btn-primary-custom:hover {
+        .btn-primary-custom:hover:not(:disabled) {
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
           background: linear-gradient(135deg, #2563eb, #1e40af);
+        }
+
+        .btn-primary-custom:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        /* Receipt Styles */
+        .receipt-container {
+          background: #f3f4f6;
+          padding: 2rem 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .receipt-wrapper {
+          max-width: 900px;
+          margin: 0 auto;
+        }
+
+        .receipt-card {
+          background: white;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+          padding: 1rem;
+        }
+
+        .receipt-border {
+          border: 2px solid #000;
+        }
+
+        .receipt-header {
+          border-bottom: 2px solid #000;
+          padding: 1rem;
+        }
+
+        .header-content {
+          display: flex;
+          align-items: flex-start;
+          gap: 1rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .header-logo {
+          width: 60px;
+          height: 60px;
+          flex-shrink: 0;
+        }
+
+        .header-text {
+          flex: 1;
+          text-align: center;
+        }
+
+        .header-title {
+          font-size: 1.25rem;
+          font-weight: bold;
+          margin: 0;
+          line-height: 1.3;
+        }
+
+        .header-subtitle {
+          font-size: 1rem;
+          font-weight: 600;
+          margin: 0.25rem 0;
+        }
+
+        .header-govt {
+          font-size: 0.9rem;
+          margin: 0;
+        }
+
+        .header-spacer {
+          width: 60px;
+          flex-shrink: 0;
+        }
+
+        .acknowledgement-title {
+          text-align: center;
+          font-weight: bold;
+          margin: 0.5rem 0 0;
+          font-size: 1rem;
+          text-transform: uppercase;
+        }
+
+        .receipt-body {
+          padding: 1rem;
+        }
+
+        .details-section {
+          margin-bottom: 1rem;
+        }
+
+        .details-table {
+          width: 100%;
+          font-size: 0.9rem;
+          border-collapse: collapse;
+        }
+
+        .details-table tr {
+          border-bottom: 1px solid #9ca3af;
+        }
+
+        .label-cell {
+          padding: 0.5rem 0.5rem 0.5rem 0;
+          font-weight: 600;
+          width: 35%;
+          vertical-align: top;
+        }
+
+        .value-cell {
+          padding: 0.5rem 0;
+          word-break: break-word;
+          vertical-align: top;
+        }
+
+        .photo-cell {
+          text-align: right;
+          padding-left: 1rem;
+          vertical-align: top;
+        }
+
+        .photo-container {
+          border: 2px solid #000;
+          width: 96px;
+          height: 96px;
+          overflow: hidden;
+          display: inline-block;
+        }
+
+        .user-photo {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .biometric-section {
+          padding: 1rem 0;
+          border-bottom: 2px solid #000;
+          margin-bottom: 1rem;
+        }
+
+        .section-heading {
+          font-weight: bold;
+          margin-bottom: 0.5rem;
+          font-size: 0.95rem;
+        }
+
+        .biometric-text {
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .bold-text {
+          font-weight: 600;
+        }
+
+        .indent {
+          margin-left: 2rem;
+        }
+
+        .bank-section {
+          padding-bottom: 1rem;
+          border-bottom: 1px solid #9ca3af;
+          margin-bottom: 1rem;
+        }
+
+        .bank-table {
+          width: 100%;
+          font-size: 0.9rem;
+        }
+
+        .bank-table td {
+          padding: 0.25rem 0;
+        }
+
+        .registrar-section {
+          background: #fef3c7;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .registrar-table {
+          width: 100%;
+          font-size: 0.9rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .registrar-table td {
+          padding: 0.25rem 0;
+        }
+
+        .correction-note {
+          font-size: 0.85rem;
+          text-align: center;
+          margin: 0.5rem 0 0;
+          font-weight: 500;
+        }
+
+        .status-section {
+          padding: 1rem;
+          margin-bottom: 1rem;
+          border-radius: 0.5rem;
+          border: 2px solid;
+        }
+
+        .status-section.approved {
+          background: #d1fae5;
+          border-color: #10b981;
+        }
+
+        .status-section.pending {
+          background: #dbeafe;
+          border-color: #3b82f6;
+        }
+
+        .status-text {
+          font-size: 0.9rem;
+          text-align: center;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        .footer-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 2rem;
+          flex-wrap: wrap;
+        }
+
+        .contact-info {
+          font-size: 0.85rem;
+          flex: 1;
+          min-width: 200px;
+        }
+
+        .contact-title {
+          font-weight: bold;
+          margin-bottom: 0.5rem;
+        }
+
+        .contact-info p {
+          margin: 0.25rem 0;
+        }
+
+        .disclaimer {
+          margin-top: 1rem;
+          color: #6b7280;
+          font-size: 0.8rem;
+        }
+
+        .qr-section {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .qr-container {
+          border: 1px solid #9ca3af;
+          padding: 0.5rem;
+          width: 96px;
+          height: 96px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: white;
+        }
+
+        .qr-image {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+
+        .qr-placeholder {
+          font-size: 0.75rem;
+          color: #9ca3af;
+          text-align: center;
+        }
+
+        .signature-info {
+          text-align: center;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+
+        .signature-label {
+          color: #6b7280;
+          font-weight: normal;
+        }
+
+        .action-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          margin-top: 1.5rem;
+          flex-wrap: wrap;
+        }
+
+        .btn-print,
+        .btn-download {
+          padding: 0.75rem 2rem;
+          border: none;
+          border-radius: 50px;
+          font-weight: 600;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .btn-print {
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-print:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-download {
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: white;
+          box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-download:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+        }
+
+        @media print {
+          .no-print {
+            display: none !important;
+          }
+          
+          .receipt-container {
+            padding: 0;
+            background: white;
+          }
         }
 
         @media (max-width: 768px) {
@@ -792,8 +1482,54 @@ export default function Empjansewa() {
           .service-card {
             margin-bottom: 1rem;
           }
+
+          .header-logo {
+            width: 40px;
+            height: 40px;
+          }
+
+          .header-title {
+            font-size: 0.9rem;
+          }
+
+          .header-subtitle {
+            font-size: 0.8rem;
+          }
+
+          .header-govt {
+            font-size: 0.75rem;
+          }
+
+          .details-table {
+            font-size: 0.8rem;
+          }
+
+          .photo-container {
+            width: 70px;
+            height: 70px;
+          }
+
+          .indent {
+            margin-left: 1rem;
+          }
+
+          .footer-section {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
+
+          .action-buttons {
+            flex-direction: column;
+            width: 100%;
+          }
+
+          .btn-print,
+          .btn-download {
+            width: 100%;
+          }
         }
-      `}</style>
+  `}</style>
     </div>
   );
 }
