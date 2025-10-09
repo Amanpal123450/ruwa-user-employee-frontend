@@ -143,7 +143,7 @@ export default function Empjansewa() {
       if (formData.caste_certificate instanceof File)
         fd.append("caste_certificate", formData.caste_certificate);
       if (formData.profilePicUser instanceof File)
-        fd.append("profilePicUser", formData.profilePicUser);
+        fd.append("profilePicUser", formData.profilePicUser)
 
       // Send request to backend
       const res = await fetch(

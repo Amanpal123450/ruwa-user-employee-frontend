@@ -50,11 +50,20 @@ import { ToastContainer } from 'react-toastify';
 import Empusers from './Pages/Empusers';
 import LocationTracker from './components/LocationTracker';
 import WalletApp from './components/wallet';
+<<<<<<< HEAD
 // <<<<<<< HEAD
 import JobApplicationForm from './Pages/JobApplicationForm';
 
 import KycPortal from './components/KycPortal';
 // >>>>>>> b553ad28b121055e1597fe590e7e428f541162de
+=======
+
+import JobApplicationForm from './Pages/JobApplicationForm';
+
+import KycPortal from './components/KycPortal';
+import EKYCVerification from './Pages/EKYCVerification';
+
+>>>>>>> 6b07d01625555ee41f9fd7fbb7e14c81b136d893
 
 // Scroll to top component
 function ScrollToTop() {
@@ -161,6 +170,7 @@ function AuthWrapper({ showModal, setShowModal }) {
 
         {/* User Protected Routes */}
         <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path='/E-KYC' element={<ProtectedRoute><EKYCVerification /></ProtectedRoute>} />
         <Route path='/profilecard' element={<ProtectedRoute><Arogaycardpage /></ProtectedRoute>} />
         <Route path='/apply-swabhiman' element={<ProtectedRoute><Swvimanyojna /></ProtectedRoute>} />
         <Route path='/apply-arogya' element={<ProtectedRoute><Arogycard /></ProtectedRoute>} />
