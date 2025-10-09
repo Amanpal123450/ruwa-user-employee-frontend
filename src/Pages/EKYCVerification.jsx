@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
-import { Camera, Upload, MapPin, Home, User, FileText, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Camera, Upload, MapPin, Home, User, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function EKYCVerification() {
   const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState({});
+  const [applicationId, setApplicationId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Get applicationId from URL query parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const appId = params.get('applicationId');
+    
+    if (appId) {
+      setApplicationId(appId);
+      setFormData(prev => ({ ...prev, applicationId: appId }));
+    }
+  }, []);
 
   const sections = [
     { title: 'Personal Information', icon: User },
@@ -20,17 +33,67 @@ export default function EKYCVerification() {
   };
 
   const handleFileUpload = (field) => {
-    // File upload handler
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = field.includes('video') ? 'video/' : 'image/';
+    input.accept = field.includes('video') ? 'video/*' : 'image/*';
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        handleInputChange(field, file.name);
+        handleInputChange(field, file);
+        handleInputChange(`${field}Name`, file.name);
       }
     };
     input.click();
+  };
+
+  const handleSubmitForm = async () => {
+    if (!applicationId) {
+      alert('Error: Application ID is missing. Cannot submit form.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const formDataToSend = new FormData();
+
+      // Add application ID
+      formDataToSend.append('applicationId', applicationId);
+
+      // Add all form data
+      Object.keys(formData).forEach(key => {
+        if (formData[key] instanceof File) {
+          formDataToSend.append(key, formData[key]);
+        } else if (formData[key] !== null && formData[key] !== undefined) {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      // Replace with your actual API endpoint
+      const response = await fetch('https://ruwa-backend.onrender.com/api/services/ekyc/submit', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formDataToSend
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('E-KYC Form submitted successfully!');
+        // Optionally redirect to a success page
+        // window.location.href = '/success';
+      } else {
+        alert(data.message || 'Form submission failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      alert('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderSection = () => {
@@ -39,6 +102,16 @@ export default function EKYCVerification() {
         return (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Personal Information</h2>
+            
+            {applicationId && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">Application ID:</span> 
+                  <span className="ml-2 text-blue-700 font-mono">{applicationId}</span>
+                </p>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input type="text" placeholder="Name *" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onChange={(e) => handleInputChange('name', e.target.value)} />
               <input type="text" placeholder="Father's Name *" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onChange={(e) => handleInputChange('fatherName', e.target.value)} />
@@ -88,10 +161,13 @@ export default function EKYCVerification() {
               
               <div className="bg-blue-50 p-4 rounded-lg">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Upload Map of Kendra *</label>
-                <button onClick={() => handleFileUpload('kendraMap')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button type="button" onClick={() => handleFileUpload('kendraMap')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                   <Upload size={20} />
-                  Upload Map Image
+                  {formData.kendraMapName || 'Upload Map Image'}
                 </button>
+                {formData.kendraMapName && (
+                  <p className="text-xs text-green-600 mt-2">✓ {formData.kendraMapName}</p>
+                )}
               </div>
 
               <div className="border-2 border-gray-200 rounded-lg p-4">
@@ -219,44 +295,52 @@ export default function EKYCVerification() {
             <div className="bg-blue-50 p-4 rounded-lg space-y-3">
               <h3 className="font-semibold text-gray-800">Upload Structure Photos *</h3>
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => handleFileUpload('frontProfile')} className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 rounded-lg hover:bg-blue-100">
-                  <Camera size={20} />
-                  Front Profile
-                </button>
-                <button onClick={() => handleFileUpload('rightProfile')} className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 rounded-lg hover:bg-blue-100">
-                  <Camera size={20} />
-                  Right Profile
-                </button>
-                <button onClick={() => handleFileUpload('leftProfile')} className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 rounded-lg hover:bg-blue-100">
-                  <Camera size={20} />
-                  Left Profile
-                </button>
-                <button onClick={() => handleFileUpload('topProfile')} className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 rounded-lg hover:bg-blue-100">
-                  <Camera size={20} />
-                  Top Profile
-                </button>
-                <button onClick={() => handleFileUpload('surfaceProfile')} className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 rounded-lg hover:bg-blue-100">
-                  <Camera size={20} />
-                  Surface Profile
-                </button>
-                <button onClick={() => handleFileUpload('interiors')} className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 rounded-lg hover:bg-blue-100">
-                  <Camera size={20} />
-                  Interiors
-                </button>
+                {[
+                  { key: 'frontProfile', label: 'Front Profile' },
+                  { key: 'rightProfile', label: 'Right Profile' },
+                  { key: 'leftProfile', label: 'Left Profile' },
+                  { key: 'topProfile', label: 'Top Profile' },
+                  { key: 'surfaceProfile', label: 'Surface Profile' },
+                  { key: 'interiors', label: 'Interiors' }
+                ].map(({ key, label }) => (
+                  <div key={key}>
+                    <button 
+                      type="button"
+                      onClick={() => handleFileUpload(key)} 
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-blue-300 rounded-lg hover:bg-blue-100"
+                    >
+                      <Camera size={20} />
+                      <span className="text-sm">{formData[`${key}Name`] ? '✓ ' : ''}{label}</span>
+                    </button>
+                    {formData[`${key}Name`] && (
+                      <p className="text-xs text-green-600 mt-1 truncate">✓ {formData[`${key}Name`]}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
             <div className="bg-green-50 p-4 rounded-lg space-y-3">
               <h3 className="font-semibold text-gray-800">Upload 360° Videos *</h3>
               <div className="grid grid-cols-2 gap-3">
-                <button onClick={() => handleFileUpload('video360Interior')} className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-green-300 rounded-lg hover:bg-green-100">
-                  <Upload size={20} />
-                  Interior 360° Video
-                </button>
-                <button onClick={() => handleFileUpload('video360Exterior')} className="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-green-300 rounded-lg hover:bg-green-100">
-                  <Upload size={20} />
-                  Exterior 360° Video
-                </button>
+                {[
+                  { key: 'video360Interior', label: 'Interior 360° Video' },
+                  { key: 'video360Exterior', label: 'Exterior 360° Video' }
+                ].map(({ key, label }) => (
+                  <div key={key}>
+                    <button 
+                      type="button"
+                      onClick={() => handleFileUpload(key)} 
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-green-300 rounded-lg hover:bg-green-100"
+                    >
+                      <Upload size={20} />
+                      <span className="text-sm">{formData[`${key}Name`] ? '✓ ' : ''}{label}</span>
+                    </button>
+                    {formData[`${key}Name`] && (
+                      <p className="text-xs text-green-600 mt-1 truncate">✓ {formData[`${key}Name`]}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -275,22 +359,26 @@ export default function EKYCVerification() {
             <div className="bg-yellow-50 p-4 rounded-lg space-y-3">
               <h3 className="font-semibold text-gray-800">Upload Required Documents *</h3>
               <div className="grid grid-cols-1 gap-3">
-                <button onClick={() => handleFileUpload('bankPassbook')} className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-yellow-300 rounded-lg hover:bg-yellow-100">
-                  <Upload size={20} />
-                  Bank Passbook with Photo (Sealed by Bank)
-                </button>
-                <button onClick={() => handleFileUpload('domicile')} className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-yellow-300 rounded-lg hover:bg-yellow-100">
-                  <Upload size={20} />
-                  Domicile Certificate
-                </button>
-                <button onClick={() => handleFileUpload('nocProperty')} className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-yellow-300 rounded-lg hover:bg-yellow-100">
-                  <Upload size={20} />
-                  NOC of Property
-                </button>
-                <button onClick={() => handleFileUpload('propertyDeed')} className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-yellow-300 rounded-lg hover:bg-yellow-100">
-                  <Upload size={20} />
-                  Deed/Agreement/Lagan Receipt
-                </button>
+                {[
+                  { key: 'bankPassbook', label: 'Bank Passbook with Photo (Sealed by Bank)' },
+                  { key: 'domicile', label: 'Domicile Certificate' },
+                  { key: 'nocProperty', label: 'NOC of Property' },
+                  { key: 'propertyDeed', label: 'Deed/Agreement/Lagan Receipt' }
+                ].map(({ key, label }) => (
+                  <div key={key}>
+                    <button 
+                      type="button"
+                      onClick={() => handleFileUpload(key)} 
+                      className="w-full flex items-center gap-2 px-4 py-3 bg-white border-2 border-yellow-300 rounded-lg hover:bg-yellow-100 text-left"
+                    >
+                      <Upload size={20} />
+                      <span className="text-sm flex-1">{formData[`${key}Name`] ? '✓ ' : ''}{label}</span>
+                    </button>
+                    {formData[`${key}Name`] && (
+                      <p className="text-xs text-green-600 mt-1 truncate">✓ {formData[`${key}Name`]}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -321,6 +409,11 @@ export default function EKYCVerification() {
               <CheckCircle size={48} className="mx-auto text-green-600 mb-3" />
               <p className="text-lg font-semibold text-gray-800">Review all information before submission</p>
               <p className="text-sm text-gray-600 mt-2">Ensure all mandatory fields are filled correctly</p>
+              {applicationId && (
+                <p className="text-sm text-blue-700 mt-3 font-mono">
+                  Application ID: {applicationId}
+                </p>
+              )}
             </div>
           </div>
         );
@@ -330,6 +423,27 @@ export default function EKYCVerification() {
     }
   };
 
+  // Show warning if no application ID
+  if (!applicationId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md text-center">
+          <AlertCircle size={64} className="mx-auto text-red-500 mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Application ID Required</h2>
+          <p className="text-gray-600 mb-6">
+            Please access this page from your franchise application to continue with E-KYC verification.
+          </p>
+          <button
+            onClick={() => window.history.back()}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
       <div className="max-w-5xl mx-auto">
@@ -337,6 +451,9 @@ export default function EKYCVerification() {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
             <h1 className="text-3xl font-bold text-center">E-Verification KYC Form</h1>
             <p className="text-center text-blue-100 mt-2">Complete all sections for Kendra registration</p>
+            <p className="text-center text-blue-50 mt-2 text-sm font-mono">
+              Application ID: {applicationId}
+            </p>
           </div>
 
           <div className="flex overflow-x-auto border-b bg-gray-50 px-4 py-3">
@@ -345,6 +462,7 @@ export default function EKYCVerification() {
               return (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => setCurrentSection(idx)}
                   className={`flex items-center gap-2 px-4 py-2 min-w-max rounded-lg mx-1 transition-all ${
                     currentSection === idx
@@ -365,6 +483,7 @@ export default function EKYCVerification() {
 
           <div className="bg-gray-50 px-8 py-6 flex justify-between border-t">
             <button
+              type="button"
               onClick={() => setCurrentSection(prev => Math.max(0, prev - 1))}
               disabled={currentSection === 0}
               className={`px-6 py-3 rounded-lg font-medium transition-all ${
@@ -378,13 +497,30 @@ export default function EKYCVerification() {
             
             {currentSection === sections.length - 1 ? (
               <button
-                onClick={() => alert('Form submitted successfully! (This is a demo)')}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-all shadow-lg"
+                type="button"
+                onClick={handleSubmitForm}
+                disabled={isSubmitting}
+                className={`px-8 py-3 rounded-lg font-medium transition-all shadow-lg ${
+                  isSubmitting
+                    ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                }`}
               >
-                Submit Form
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Submitting...
+                  </span>
+                ) : (
+                  'Submit Form'
+                )}
               </button>
             ) : (
               <button
+                type="button"
                 onClick={() => setCurrentSection(prev => Math.min(sections.length - 1, prev + 1))}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all"
               >
