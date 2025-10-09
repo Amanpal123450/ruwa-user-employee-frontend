@@ -258,7 +258,7 @@ export default function Janarogycard() {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          "http://localhost:8000/api/services/janarogya/user/apply",
+          "https://ruwa-backend.onrender.com/api/services/janarogya/user/apply",
           {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },

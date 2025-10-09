@@ -147,7 +147,7 @@ export default function Empjansewa() {
 
       // Send request to backend
       const res = await fetch(
-        "http://localhost:8000/api/services/janarogya/employee/apply",
+        "https://ruwa-backend.onrender.com/api/services/janarogya/employee/apply",
         {
           method: "POST",
           headers: {
