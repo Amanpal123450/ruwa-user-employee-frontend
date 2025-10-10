@@ -5,15 +5,64 @@ export default function EKYCVerification() {
   const [currentSection, setCurrentSection] = useState(0);
   const [formData, setFormData] = useState({});
   const [applicationId, setApplicationId] = useState(null);
+  const [manualAppId, setManualAppId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
- 
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [anum, setAnum] = useState("");
+  const [name, setName] = useState("");
+  
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const appId = params.get('applicationId');
     
     if (appId) {
       setApplicationId(appId);
+    } else {
+      setShowManualEntry(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          "https://ruwa-backend.onrender.com/api/auth/profile",
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const data = await res.json();
+
+        if (res.ok) {
+          const userAadhar = data.user.aadhar;
+          const userName = data.user.name;
+          
+          setAnum(userAadhar);
+          setName(userName);
+          
+          // Set name and aadhaar in formData
+          setFormData(prev => ({
+            ...prev,
+            name: userName,
+            aadhaar: userAadhar
+          }));
+          
+          // Check for missing fields
+          if (!data.profile.profile_pic || !data.profile.DOB) {
+            alert("🚨 Please complete your profile by adding DOB & Profile Picture!");
+          }
+        } else {
+          console.error("Error:", data.message);
+        }
+      } catch (err) {
+        console.error("API error:", err);
+      }
+    };
+
+    fetchProfile();
   }, []);
 
   const sections = [
@@ -49,14 +98,20 @@ export default function EKYCVerification() {
       return;
     }
 
-    // Basic validation
-    const requiredFields = ['name', 'fatherName', 'motherName', 'bloodGroup', 'education', 
+    // Basic validation - removed 'name' from required fields since it comes from profile
+    const requiredFields = ['fatherName', 'motherName', 'bloodGroup', 'education', 
                            'address', 'state', 'district', 'block', 'kendraLocation', 
                            'structureType', 'floors', 'pan', 'mobile1', 'emergencyContact', 'email'];
     
     const missing = requiredFields.filter(field => !formData[field]);
     if (missing.length > 0) {
       alert(`Please fill all required fields. Missing: ${missing.join(', ')}`);
+      return;
+    }
+
+    // Check if name and aadhaar are present
+    if (!formData.name || !formData.aadhaar) {
+      alert('Name and Aadhaar are required. Please refresh the page if they are missing.');
       return;
     }
 
@@ -81,7 +136,7 @@ export default function EKYCVerification() {
       // Add applicationId
       formDataToSend.append('applicationId', applicationId);
 
-      // Add all other fields
+      // Add all other fields including name and aadhaar
       Object.keys(formData).forEach((key) => {
         const value = formData[key];
         if (value !== null && value !== undefined && value !== '') {
@@ -93,10 +148,11 @@ export default function EKYCVerification() {
         }
       });
 
+      const token = localStorage.getItem("token");
       const response = await fetch('https://ruwa-backend.onrender.com/api/ekyc/user/submit', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formDataToSend,
       });
@@ -105,7 +161,7 @@ export default function EKYCVerification() {
 
       if (response.ok) {
         alert('E-KYC Form submitted successfully!');
-        setFormData({});
+        setFormData({ name: name, aadhaar: anum }); // Keep name and aadhaar
         setCurrentSection(0);
       } else {
         console.error('Server error:', data);
@@ -136,13 +192,17 @@ export default function EKYCVerification() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input 
-                type="text" 
-                placeholder="Name *" 
-                value={formData.name || ''} 
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                onChange={(e) => handleInputChange('name', e.target.value)} 
-              />
+              <div>
+                <input 
+                  type="text" 
+                  placeholder="Name *" 
+                  value={name || formData.name || ''} 
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  disabled
+                  readOnly
+                />
+                <p className="text-xs text-gray-500 mt-1">Name is fetched from your profile</p>
+              </div>
               <input 
                 type="text" 
                 placeholder="Father's Name *" 
@@ -538,13 +598,17 @@ export default function EKYCVerification() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg" 
                 onChange={(e) => handleInputChange('annualIncome', e.target.value)} 
               />
-              <input 
-                type="text" 
-                placeholder="Aadhaar Number *" 
-                value={formData.aadhaar || ''} 
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg" 
-                onChange={(e) => handleInputChange('aadhaar', e.target.value)} 
-              />
+              <div>
+                <input 
+                  type="text" 
+                  placeholder="Aadhaar Number *" 
+                  value={anum || formData.aadhaar || ""} 
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" 
+                  disabled
+                  readOnly
+                />
+                <p className="text-xs text-gray-500 mt-1">Aadhaar is fetched from your profile</p>
+              </div>
               <input 
                 type="text" 
                 placeholder="PAN Number * (e.g. ABCDE1234F)" 
@@ -648,18 +712,54 @@ export default function EKYCVerification() {
   if (!applicationId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md text-center">
-          <AlertCircle size={64} className="mx-auto text-red-500 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Application ID Required</h2>
-          <p className="text-gray-600 mb-6">
-            Please access this page from your franchise application.
-          </p>
-          <button
-            onClick={() => window.history.back()}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Go Back
-          </button>
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+          <div className="text-center mb-6">
+            <AlertCircle size={64} className="mx-auto text-blue-500 mb-4" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Application ID Required</h2>
+            <p className="text-gray-600">
+              Please enter your application ID to continue with E-KYC verification.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Application ID
+              </label>
+              <input
+                type="text"
+                placeholder="Enter Application ID"
+                value={manualAppId}
+                onChange={(e) => setManualAppId(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            
+            <button
+              onClick={() => {
+                if (manualAppId.trim()) {
+                  setApplicationId(manualAppId.trim());
+                } else {
+                  alert('Please enter a valid Application ID');
+                }
+              }}
+              disabled={!manualAppId.trim()}
+              className={`w-full px-6 py-3 rounded-lg font-medium transition-all ${
+                manualAppId.trim()
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              Continue to E-KYC Form
+            </button>
+
+            <button
+              onClick={() => window.history.back()}
+              className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+            >
+              Go Back
+            </button>
+          </div>
         </div>
       </div>
     );

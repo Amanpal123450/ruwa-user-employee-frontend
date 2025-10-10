@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const KeyDocuments = () => {
   return (
@@ -166,9 +167,9 @@ const KeyDocuments = () => {
         <a href="mailto:franchise@ruwaindia.com" className="btn btn-primary fw-semibold px-4 py-2">
           Email Your LOI
         </a>
-        <a href="#documents" className="btn btn-outline-secondary fw-semibold px-4 py-2">
-          Review Documents
-        </a>
+        <Link to="/E-KYC" className="btn btn-outline-secondary fw-semibold px-4 py-2">
+          E-KYC Offline
+        </Link>
       </div>
 
       <div className="text-muted small">

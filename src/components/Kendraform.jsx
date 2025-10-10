@@ -136,8 +136,10 @@ const Empkendra = () => {
         );
 
         const data = await res.json();
-
-        if (data.application.status === "APPROVED" ) {
+if (data.application.EKYC === true ) {
+          
+}
+        if (data.application.status === "APPROVED" && data.application.EKYC === false) {
           alert("Your Franchaise Application Approved Please Fill E-KYC")
           navigate(`/E-KYC?applicationId=${data.application.applicationId}`);
         } else if (data.status === "PENDING" && data.application) {
