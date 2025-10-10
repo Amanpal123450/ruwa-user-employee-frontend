@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
 
-const socket = io("http://localhost:5000", { auth: { token: localStorage.getItem("token") } });
+const socket = io("https://ruwa-backend.onrender.com5000", { auth: { token: localStorage.getItem("token") } });
 
 export default function AdminMap() {
   const { isLoaded } = useJsApiLoader({ googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_KEY });

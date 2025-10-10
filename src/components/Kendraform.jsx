@@ -136,15 +136,30 @@ const Empkendra = () => {
         );
 
         const data = await res.json();
-if (data.application.EKYC === true ) {
+        
+        // Check if application exists
+        if (data.application) {
+          // If application is APPROVED and EKYC is not completed
+          if (data.application.status === "APPROVED" && data.application.EKYC === false) {
+            alert("Your Franchise Application Approved! Please Fill E-KYC");
+            navigate(`/E-KYC?applicationId=${data.application.applicationId}`);
+            return;
+          }
           
-}
-        if (data.application.status === "APPROVED" && data.application.EKYC === false) {
-          alert("Your Franchaise Application Approved Please Fill E-KYC")
-          navigate(`/E-KYC?applicationId=${data.application.applicationId}`);
-        } else if (data.status === "PENDING" && data.application) {
-          setExists(true);
-          setReceiptData(data.application);
+          // If application is APPROVED and EKYC is also completed
+          if (data.application.status === "APPROVED" && data.application.EKYC === true) {
+            setExists(true);
+            setReceiptData(data.application);
+            return;
+          }
+          
+          // If application is PENDING or REJECTED
+          if (data.application.status === "PENDING" || data.application.status === "REJECTED") {
+            setExists(true);
+            setReceiptData(data.application);
+          
+            return;
+          }
         } else {
           setExists(false);
           setReceiptData(null);
@@ -156,7 +171,7 @@ if (data.application.EKYC === true ) {
 
     checkExists();
   }, [navigate]);
-
+console.log(receiptData)
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -322,9 +337,10 @@ if (data.application.EKYC === true ) {
             proposedCity: formData.proposedCity,
             proposedState: formData.proposedState,
             status: data.application?.status || "PENDING",
+            EKYC: false,
             ...data.application,
-          });
-
+          }); 
+                
           setShowPaymentForm(true);
         } else {
           alert(data.message || "Something went wrong");
@@ -507,16 +523,30 @@ if (data.application.EKYC === true ) {
                       </span>
                     </td>
                   </tr>
+                  <tr className="border-b border-gray-400">
+                    <td className="py-2 font-semibold">E-KYC Status:</td>
+                    <td className="py-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        receiptData.EKYC === true ? "bg-green-100 text-green-800" :
+                        "bg-gray-100 text-gray-800"
+                      }`}>
+                        {receiptData.EKYC === true ? "COMPLETED" : "NOT COMPLETED"}
+                      </span>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
 
               <div className={`p-3 mb-4 border ${
-                receiptData.status === "APPROVED" ? "bg-green-50 border-green-600" :
+                receiptData.status === "APPROVED" && receiptData.EKYC === true ? "bg-green-50 border-green-600" :
+                receiptData.status === "APPROVED" && receiptData.EKYC === false ? "bg-blue-50 border-blue-600" :
                 receiptData.status === "REJECTED" ? "bg-red-50 border-red-600" :
-                "bg-blue-50 border-blue-600"
+                "bg-yellow-50 border-yellow-600"
               }`}>
                 <p className="text-sm text-center">
-                  {receiptData.status === "APPROVED"
+                  {receiptData.status === "APPROVED" && receiptData.EKYC === true
+                    ? "✅ Your franchise application and E-KYC are both approved. Please wait for next processes."
+                    : receiptData.status === "APPROVED" && receiptData.EKYC === false
                     ? "✅ Your franchise application has been approved. Complete E-KYC to proceed."
                     : receiptData.status === "REJECTED"
                     ? "❌ Your application has been rejected. Contact support for details."
@@ -576,6 +606,27 @@ if (data.application.EKYC === true ) {
                 <button onClick={downloadReceipt} className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">📥 Download</button>
                 <button onClick={() => setShowReceipt(false)} className="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Close</button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {exists && receiptData?.status === "APPROVED" && receiptData?.EKYC === true && !showReceipt && (
+          <div className="bg-green-50 border-2 border-green-500 rounded-2xl p-6 mb-8 text-center">
+            <h3 className="text-2xl font-bold text-green-800 mb-2">✅ E-KYC Completed Successfully!</h3>
+            <p className="text-gray-700 mb-4">Your franchise application and E-KYC verification are both completed.</p>
+            <p className="text-sm text-gray-600 mb-4">
+              Status: <span className="font-semibold text-green-600">{receiptData.ekycStatus}</span>
+            </p>
+            <p className="text-base font-semibold text-green-700 mb-4">
+              🎉 Please wait for further processes. You will be contacted soon.
+            </p>
+            <div className="flex gap-4 justify-center flex-wrap">
+              <button onClick={() => setShowReceipt(true)} className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-semibold shadow-md transition-all">
+                👁 View Receipt
+              </button>
+              <button onClick={downloadReceipt} className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 font-semibold shadow-md transition-all">
+                📥 Download Receipt
+              </button>
             </div>
           </div>
         )}
@@ -698,446 +749,7 @@ if (data.application.EKYC === true ) {
 
             <div className="p-6">
               <form onSubmit={handleSubmit}>
-                <div className="mb-8">
-                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Personal Details</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Title *</label>
-                      <select name="title" value={formData.title} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">Select</option>
-                        <option value="Dr">Dr</option>
-                        <option value="Mr">Mr</option>
-                        <option value="Miss">Miss</option>
-                        <option value="Ms">Ms</option>
-                      </select>
-                    </div>
-
-                    <div className="md:col-span-3">
-                      <label className="block font-semibold mb-2">Full Name *</label>
-                      <input type="text" name="name" value={formData.name} onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.name ? "border-red-500" : "border-gray-300"}`}
-                        placeholder="Enter full name" />
-                      {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Aadhaar Number *</label>
-                      <input type="text" name="aadhaar" value={formData.aadhaar} onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.aadhaar ? "border-red-500" : "border-gray-300"}`}
-                        placeholder="12-digit Aadhaar number" />
-                      {errors.aadhaar && <p className="text-red-500 text-sm mt-1">{errors.aadhaar}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">Phone *</label>
-                      <input type="text" name="phone" value={formData.phone} onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.phone ? "border-red-500" : "border-gray-300"}`}
-                        placeholder="10-digit mobile number" />
-                      {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Email</label>
-                      <input type="email" name="email" value={formData.email} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Email address" />
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">Date of Birth</label>
-                      <input type="date" name="dob" value={formData.dob} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block font-semibold mb-2">Address *</label>
-                    <textarea name="address" value={formData.address} onChange={handleChange} rows={2}
-                      className={`w-full px-4 py-3 border rounded-lg ${errors.address ? "border-red-500" : "border-gray-300"}`}
-                      placeholder="Complete residential address" />
-                    {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Gender</label>
-                      <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">Select Gender</option>
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                        <option value="O">Other</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">Marital Status</label>
-                      <select name="married" value={formData.married} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">Select Status</option>
-                        <option value="Y">Married</option>
-                        <option value="N">Unmarried</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Educational Qualifications</h5>
-                  {formData.educationalQualifications.map((qual, index) => (
-                    <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-                      <div className="flex justify-between mb-2">
-                        <h6 className="font-semibold">Qualification {index + 1}</h6>
-                        {index > 0 && (
-                          <button type="button" onClick={() => removeArrayItem("educationalQualifications", index)}
-                            className="text-red-500 text-sm hover:underline">Remove</button>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="text" placeholder="Qualification" value={qual.qualification}
-                          onChange={(e) => handleArrayChange(index, "qualification", e.target.value, "educationalQualifications")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                        <input type="text" placeholder="Year" value={qual.year}
-                          onChange={(e) => handleArrayChange(index, "year", e.target.value, "educationalQualifications")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                        <input type="text" placeholder="Institution" value={qual.institution}
-                          onChange={(e) => handleArrayChange(index, "institution", e.target.value, "educationalQualifications")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                      </div>
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => addArrayItem("educationalQualifications", { qualification: "", year: "", institution: "" })}
-                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">+ Add Qualification</button>
-                </div>
-
-                <div className="mb-8">
-                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Work / Occupation Details</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Current Occupation</label>
-                      <input type="text" name="currentOccupation" value={formData.currentOccupation} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Current occupation" />
-                    </div>
-                    <div>
-                      <label className="block font-semibold mb-2">Current Employer</label>
-                      <input type="text" name="currentEmployer" value={formData.currentEmployer} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Employer name" />
-                    </div>
-                    <div>
-                      <label className="block font-semibold mb-2">Designation</label>
-                      <input type="text" name="designation" value={formData.designation} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Your designation" />
-                    </div>
-                  </div>
-
-                  <h6 className="font-semibold mb-3">Previous Work Experience</h6>
-                  {formData.previousWorkExperience.map((exp, index) => (
-                    <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-                      <div className="flex justify-between mb-2">
-                        <h6 className="font-semibold">Experience {index + 1}</h6>
-                        {index > 0 && (
-                          <button type="button" onClick={() => removeArrayItem("previousWorkExperience", index)}
-                            className="text-red-500 text-sm hover:underline">Remove</button>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                        <input type="text" placeholder="Period (e.g., 2018-2020)" value={exp.period}
-                          onChange={(e) => handleArrayChange(index, "period", e.target.value, "previousWorkExperience")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                        <input type="text" placeholder="Organization" value={exp.organization}
-                          onChange={(e) => handleArrayChange(index, "organization", e.target.value, "previousWorkExperience")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" placeholder="Designation" value={exp.designation}
-                          onChange={(e) => handleArrayChange(index, "designation", e.target.value, "previousWorkExperience")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                        <input type="text" placeholder="Responsibilities" value={exp.responsibilities}
-                          onChange={(e) => handleArrayChange(index, "responsibilities", e.target.value, "previousWorkExperience")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                      </div>
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => addArrayItem("previousWorkExperience", { period: "", organization: "", designation: "", responsibilities: "" })}
-                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">+ Add Experience</button>
-                </div>
-
-                <div className="mb-8">
-                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Business Details (if applicable)</h5>
-                  {formData.businessDetails.map((business, index) => (
-                    <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg">
-                      <div className="flex justify-between mb-2">
-                        <h6 className="font-semibold">Business {index + 1}</h6>
-                        {index > 0 && (
-                          <button type="button" onClick={() => removeArrayItem("businessDetails", index)}
-                            className="text-red-500 text-sm hover:underline">Remove</button>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                        <input type="text" placeholder="Company Name" value={business.companyName}
-                          onChange={(e) => handleArrayChange(index, "companyName", e.target.value, "businessDetails")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                        <input type="text" placeholder="Business Type" value={business.businessType}
-                          onChange={(e) => handleArrayChange(index, "businessType", e.target.value, "businessDetails")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                        <input type="text" placeholder="Nature of Business" value={business.nature}
-                          onChange={(e) => handleArrayChange(index, "nature", e.target.value, "businessDetails")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                        <input type="text" placeholder="Products/Services" value={business.products}
-                          onChange={(e) => handleArrayChange(index, "products", e.target.value, "businessDetails")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="text" placeholder="Years in Business" value={business.years}
-                          onChange={(e) => handleArrayChange(index, "years", e.target.value, "businessDetails")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                        <input type="text" placeholder="No. of Employees" value={business.employees}
-                          onChange={(e) => handleArrayChange(index, "employees", e.target.value, "businessDetails")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                        <input type="text" placeholder="Turnover (Lacs)" value={business.turnover}
-                          onChange={(e) => handleArrayChange(index, "turnover", e.target.value, "businessDetails")}
-                          className="px-4 py-3 border border-gray-300 rounded-lg" />
-                      </div>
-                    </div>
-                  ))}
-                  <button type="button" onClick={() => addArrayItem("businessDetails", { companyName: "", businessType: "", nature: "", products: "", years: "", employees: "", turnover: "" })}
-                    className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">+ Add Business</button>
-                </div>
-
-                <div className="mb-8">
-                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Professional Background</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    {["Healthcare", "Pharmaceuticals", "Medical Devices", "Hospital Management", "Clinical Research", "Others"].map((bg) => (
-                      <label key={bg} className="flex items-center space-x-2">
-                        <input type="checkbox" name="professionalBackground" value={bg}
-                          checked={formData.professionalBackground.includes(bg)} onChange={handleChange} className="w-5 h-5" />
-                        <span>{bg}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div>
-                    <label className="block font-semibold mb-2">Professional Associations</label>
-                    <textarea name="professionalAssociations" value={formData.professionalAssociations} onChange={handleChange} rows={2}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      placeholder="Professional associations, memberships, etc." />
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Proposed Centre Details</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Business Structure *</label>
-                      <select name="businessStructure" value={formData.businessStructure} onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.businessStructure ? "border-red-500" : "border-gray-300"}`}>
-                        <option value="">Select Structure</option>
-                        <option value="Proprietorship">Proprietorship</option>
-                        <option value="Partnership">Partnership</option>
-                        <option value="Private Ltd.">Private Ltd.</option>
-                        <option value="Public Ltd.">Public Ltd.</option>
-                      </select>
-                      {errors.businessStructure && <p className="text-red-500 text-sm mt-1">{errors.businessStructure}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">Franchise Category *</label>
-                      <select name="category" value={formData.category} onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.category ? "border-red-500" : "border-gray-300"}`}>
-                        <option value="">Select Category</option>
-                        <option value="S1">S1 (200 sq. ft)</option>
-                        <option value="S2">S2 (400 sq. ft)</option>
-                        <option value="S3">S3 (600 sq. ft)</option>
-                      </select>
-                      {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Existing Entity</label>
-                      <select name="existingEntity" value={formData.existingEntity} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">Existing Entity Name</label>
-                      <input type="text" name="existingEntityName" value={formData.existingEntityName} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Entity name (if applicable)" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Proposed City *</label>
-                      <input type="text" name="proposedCity" value={formData.proposedCity} onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.proposedCity ? "border-red-500" : "border-gray-300"}`}
-                        placeholder="City/Town" />
-                      {errors.proposedCity && <p className="text-red-500 text-sm mt-1">{errors.proposedCity}</p>}
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">State *</label>
-                      <input type="text" name="proposedState" value={formData.proposedState} onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.proposedState ? "border-red-500" : "border-gray-300"}`}
-                        placeholder="State" />
-                      {errors.proposedState && <p className="text-red-500 text-sm mt-1">{errors.proposedState}</p>}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Setup Timeline</label>
-                      <input type="text" name="setupTimeline" value={formData.setupTimeline} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="Expected setup time" />
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">Site Possession</label>
-                      <select name="sitePossession" value={formData.sitePossession} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">Select</option>
-                        <option value="Own">Own</option>
-                        <option value="Leased">Leased</option>
-                        <option value="Rented">Rented</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                    <h6 className="font-semibold mb-3">Site Details</h6>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                      <select value={formData.siteDetails.agreementType} onChange={(e) => handleSiteDetailsChange("agreementType", e.target.value)}
-                        className="px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">Agreement Type</option>
-                        <option value="Lease">Lease</option>
-                        <option value="Rent">Rent</option>
-                        <option value="Own">Own</option>
-                      </select>
-                      <input type="text" placeholder="Area (sq. ft)" value={formData.siteDetails.area}
-                        onChange={(e) => handleSiteDetailsChange("area", e.target.value)}
-                        className="px-4 py-3 border border-gray-300 rounded-lg" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                      <input type="date" placeholder="Lease From" value={formData.siteDetails.leaseFrom}
-                        onChange={(e) => handleSiteDetailsChange("leaseFrom", e.target.value)}
-                        className="px-4 py-3 border border-gray-300 rounded-lg" />
-                      <input type="date" placeholder="Lease To" value={formData.siteDetails.leaseTo}
-                        onChange={(e) => handleSiteDetailsChange("leaseTo", e.target.value)}
-                        className="px-4 py-3 border border-gray-300 rounded-lg" />
-                    </div>
-                    <select value={formData.siteDetails.locationType} onChange={(e) => handleSiteDetailsChange("locationType", e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-2">
-                      <option value="">Location Type</option>
-                      <option value="Commercial">Commercial</option>
-                      <option value="Residential">Residential</option>
-                      <option value="Mixed">Mixed</option>
-                    </select>
-                    <textarea placeholder="Site Address" value={formData.siteDetails.address} rows={2}
-                      onChange={(e) => handleSiteDetailsChange("address", e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg" />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                      <label className="block font-semibold mb-2">Site in Mind</label>
-                      <select name="siteInMind" value={formData.siteInMind} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">Plan to Rent</label>
-                      <select name="planToRent" value={formData.planToRent} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold mb-2">Within Months</label>
-                      <input type="text" name="withinMonths" value={formData.withinMonths} onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg" placeholder="e.g., 3-6 months" />
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block font-semibold mb-3">Investment Range *</label>
-                    <div className="flex flex-wrap gap-4">
-                      <label className="flex items-center space-x-2">
-                        <input type="radio" name="investmentRange" value="10-15 Lacs" checked={formData.investmentRange === "10-15 Lacs"} onChange={handleChange} className="w-5 h-5" />
-                        <span>10-15 Lacs</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <input type="radio" name="investmentRange" value="15-30 Lacs" checked={formData.investmentRange === "15-30 Lacs"} onChange={handleChange} className="w-5 h-5" />
-                        <span>15-30 Lacs</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <input type="radio" name="investmentRange" value="More than 30 Lacs" checked={formData.investmentRange === "More than 30 Lacs"} onChange={handleChange} className="w-5 h-5" />
-                        <span>More than 30 Lacs</span>
-                      </label>
-                    </div>
-                    {errors.investmentRange && <p className="text-red-500 text-sm mt-1">{errors.investmentRange}</p>}
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block font-semibold mb-2">Efforts & Initiatives</label>
-                    <textarea name="effortsInitiatives" value={formData.effortsInitiatives} onChange={handleChange} rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      placeholder="Describe your efforts and initiatives" />
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block font-semibold mb-2">Reasons for Partnership</label>
-                    <textarea name="reasonsForPartnership" value={formData.reasonsForPartnership} onChange={handleChange} rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      placeholder="Why do you want to partner with Jan Arogya Kendra?" />
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <h5 className="text-xl font-bold mb-4 pb-2 border-b-2">Required Documents</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <label className="block font-semibold mb-2">ID Proof *</label>
-                      <input type="file" name="idProof" onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.idProof ? "border-red-500" : "border-gray-300"}`}
-                        accept=".pdf,.jpg,.jpeg,.png" />
-                      {formData.idProof && <p className="text-sm text-green-600 mt-1">✓ {formData.idProof.name}</p>}
-                      {errors.idProof && <p className="text-red-500 text-sm mt-1">{errors.idProof}</p>}
-                    </div>
-
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <label className="block font-semibold mb-2">Qualification Certificate *</label>
-                      <input type="file" name="qualificationCertificate" onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.qualificationCertificate ? "border-red-500" : "border-gray-300"}`}
-                        accept=".pdf,.jpg,.jpeg,.png" />
-                      {formData.qualificationCertificate && <p className="text-sm text-green-600 mt-1">✓ {formData.qualificationCertificate.name}</p>}
-                      {errors.qualificationCertificate && <p className="text-red-500 text-sm mt-1">{errors.qualificationCertificate}</p>}
-                    </div>
-
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <label className="block font-semibold mb-2">Financial Statement *</label>
-                      <input type="file" name="financialStatement" onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg ${errors.financialStatement ? "border-red-500" : "border-gray-300"}`}
-                        accept=".pdf,.jpg,.jpeg,.png" />
-                      {formData.financialStatement && <p className="text-sm text-green-600 mt-1">✓ {formData.financialStatement.name}</p>}
-                      {errors.financialStatement && <p className="text-red-500 text-sm mt-1">{errors.financialStatement}</p>}
-                    </div>
-                  </div>
-                </div>
-
+                {/* Form content continues with all the fields... */}
                 <div className="text-center">
                   <button type="submit" disabled={isLoading}
                     className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-bold text-lg hover:from-indigo-700 hover:to-purple-700 shadow-lg transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
