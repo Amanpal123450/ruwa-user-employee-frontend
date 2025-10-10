@@ -125,7 +125,7 @@ export default function Empjansewa() {
         fd.append("idProof", formData.idProof);
       }
 
-      const res = await fetch("https://ruwa-backend.onrender.com/api/sevaApplication/employee/apply", {
+      const res = await fetch("https://ruwa-backend.onrender.com/api/services/sevaApplication/employee/apply", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`
