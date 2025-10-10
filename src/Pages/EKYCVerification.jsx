@@ -20,7 +20,7 @@ export default function EKYCVerification() {
       
       // Check if application exists
       const response = await fetch(
-        `http://localhost:8000/api/services/apply-kendra/check-application/${appId}`,
+        `https://ruwa-backend.onrender.com/api/services/apply-kendra/check-application/${appId}`,
         {
           method: "GET",
           headers: {
@@ -79,22 +79,14 @@ export default function EKYCVerification() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const appId = params.get('applicationId');
-    
+
     if (appId) {
       setApplicationId(appId);
-      // When coming from URL, still verify the application
-      checkAndFetchApplicationData(appId);
-    } else {
-      setShowManualEntry(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
+       const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
-          "http://localhost:8000/api/auth/profile",
+          "https://ruwa-backend.onrender.com/api/auth/profile",
           {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
@@ -128,9 +120,18 @@ export default function EKYCVerification() {
         console.error("API error:", err);
       }
     };
-
-    fetchProfile();
+      // When coming from URL, still verify the application
+      checkAndFetchApplicationData(appId);
+    } else {
+      setShowManualEntry(true);
+    }
   }, []);
+
+  // useEffect(() => {
+   
+
+  //   fetchProfile();
+  // }, []);
 
   const sections = [
     { title: 'Personal Information', icon: User },
@@ -229,7 +230,7 @@ export default function EKYCVerification() {
       });
 
       const token = localStorage.getItem("token");
-      const response = await fetch('http://localhost:8000/api/ekyc/user/submit', {
+      const response = await fetch('https://ruwa-backend.onrender.com/api/ekyc/user/submit', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
