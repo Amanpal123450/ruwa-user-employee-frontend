@@ -768,7 +768,23 @@ export default function Services() {
       </button>
     </div>
   </div>
-</div>  
+</div> 
+
+<div className="col-md-6" data-aos="fade-up">
+  <div className="service-card p-4 rounded-4 h-100 d-flex flex-column gap-3 shadow-sm">
+    <div className="text-center fs-1">💳</div>
+    <h3 className="text-center fs-5 mb-2">View Jan Arogya Card</h3>
+    <p className="text-center">
+      Easily check and download your Jan Arogya Card using your registered mobile number or application ID.
+    </p>
+    <div className="text-center">
+      <button className="btn btn-danger" onClick={() => navigate('/GetCard')}>
+        View Jan Arogya Card
+      </button>
+    </div>
+  </div>
+</div>
+
           {/* Service Cards */}
           {services.map((service, index) => (
             <div className="col-12" data-aos="fade-up" data-aos-delay={index * 200} key={index}>

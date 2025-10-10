@@ -64,6 +64,7 @@ import KycPortal from './components/KycPortal';
 
 // import KycPortal from './components/KycPortal';
 import EKYCVerification from './Pages/EKYCVerification';
+import GetCard from './components/GetCard';
 
 
 
@@ -169,6 +170,7 @@ function AuthWrapper({ showModal, setShowModal }) {
         <Route path='/comingsoon' element={<ComingSoonPage />} />
         <Route path='/feedback' element={<FeedbackPage />} />
         <Route path='/WalletApp' element={<WalletApp />} />
+        <Route path='/GetCard' element={<GetCard />} />
 
         {/* User Protected Routes */}
         <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
