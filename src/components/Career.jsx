@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { FaArrowRight, FaPaperPlane, FaMapMarkerAlt, FaRupeeSign, FaUsers, FaCalendarAlt } from 'react-icons/fa';
 import Orgstructer from '../components/Orgstructer';
-import { useNavigate, useNavigation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
+import { Bell, Briefcase } from "lucide-react";
 
 const Career = () => {
   const [selected, setSelected] = useState('jobs');
+  const [expanded, setExpanded] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [activeJob, setActiveJob] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate=useNavigate()
-  // API base URL - update this to match your backend
+  const navigate = useNavigate();
+
+  // API base URL
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ruwa-backend.onrender.com/api';
 
   useEffect(() => {
@@ -23,14 +27,12 @@ const Career = () => {
       setLoading(true);
       setError(null);
       
-      // Get auth token from localStorage (adjust based on your auth implementation)
       const token = localStorage.getItem('token');
       
       const headers = {
         'Content-Type': 'application/json',
       };
       
-      // Add authorization header if token exists
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
@@ -55,7 +57,6 @@ const Career = () => {
     } catch (error) {
       console.error('Error fetching jobs:', error);
       setError('Unable to load job listings. Please try again later.');
-      // Optionally set empty array or keep sample data
       setJobs([]);
     } finally {
       setLoading(false);
@@ -66,10 +67,12 @@ const Career = () => {
     setActiveJob(job);
     setShowModal(true);
   };
- function handleApply(e){
-  e.preventDefault()
-  navigate("/job-form")
- }
+
+  function handleApply(e) {
+    e.preventDefault();
+    navigate("/job-form");
+  }
+
   const getJobTypeBadge = (category) => {
     const types = {
       medical: { label: 'Medical', class: 'bg-primary' },
@@ -176,7 +179,7 @@ const Career = () => {
                         </small>
                       </div>
                       <button className="btn btn-outline-primary w-100"
-                      onClick={(e)=>handleApply(e)}
+                        onClick={(e) => handleApply(e)}
                       >
                         View Details & Apply <FaArrowRight className="ms-2" />
                       </button>
@@ -215,7 +218,7 @@ const Career = () => {
         </ul>
       </>
     ),
-    loca: (
+    structure: (
       <>
         <Orgstructer/>
       </>
@@ -239,22 +242,40 @@ const Career = () => {
         {/* Sidebar */}
         <div className="col-md-3 mb-4 mb-md-0">
           <div className="list-group shadow-sm">
-            <button className={`list-group-item list-group-item-action ${selected === 'jobs' ? 'active' : ''}`} onClick={() => setSelected('jobs')}>
+            <button 
+              className={`list-group-item list-group-item-action ${selected === 'jobs' ? 'active' : ''}`} 
+              onClick={() => setSelected('jobs')}
+            >
               Job Openings
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'life' ? 'active' : ''}`} onClick={() => setSelected('life')}>
+            <button 
+              className={`list-group-item list-group-item-action ${selected === 'life' ? 'active' : ''}`} 
+              onClick={() => setSelected('life')}
+            >
               Life at RUWA
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'culture' ? 'active' : ''}`} onClick={() => setSelected('culture')}>
+            <button 
+              className={`list-group-item list-group-item-action ${selected === 'culture' ? 'active' : ''}`} 
+              onClick={() => setSelected('culture')}
+            >
               Company Culture
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'locations' ? 'active' : ''}`} onClick={() => setSelected('locations')}>
+            <button 
+              className={`list-group-item list-group-item-action ${selected === 'locations' ? 'active' : ''}`} 
+              onClick={() => setSelected('locations')}
+            >
               Office Locations
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'loca' ? 'active' : ''}`} onClick={() => setSelected('loca')}>
-             Our Structure
+            <button 
+              className={`list-group-item list-group-item-action ${selected === 'structure' ? 'active' : ''}`} 
+              onClick={() => setSelected('structure')}
+            >
+              Our Structure
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'apply' ? 'active' : ''}`} onClick={() => setSelected('apply')}>
+            <button 
+              className={`list-group-item list-group-item-action ${selected === 'apply' ? 'active' : ''}`} 
+              onClick={() => setSelected('apply')}
+            >
               How to Apply
             </button>
           </div>
