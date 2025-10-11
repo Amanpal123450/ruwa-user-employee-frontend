@@ -172,7 +172,7 @@ function AuthWrapper({ showModal, setShowModal }) {
 
         {/* User Protected Routes */}
         <Route path='/profile' element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-        <Route path='/E-KYC' element={<ProtectedRoute><EKYCVerification /></ProtectedRoute>} />
+        <Route path='/E-KYC' element={<EKYCVerification />} />
         <Route path='/profilecard' element={<ProtectedRoute><Arogaycardpage /></ProtectedRoute>} />
         <Route path='/apply-swabhiman' element={<ProtectedRoute><Swvimanyojna /></ProtectedRoute>} />
         <Route path='/apply-arogya' element={<ProtectedRoute><Arogycard /></ProtectedRoute>} />

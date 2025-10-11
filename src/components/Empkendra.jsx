@@ -230,112 +230,122 @@ const Empkendra = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validate()) {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-        const formDataToSend = new FormData();
-        
-        // Append all form data to FormData object
-        Object.keys(formData).forEach(key => {
-          if (key === 'educationalQualifications' || 
-              key === 'previousWorkExperience' || 
-              key === 'businessDetails' ||
-              key === 'professionalBackground') {
-            formDataToSend.append(key, JSON.stringify(formData[key]));
-          } else if (key === 'siteDetails') {
-            formDataToSend.append(key, JSON.stringify(formData[key]));
-          } else if (formData[key] !== null) {
-            formDataToSend.append(key, formData[key]);
-          }
+  e.preventDefault();
+  if (validate()) {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const formDataToSend = new FormData();
+
+      // Generate required fields
+      const applicationId = "FRN" + Date.now().toString().slice(-8);
+      const enrollmentNo = Math.random().toString().slice(2, 12);
+      const submissionDate = new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+
+      // ✅ Append required fields
+      formDataToSend.append("applicationId", applicationId);
+      formDataToSend.append("enrollmentNo", enrollmentNo);
+      formDataToSend.append("submissionDate", submissionDate);
+
+      // Append all other form data
+      Object.keys(formData).forEach((key) => {
+        if (
+          key === "educationalQualifications" ||
+          key === "previousWorkExperience" ||
+          key === "businessDetails" ||
+          key === "professionalBackground" ||
+          key === "siteDetails"
+        ) {
+          formDataToSend.append(key, JSON.stringify(formData[key]));
+        } else if (formData[key] !== null && formData[key] !== undefined) {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      const res = await fetch(
+        "https://ruwa-backend.onrender.com/api/services/apply-kendra/employee/apply",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formDataToSend,
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setFormSubmitted(true);
+        setApplicationId(data.applicationId || applicationId);
+        alert("Application submitted successfully! Please proceed to payment.");
+        setShowPaymentForm(true);
+        setTimeout(() => setFormSubmitted(false), 4000);
+
+        // Reset form
+        setFormData({
+          title: "",
+          name: "",
+          address: "",
+          phone: "",
+          email: "",
+          dob: "",
+          gender: "",
+          married: "",
+          educationalQualifications: [{ qualification: "", year: "", institution: "" }],
+          currentOccupation: "",
+          currentEmployer: "",
+          designation: "",
+          previousWorkExperience: [{ period: "", organization: "", designation: "", responsibilities: "" }],
+          businessDetails: [{ companyName: "", businessType: "", nature: "", products: "", years: "", employees: "", turnover: "" }],
+          professionalBackground: [],
+          professionalAssociations: "",
+          businessStructure: "",
+          existingEntity: "",
+          existingEntityName: "",
+          proposedCity: "",
+          proposedState: "",
+          setupTimeline: "",
+          sitePossession: "",
+          siteDetails: {
+            agreementType: "",
+            leaseFrom: "",
+            leaseTo: "",
+            area: "",
+            locationType: "",
+            address: "",
+          },
+          siteInMind: "",
+          planToRent: "",
+          withinMonths: "",
+          investmentRange: "",
+          effortsInitiatives: "",
+          reasonsForPartnership: "",
+          category: "",
+          relevantExperience: "",
+          idProof: null,
+          qualificationCertificate: null,
+          financialStatement: null,
         });
 
-        const res = await fetch(
-          "https://ruwa-backend.onrender.com/api/services/apply-kendra/employee/apply",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: formDataToSend,
-          }
-        );
-
-        const data = await res.json();
-        
-        if (res.ok) {
-
-           setFormSubmitted(true);
-          setApplicationId(data.applicationId || 'APP' + Date.now()); // Store application ID
-          alert("Application submitted successfully! Please proceed to payment.");
-          // setFormSubmitted(true);
-          setShowPaymentForm(true)
-          setTimeout(() => setFormSubmitted(false), 4000);
-          
-          // Reset form
-          setFormData({
-            title: "",
-            name: "",
-            address: "",
-            phone: "",
-            email: "",
-            dob: "",
-            gender: "",
-            married: "",
-            educationalQualifications: [{ qualification: "", year: "", institution: "" }],
-            currentOccupation: "",
-            currentEmployer: "",
-            designation: "",
-            previousWorkExperience: [{ period: "", organization: "", designation: "", responsibilities: "" }],
-            businessDetails: [{ 
-              companyName: "", businessType: "", nature: "", products: "", 
-              years: "", employees: "", turnover: "" 
-            }],
-            professionalBackground: [],
-            professionalAssociations: "",
-            businessStructure: "",
-            existingEntity: "",
-            existingEntityName: "",
-            proposedCity: "",
-            proposedState: "",
-            setupTimeline: "",
-            sitePossession: "",
-            siteDetails: {
-              agreementType: "",
-              leaseFrom: "",
-              leaseTo: "",
-              area: "",
-              locationType: "",
-              address: ""
-            },
-            siteInMind: "",
-            planToRent: "",
-            withinMonths: "",
-            investmentRange: "",
-            effortsInitiatives: "",
-            reasonsForPartnership: "",
-           
-            category: "",
-            relevantExperience: "",
-            idProof: null,
-            qualificationCertificate: null,
-            financialStatement: null,
-          });
-          
-          setErrors({});
-          // window.location.href = "https://razorpay.me/@nhsindia?amount=gtjkDOGv69g55ggcfywxBg%3D%3D";
-        } else {
-          alert(data.message || "Something went wrong");
-        }
-      } catch (error) {
-        console.error("Network error:", error);
-        alert("Network error. Please try again.");
-      } finally {
-        setIsLoading(false);
+        setErrors({});
+      } else {
+        alert(data.message || "Something went wrong");
+        console.error("Server Error:", data.error);
       }
+    } catch (error) {
+      console.error("Network error:", error);
+      alert("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
+};
+
 
 
    const handlePaymentSubmit = async (e) => {
