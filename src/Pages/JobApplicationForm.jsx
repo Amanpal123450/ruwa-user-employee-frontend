@@ -48,7 +48,7 @@ const JobApplicationForm = ({ job, onClose }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [applicationId, setApplicationId] = useState('');
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ruwa-backend.onrender.com/api';
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
