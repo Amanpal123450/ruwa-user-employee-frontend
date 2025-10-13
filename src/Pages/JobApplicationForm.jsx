@@ -724,7 +724,7 @@ const JobApplicationForm = ({ job, onClose }) => {
         <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-5 rounded-t-2xl flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">Apply for {job?.postName}</h2>
-            <p className="text-blue-100 text-sm mt-1">Ref: {job?.advertisementNumber}</p>
+            <p className="text-blue-100 text-sm mt-1">Ref: {job?.jobId}</p>
           </div>
           <button
             onClick={onClose}

@@ -16,7 +16,7 @@ const Career = () => {
   const navigate = useNavigate();
   
   // API base URL
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ruwa-backend.onrender.com/api';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
   const notificationsData = [
     {
@@ -253,12 +253,12 @@ const Career = () => {
       console.log('Number of jobs:', data.length);
       
       // Filter only active/published jobs for public view
-      const activeJobs = Array.isArray(data) ? data.filter(job => 
-        job.jobStatus === 'active' || job.jobStatus === 'published'
-      ) : [];
+      // const activeJobs = Array.isArray(data) ? data.filter(job => 
+      //   job.jobStatus === 'active' || job.jobStatus === 'published'
+      // ) : [];
       
-      console.log('Active jobs after filter:', activeJobs.length);
-      setJobs(activeJobs);
+      // console.log('Active jobs after filter:', activeJobs.length);
+      setJobs(data);
     } catch (error) {
       console.error('Error fetching jobs:', error);
       console.error('Error details:', error.message);
@@ -275,10 +275,10 @@ const Career = () => {
     setShowModal(true);
   };
 
-  function handleApply(e) {
+  function handleApply(e,id) {
     e.preventDefault();
     e.stopPropagation();
-    navigate("/job-form");
+    navigate(`/job-form/?jobId=${id}`);
   }
 
   const getJobTypeBadge = (category) => {
@@ -506,7 +506,7 @@ const Career = () => {
                       </div>
                       <button 
                         className="btn btn-outline-primary w-100"
-                        onClick={(e) => handleApply(e)}
+                        onClick={(e) => handleApply(e,job._id)}
                       >
                         View Details & Apply <FaArrowRight className="ms-2" />
                       </button>
