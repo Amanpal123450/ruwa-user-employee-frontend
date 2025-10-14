@@ -676,7 +676,15 @@ export default function Services() {
         'Comprehensive coverage: Includes hospitalization, outpatient, preventive care.',
         'Easy claims process: Simplified for quick reimbursements.',
       ]
-    }
+    },
+    //  {
+    //   icon: '<i class="bi bi-heart-pulse fs-1 text-warning"></i>',
+    //   title: 'Complete Your E-KYC',
+    //   description: [
+    //    "eKYC is the paperless digital process for electronically verifying a customers identity and address. ",
+    //    "It is a quick, secure, and convenient method that reduces paperwork and speeds up customer onboarding."
+    //   ]
+    // },
   ];
 
   return (
@@ -780,6 +788,22 @@ export default function Services() {
     <div className="text-center">
       <button className="btn btn-danger" onClick={() => navigate('/GetCard')}>
         View Jan Arogya Card
+      </button>
+    </div>
+  </div>
+</div>
+
+<div className="col-md-6" data-aos="fade-up">
+  <div className="service-card p-4 rounded-4 h-100 d-flex flex-column gap-3 shadow-sm">
+    <div className="text-center fs-1">💳</div>
+    <h3 className="text-center fs-5 mb-2">Complete Your E-KYC</h3>
+    <p className="text-center">
+      eKYC is the paperless digital process for electronically verifying a customers identity and address. 
+       It is a quick, secure, and convenient method that reduces paperwork and speeds up customer onboarding.
+    </p>
+    <div className="text-center">
+      <button className="btn btn-danger" onClick={() => navigate('/E-KYC')}>
+        E-KYC
       </button>
     </div>
   </div>
