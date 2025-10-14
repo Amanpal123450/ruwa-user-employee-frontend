@@ -1,748 +1,978 @@
-import React, { useEffect, useState } from 'react';
-import axios from "axios";
 
-export default function Ambulance() {
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [showReceipt, setShowReceipt] = useState(false);
-  const [receiptData, setReceiptData] = useState(null);
-  const [bookings, setBookings] = useState([]);
-  const [showTracker, setShowTracker] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    email: "",
-    location: "",
-    latitude: "",
-    longitude: "",
-    hospitalPreference: "",
-    appointmentDate: "",
-    preferredTime: "",
-    message: ""
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+export default function ManageUsers() {
+  const [users, setUsers] = useState([]);
+  const [todayUsers, setTodayUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    age: '',
+    aadhar: '',
+    purpose: '',
+    status: 'active'
   });
+  const usersPerPage = 10;
 
-  const services = [
-    {
-      icon: '🚑',
-      title: '24x7 Ambulance Service',
-      description: [
-        'Emergency response: Quick and reliable ambulance dispatch anytime.',
-        'GPS tracking: Real-time ambulance location updates.',
-        'Certified staff: Trained paramedics for on-the-spot care.',
-        'Coverage areas: Available across urban and rural zones.'
-      ],
-      bgClass: 'bg-white'
-    },
-    {
-      icon: '🧑‍⚕️',
-      title: 'Advanced Life Support Ambulance',
-      description: [
-        'Equipped with ICU-grade facilities.',
-        'Oxygen support, defibrillator, and critical care monitoring.',
-        'Ideal for critical or long-distance transfers.'
-      ],
-      bgClass: 'bg-light'
-    },
-    {
-      icon: '🪪',
-      title: 'Free Ambulance for Card Members',
-      description: [
-        'Zero cost for Lifeline Health Card holders.',
-        'Covers up to 10km per ride within city limits.',
-        'Priority dispatch in emergencies.'
-      ],
-      bgClass: 'bg-white'
-    },
-    {
-      icon: '🛣️',
-      title: 'Intercity & Long-Distance Transfers',
-      description: [
-        'Ambulance services between cities at subsidized rates.',
-        'Comfortable and safe patient transport over long distances.',
-        'Assisted by trained support staff throughout the journey.'
-      ],
-      bgClass: 'bg-light'
-    }
-  ];
+  // API Base URL - adjust according to your backend
+  const API_BASE_URL = 'https://ruwa-backend.onrender.com/api/employee';
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  // Function to get reverse geocoded address from coordinates using free API
-  const getReverseGeocode = async (latitude, longitude) => {
+  // Fetch users from backend API
+  const fetchUsers = async () => {
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
-        {
-          headers: {
-            'User-Agent': 'AmbulanceBookingApp/1.0'
-          }
+      setLoading(true);
+      const token = localStorage.getItem('token'); // Adjust based on your token storage
+      
+      const response = await axios.get(`${API_BASE_URL}/get/patient`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+         
         }
-      );
+      });
       
-      if (!response.ok) {
-        throw new Error('Geocoding service unavailable');
-      }
-      
-      const data = await response.json();
-      
-      if (data && data.display_name) {
-        return data.display_name;
-      } else {
-        const fallbackResponse = await fetch(
-          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+      if (response.data.success) {
+        const allUsers = response.data.users || [];
+        setUsers(allUsers);
+        
+        // Filter today's users
+        const today = new Date().toISOString().split('T')[0];
+        const todayUsersList = allUsers.filter(user => 
+          user.joinDate && user.joinDate.split('T')[0] === today
         );
-        
-        if (fallbackResponse.ok) {
-          const fallbackData = await fallbackResponse.json();
-          if (fallbackData && fallbackData.locality) {
-            return `${fallbackData.locality}, ${fallbackData.city || fallbackData.principalSubdivision}, ${fallbackData.countryName}`;
-          }
-        }
-        
-        return `Location coordinates provided (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+        setTodayUsers(todayUsersList);
       }
     } catch (error) {
-      console.error('Reverse geocoding failed:', error);
-      return `Current location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+      console.error('Error fetching users:', error);
+      // Fallback to mock data if API fails
+      
+      
+     
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Function to get current location
-  const getCurrentLocation = () => {
-    setLocationLoading(true);
+  // Mock data fallback
+  
 
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by this browser.");
-      setLocationLoading(false);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Add user to backend API
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const token = localStorage.getItem('token');
+      const userToAdd = {
+        ...newUser,
+        age: parseInt(newUser.age),
+        joinDate: new Date().toISOString(),
+        applications: 0,
+        profilePic: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 50) + 1}.jpg`
+      };
+
+      const response = await axios.post(`${API_BASE_URL}/create/patient`, userToAdd, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (response.data.success) {
+        const addedUser = response.data.user;
+        
+       
+        
+        // Check if user was added today
+        const today = new Date().toISOString().split('T')[0];
+        if (addedUser.joinDate && addedUser.joinDate.split('T')[0] === today) {
+          setTodayUsers([...todayUsers, addedUser]);
+        }
+
+        setShowAddUserModal(false);
+        setNewUser({
+          name: '',
+          phone: '',
+          email: '',
+          age: '',
+          aadhar: '',
+          purpose: '',
+          status: 'active'
+        });
+
+        alert(`User ${addedUser.name} added successfully and notified admin!`);
+        
+        // Notify admin (simulated API call)
+        // await notifyAdmin(addedUser);
+      }
+    } catch (error) {
+      console.error('Error adding user:', error);
+      alert('Failed to add user. Please try again.');
+    }
+  };
+
+  // Notify admin about new user
+  const notifyAdmin = async (user) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      await axios.post(`${API_BASE_URL}/notify/admin`, {
+        message: `New user registered: ${user.name}`,
+        user: user,
+        timestamp: new Date().toISOString()
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Error notifying admin:', error);
+    }
+  };
+
+  // Update user status in backend
+  const handleStatusChange = async (userId, newStatus) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      const response = await axios.patch(`${API_BASE_URL}/users/${userId}/status`, {
+        status: newStatus
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.success) {
+        setUsers(users.map(user => 
+          user.id === userId ? { ...user, status: newStatus } : user
+        ));
+        
+        setTodayUsers(todayUsers.map(user => 
+          user.id === userId ? { ...user, status: newStatus } : user
+        ));
+        
+        alert(`User status updated to ${newStatus}`);
+      }
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      alert('Failed to update user status.');
+    }
+  };
+
+  // Delete user from backend
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) {
       return;
     }
 
-    const options = {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 60000
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        
-        try {
-          const address = await getReverseGeocode(latitude, longitude);
-          
-          setFormData({
-            ...formData,
-            location: address,
-            latitude: "",
-            longitude: ""
-          });
-        } catch (error) {
-          console.error('Error getting address:', error);
-          setFormData({
-            ...formData,
-            location: `Current location detected (${new Date().toLocaleTimeString()})`,
-            latitude: "",
-            longitude: ""
-          });
-        }
-        
-        setLocationLoading(false);
-      },
-      (error) => {
-        setLocationLoading(false);
-        let errorMessage = "Unable to get location. ";
-        
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage += "Location access denied by user.";
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage += "Location information unavailable.";
-            break;
-          case error.TIMEOUT:
-            errorMessage += "Location request timed out.";
-            break;
-          default:
-            errorMessage += "An unknown error occurred.";
-            break;
-        }
-        
-        alert(errorMessage);
-      },
-      options
-    );
-  };
-
-  // Generate receipt data
-  const generateReceipt = (bookingResponse, currentFormData = null) => {
-    const formDataToUse = currentFormData || bookingResponse;
-    const bookingId = bookingResponse?.bookingId || bookingResponse?._id || "AMB" + Date.now().toString().slice(-8);
-    const bookingDate = new Date().toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-    const bookingTime = new Date().toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    return {
-      bookingId,
-      bookingDate,
-      bookingTime,
-      fullName: formDataToUse.fullName || bookingResponse?.fullName || "N/A",
-      phone: formDataToUse.phone || bookingResponse?.phone || "N/A",
-      email: formDataToUse.email || bookingResponse?.email || "N/A",
-      location: formDataToUse.location || bookingResponse?.location || "N/A",
-      hospitalPreference: formDataToUse.hospitalPreference || bookingResponse?.hospitalPreference || "Nearest Hospital",
-      appointmentDate: formDataToUse.appointmentDate || bookingResponse?.appointmentDate || "N/A",
-      preferredTime: formDataToUse.preferredTime || bookingResponse?.preferredTime || "N/A",
-      message: formDataToUse.message || bookingResponse?.message || "Emergency medical assistance",
-      status: bookingResponse?.status || "Confirmed",
-      estimatedArrival: "15-20 minutes",
-      ambulanceType: "Advanced Life Support",
-      driverName: "Will be assigned shortly",
-      vehicleNumber: "Assigning...",
-      helplineNumber: "1800-180-1947"
-    };
-  };
-
-  // Fetch user bookings
-  const fetchBookings = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://ruwa-backend.onrender.com/api/services/ambulance-booking/user/bookings",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const token = localStorage.getItem('authToken');
       
-      if (response.data && response.data.bookings) {
-        setBookings(response.data.bookings);
+      const response = await axios.delete(`${API_BASE_URL}/users/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.success) {
+        setUsers(users.filter(user => user.id !== userId));
+        setTodayUsers(todayUsers.filter(user => user.id !== userId));
+        alert('User deleted successfully');
       }
     } catch (error) {
-      console.error("Failed to fetch bookings:", error);
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user.');
     }
   };
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
+  // Filter and search logic for today's users
+  const filteredTodayUsers = todayUsers.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.phone.includes(searchTerm) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || user.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
 
-  try {
-    const token = localStorage.getItem("token");
+  // Pagination logic for today's users
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredTodayUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredTodayUsers.length / usersPerPage);
 
-    const response = await fetch(
-      "https://ruwa-backend.onrender.com/api/services/ambulance-booking/user/book",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      }
+  const getStatusBadge = (status) => {
+    const badges = {
+      active: 'status-active',
+      inactive: 'status-inactive',
+      pending: 'status-pending',
+      suspended: 'status-suspended'
+    };
+    return badges[status] || 'status-inactive';
+  };
+
+  if (loading) {
+    return (
+      <div className="container py-5">
+        <div className="text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Loading users...</p>
+        </div>
+      </div>
     );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to book ambulance");
-    }
-
-    const data = await response.json();
-    console.log("Booking response:", data);
-
-    setFormSubmitted(true);
-
-    // Generate and show receipt
-    const receipt = generateReceipt(data);
-    setReceiptData(receipt);
-    setShowReceipt(true);
-
-    // Refresh bookings list
-    fetchBookings();
-
-    // Reset form AFTER generating receipt
-    setFormData({
-      fullName: formData.fullName,
-      phone: formData.phone,
-      email: formData.email,
-      location: "",
-      latitude: "",
-      longitude: "",
-      hospitalPreference: "",
-      appointmentDate: "",
-      preferredTime: "",
-      message: ""
-    });
-
-    setTimeout(() => {
-      setFormSubmitted(false);
-    }, 4000);
-
-  } catch (error) {
-    console.error("Booking failed:", error.message);
-    alert(error.message);
   }
-};
-
-
-  // Print receipt
-  const handlePrintReceipt = () => {
-    const receiptContent = document.getElementById('ambulance-receipt-content');
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Ambulance Booking Receipt</title>
-          <style>
-            body { 
-              font-family: Arial, sans-serif; 
-              padding: 20px; 
-              max-width: 600px;
-              margin: 0 auto;
-            }
-            .receipt-header { 
-              text-align: center; 
-              margin-bottom: 20px; 
-              border-bottom: 2px solid #dc3545;
-              padding-bottom: 15px;
-            }
-            .receipt-header h2 {
-              color: #dc3545;
-              margin: 0;
-            }
-            .section { 
-              margin: 20px 0; 
-              padding: 15px;
-              background: #f8f9fa;
-              border-radius: 5px;
-            }
-            .detail-row { 
-              margin: 10px 0; 
-              display: flex;
-              justify-content: space-between;
-              padding: 5px 0;
-            }
-            .detail-label { 
-              font-weight: bold; 
-              color: #495057;
-            }
-            .detail-value {
-              text-align: right;
-            }
-            .status-badge {
-              display: inline-block;
-              padding: 5px 15px;
-              background: #28a745;
-              color: white;
-              border-radius: 20px;
-              font-weight: bold;
-            }
-            .emergency-note {
-              background: #fff3cd;
-              padding: 15px;
-              border-left: 4px solid #ffc107;
-              margin: 20px 0;
-            }
-            .footer {
-              text-align: center;
-              margin-top: 30px;
-              padding-top: 20px;
-              border-top: 2px solid #dee2e6;
-              color: #6c757d;
-              font-size: 14px;
-            }
-          </style>
-        </head>
-        <body>
-          ${receiptContent.innerHTML}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
-  };
-
-  // Receipt Component
-  const AmbulanceReceipt = ({ receiptData }) => {
-    if (!receiptData) return null;
-
-    return (
-      <div id="ambulance-receipt-content">
-        <div className="receipt-header text-center mb-4">
-          <h2 className="text-danger mb-2">🚑 Emergency Ambulance Service</h2>
-          <h5 className="text-muted mb-0">Booking Confirmation Receipt</h5>
-        </div>
-
-        <div className="section mb-3">
-          <div className="detail-row">
-            <span className="detail-label">Booking ID:</span>
-            <span className="detail-value fw-bold text-primary">{receiptData.bookingId}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Booking Date & Time:</span>
-            <span className="detail-value">{receiptData.bookingDate} at {receiptData.bookingTime}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Status:</span>
-            <span className="status-badge bg-success">{receiptData.status}</span>
-          </div>
-        </div>
-
-        <div className="section mb-3">
-          <h6 className="mb-3 text-primary">Patient Information</h6>
-          <div className="detail-row">
-            <span className="detail-label">Name:</span>
-            <span className="detail-value">{receiptData.fullName}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Phone:</span>
-            <span className="detail-value">{receiptData.phone}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Email:</span>
-            <span className="detail-value">{receiptData.email}</span>
-          </div>
-        </div>
-
-        <div className="section mb-3">
-          <h6 className="mb-3 text-primary">Pickup & Destination</h6>
-          <div className="detail-row">
-            <span className="detail-label">Pickup Location:</span>
-            <span className="detail-value">{receiptData.location}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Hospital Preference:</span>
-            <span className="detail-value">{receiptData.hospitalPreference}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Scheduled Date:</span>
-            <span className="detail-value">{receiptData.appointmentDate}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Preferred Time:</span>
-            <span className="detail-value">{receiptData.preferredTime}</span>
-          </div>
-        </div>
-
-        <div className="section mb-3">
-          <h6 className="mb-3 text-primary">Ambulance Details</h6>
-          <div className="detail-row">
-            <span className="detail-label">Ambulance Type:</span>
-            <span className="detail-value">{receiptData.ambulanceType}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Estimated Arrival:</span>
-            <span className="detail-value text-success fw-bold">{receiptData.estimatedArrival}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Driver Name:</span>
-            <span className="detail-value">{receiptData.driverName}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Vehicle Number:</span>
-            <span className="detail-value">{receiptData.vehicleNumber}</span>
-          </div>
-        </div>
-
-        {receiptData.message && (
-          <div className="section mb-3">
-            <h6 className="mb-2 text-primary">Medical Concern:</h6>
-            <p className="mb-0 text-muted">{receiptData.message}</p>
-          </div>
-        )}
-
-        <div className="alert alert-warning mb-3">
-          <strong>⚠️ Important:</strong> Keep your phone accessible. Our team will contact you shortly with ambulance details.
-        </div>
-
-        <div className="section mb-3 text-center">
-          <h6 className="mb-2 text-danger">24/7 Emergency Helpline</h6>
-          <h4 className="mb-0 text-danger fw-bold">{receiptData.helplineNumber}</h4>
-        </div>
-
-        <div className="footer">
-          <p className="mb-1">Thank you for choosing our emergency services.</p>
-          <p className="mb-0">Stay calm, help is on the way!</p>
-        </div>
-      </div>
-    );
-  };
-
-  // Booking Tracker Component
-  const BookingTracker = ({ bookings }) => {
-    const getStatusColor = (status) => {
-      switch(status?.toLowerCase()) {
-        case 'confirmed': return 'success';
-        case 'pending': return 'warning';
-        case 'completed': return 'info';
-        case 'cancelled': return 'danger';
-        default: return 'secondary';
-      }
-    };
-
-    const handleViewReceipt = (booking) => {
-      const receipt = {
-        bookingId: booking.bookingId || booking._id || "AMB" + Date.now().toString().slice(-8),
-        bookingDate: new Date(booking.createdAt || new Date()).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        }),
-        bookingTime: new Date(booking.createdAt || new Date()).toLocaleTimeString('en-IN', {
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        fullName: booking.fullName || "N/A",
-        phone: booking.phone || "N/A",
-        email: booking.email || "N/A",
-        location: booking.location || "N/A",
-        hospitalPreference: booking.hospitalPreference || "Nearest Hospital",
-        appointmentDate: booking.appointmentDate || "N/A",
-        preferredTime: booking.preferredTime || "N/A",
-        message: booking.message || "Emergency medical assistance",
-        status: booking.status || "Confirmed",
-        estimatedArrival: "15-20 minutes",
-        ambulanceType: "Advanced Life Support",
-        driverName: booking.driverName || "Will be assigned shortly",
-        vehicleNumber: booking.vehicleNumber || "Assigning...",
-        helplineNumber: "1800-180-1947"
-      };
-      
-      setReceiptData(receipt);
-      setShowReceipt(true);
-    };
-
-    return (
-      <div className="mt-4">
-        <h4 className="mb-3">Your Bookings</h4>
-        {bookings.length === 0 ? (
-          <div className="alert alert-info">No bookings found.</div>
-        ) : (
-          <div className="table-responsive">
-            <table className="table table-hover">
-              <thead className="table-light">
-                <tr>
-                  <th>Booking ID</th>
-                  <th>Date</th>
-                  <th>Location</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((booking, index) => (
-                  <tr key={index}>
-                    <td className="fw-bold">{booking.bookingId || booking._id?.slice(-8)}</td>
-                    <td>{new Date(booking.appointmentDate || booking.createdAt).toLocaleDateString('en-IN')}</td>
-                    <td>{booking.location?.slice(0, 30)}...</td>
-                    <td>
-                      <span className={`badge bg-${getStatusColor(booking.status)}`}>
-                        {booking.status || 'Pending'}
-                      </span>
-                    </td>
-                    <td>
-                      <button 
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => handleViewReceipt(booking)}
-                      >
-                        View Receipt
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-  
-    fetch("https://ruwa-backend.onrender.com/api/auth/profile", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const user = data?.user || {};
-        setFormData((prev) => ({
-          ...prev,
-          fullName: user.name || "",
-          phone: user.phone || "",
-          email: user.email || "",
-        }));
-      })
-      .catch((err) => console.error("Profile fetch failed:", err));
-    
-    // Fetch existing bookings
-    fetchBookings();
-  }, []);
 
   return (
-    <section className="section services__v3 py-5" id="services">
-      <div className="container">
-        <div className="row g-4">
-          <div className="col-12" data-aos="fade-up">
-            <div className="service-card p-4 rounded-4 h-100 d-flex flex-column text-center gap-3 shadow-sm">
-              <span className="subtitle text-uppercase mb-2 text-muted fs-6">
-                Book your Ambulance 
-              </span>
-            </div>
-          </div>
-
-          {services.map((service, index) => (
-            <div className="col-12 col-md-6" data-aos="fade-up" data-aos-delay={index * 200} key={index}>
-              <div className={`service-card p-4 rounded-4 h-100 d-flex flex-column gap-3 shadow-sm ${service.bgClass}`}>
-                <div className="text-center fs-2">{service.icon}</div>
-                <h3 className="text-center fs-5 mb-2">{service.title}</h3>
-                <ul className="ps-3 mb-0">
-                  {service.description.map((point, i) => (
-                    <li key={i} className="mb-2" style={{ lineHeight: '1.6' }}>{point}</li>
-                  ))}
-                </ul>
+    <div className="dashboard-container">
+      <div className="container-fluid py-4">
+        <div className="row">
+          <div className="col-12">
+            {/* Header */}
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h2 className="section-title">Today's Users</h2>
+                <p className="section-subtitle">
+                  Total today's users: {todayUsers.length} | 
+                  All users: {users.length}
+                </p>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="container py-5">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="mb-0">Book an Appointment</h2>
-          <button 
-            className="btn btn-outline-primary"
-            onClick={() => setShowTracker(!showTracker)}
-          >
-            {showTracker ? 'Hide' : 'Track'} Bookings
-          </button>
-        </div>
-
-        {formSubmitted && (
-          <div className="alert alert-success text-center fw-semibold" role="alert">
-            ✅ Appointment booked successfully!
-          </div>
-        )}
-
-        {/* Receipt Modal */}
-        {showReceipt && (
-          <div className="modal show d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
-            <div className="modal-dialog modal-lg modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Ambulance Booking Receipt</h5>
-                  <button 
-                    type="button" 
-                    className="btn-close" 
-                    onClick={() => setShowReceipt(false)}
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <AmbulanceReceipt receiptData={receiptData} />
-                </div>
-                <div className="modal-footer">
-                  <button 
-                    className="btn btn-secondary" 
-                    onClick={() => setShowReceipt(false)}
-                  >
-                    Close
-                  </button>
-                  <button 
-                    className="btn btn-primary" 
-                    onClick={handlePrintReceipt}
-                  >
-                    Print Receipt
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Booking Tracker */}
-        {showTracker && <BookingTracker bookings={bookings} />}
-
-        <form onSubmit={handleSubmit}>
-          <div className="row g-3">
-            <div className="col-md-6">
-              <label className="form-label">Full Name</label>
-              <input name="fullName" value={formData.fullName} readOnly onChange={handleChange} type="text" className="form-control" placeholder="Enter your full name" required />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Phone Number</label>
-              <input name="phone" value={formData.phone} readOnly onChange={handleChange} type="tel" className="form-control" placeholder="e.g. 9876543210" required />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Email</label>
-              <input name="email" value={formData.email} readOnly onChange={handleChange} type="email" className="form-control" placeholder="your@email.com" required />
-            </div>
-            
-            <div className="col-md-6">
-              <label className="form-label">Location</label>
-              <div className="input-group">
-                <input 
-                  name="location" 
-                  value={formData.location} 
-                  onChange={handleChange} 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="Enter your location or use GPS" 
-                  required 
-                />
+              <div className="btn-group">
                 <button 
-                  type="button" 
-                  className="btn btn-outline-primary" 
-                  onClick={getCurrentLocation}
-                  disabled={locationLoading}
-                  title="Get current location"
+                  className="btn btn-primary"
+                  onClick={() => setShowAddUserModal(true)}
                 >
-                  {locationLoading ? (
-                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                  ) : (
-                    "📍"
-                  )}
+                  <i className="fas fa-plus me-2"></i>
+                  Add User
+                </button>
+                <button className="btn btn-outline-secondary" onClick={fetchUsers}>
+                  <i className="fas fa-sync-alt me-2"></i>
+                  Refresh
                 </button>
               </div>
-              <small className="form-text text-muted">
-                Click the location icon to automatically detect your current location
-              </small>
             </div>
-            
-            <div className="col-md-6">
-              <label className="form-label">Hospital Preference</label>
-              <input name="hospitalPreference" value={formData.hospitalPreference} onChange={handleChange} type="text" className="form-control" placeholder="Preferred hospital" />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Appointment Date</label>
-              <input name="appointmentDate" value={formData.appointmentDate} onChange={handleChange} type="date" className="form-control" required />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Preferred Time</label>
-              <input name="preferredTime" value={formData.preferredTime} onChange={handleChange} type="time" className="form-control" required />
-            </div>
-            <div className="col-12">
-              <label className="form-label">Message / Health Concern</label>
-              <textarea name="message" value={formData.message} onChange={handleChange} className="form-control" rows="4" placeholder="Describe your issue..." />
-            </div>
-          </div>
-          <div className="text-center mt-4">
-            <button type="submit" className="btn btn-success px-5">Submit</button>
-          </div>
-        </form>
+
+            {/* Today's Stats Cards */}
+            {/* <div className="row mb-4">
+              <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+                <div className="stats-card stats-primary">
+                  <div className="stats-content">
+                    <div className="stats-icon">
+                      <i className="fas fa-user-check"></i>
+                    </div>
+                    <div className="stats-info">
+                      <h3 className="stats-number">{todayUsers.filter(u => u.status === 'active').length}</h3>
+                      <p className="stats-text">Active Today</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+                <div className="stats-card stats-warning">
+                  <div className="stats-content">
+                    <div className="stats-icon">
+                      <i className="fas fa-user-clock"></i>
+                    </div>
+                    <div className="stats-info">
+                      <h3 className="stats-number">{todayUsers.filter(u => u.status === 'pending').length}</h3>
+                      <p className="stats-text">Pending Today</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+                <div className="stats-card stats-success">
+                  <div className="stats-content">
+                    <div className="stats-icon">
+                      <i className="fas fa-users"></i>
+                    </div>
+                    <div className="stats-info">
+                      <h3 className="stats-number">{todayUsers.length}</h3>
+                      <p className="stats-text">Total Today</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+                <div className="stats-card stats-info  stats-primary">
+                  <div className="stats-content">
+                    <div className="stats-icon">
+                      <i className="fas fa-calendar-day"></i>
+                    </div>
+                    <div className="stats-info">
+                      <h3 className="stats-number">{new Date().toLocaleDateString()}</h3>
+                      <p className="stats-text">Today's Date</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> */}
+            <div className="row mb-4">
+  {/* Active Today */}
+  <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+    <div className="stats-card stats-primary">
+      <div className="stats-content">
+        <div className="stats-icon">
+          <i className="fas fa-user-check"></i> {/* Active user */}
+        </div>
+        <div className="stats-info">
+          <h3 className="stats-number">{todayUsers.filter(u => u.status === 'active').length}</h3>
+          <p className="stats-text">Active Today</p>
+        </div>
       </div>
-    </section>
+    </div>
+  </div>
+
+  {/* Pending Today */}
+  <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+    <div className="stats-card stats-warning">
+      <div className="stats-content">
+        <div className="stats-icon">
+          <i className="fas fa-hourglass-half"></i> {/* Pending / waiting */}
+        </div>
+        <div className="stats-info">
+          <h3 className="stats-number">{todayUsers.filter(u => u.status === 'pending').length}</h3>
+          <p className="stats-text">Pending Today</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Total Today */}
+  <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+    <div className="stats-card stats-success">
+      <div className="stats-content">
+        <div className="stats-icon">
+          <i className="fas fa-users"></i> {/* Total users */}
+        </div>
+        <div className="stats-info">
+          <h3 className="stats-number">{todayUsers.length}</h3>
+          <p className="stats-text">Total Today</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Today's Date */}
+  <div className="col-xl-3 col-lg-6 col-md-6 mb-4">
+    <div className="stats-card stats-info stats-primary">
+      <div className="stats-content">
+        <div className="stats-icon">
+          <i className="fas fa-calendar-alt"></i> {/* Date */}
+        </div>
+        <div className="stats-info">
+          <h3 className="stats-number">{new Date().toLocaleDateString()}</h3>
+          <p className="stats-text">Today's Date</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>  
+
+            {/* Filters and Search */}
+            <div className="card mb-4 user-filters-card">
+              <div className="card-body">
+                <div className="row g-3 align-items-center">
+                  <div className="col-md-6">
+                    <label className="form-label">Search Today's Users</label>
+                    <div className="input-group search-input-group">
+                      <span className="input-group-text">
+                        <i className="fas fa-search"></i>
+                      </span>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Search by name, phone, or email..."
+                        value={searchTerm}
+                        onChange={(e) => {
+                          setSearchTerm(e.target.value);
+                          setCurrentPage(1);
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-3">
+                    <label className="form-label">Filter by Status</label>
+                    <select
+                      className="form-select"
+                      value={filterStatus}
+                      onChange={(e) => {
+                        setFilterStatus(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option value="all">All Status</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="pending">Pending</option>
+                      <option value="suspended">Suspended</option>
+                    </select>
+                  </div>
+                  <div className="col-md-3">
+                    <label className="form-label">&nbsp;</label>
+                    <button 
+                      className="btn btn-outline-secondary w-100"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setFilterStatus('all');
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <i className="fas fa-undo me-2"></i>
+                      Clear Filters
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Users Table - Showing only today's users */}
+           <div className="card user-table-card">
+              <div className="card-body">
+                <div className="table-responsive">
+                  <table className="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Contact</th>
+                        <th>Aadhar</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                        <th>Join Time</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentUsers.length > 0 ? (
+                        currentUsers.map((user) => (
+                          <tr key={user.id} className="user-table-row">
+                            <td>#{user.id}</td>
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <div className="user-avatar-container me-3">
+                                  <img
+                                    src={user.profilePic}
+                                    alt={user.name}
+                                    className="user-avatar"
+                                  />
+                                </div>
+                                <div>
+                                  <div className="fw-bold">{user.name}</div>
+                                  <small className="text-muted">Age: {user.age}</small>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div>
+                                <div>{user.phone}</div>
+                                <small className="text-muted">{user.email}</small>
+                              </div>
+                            </td>
+                            <td>{user.aadhar}</td>
+                            <td>{user.purpose}</td>
+                            <td>
+                              <span className={`status-badge ${getStatusBadge(user.status)}`}>
+                                {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                              </span>
+                            </td>
+                            <td>
+                              {user.joinDate ? new Date(user.joinDate).toLocaleTimeString() : 'N/A'}
+                            </td>
+                            <td>
+                              <div className="btn-group btn-group-sm">
+                                {/* <button
+                                  className="btn btn-outline-primary"
+                                  title="View Details"
+                                >
+                                  <i className="fas fa-eye"></i>
+                                </button> */}
+                                <div className="dropdown">
+                                  {/* <button
+                                    className="btn btn-outline-secondary dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    title="Change Status"
+                                  >
+                                    <i className="fas fa-edit"></i>
+                                  </button> */}
+                                  <ul className="dropdown-menu">
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => handleStatusChange(user.id, 'active')}
+                                      >
+                                        <i className="fas fa-check text-success me-2"></i>
+                                        Set Active
+                                      </button>
+                                    </li>
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => handleStatusChange(user.id, 'inactive')}
+                                      >
+                                        <i className="fas fa-pause text-secondary me-2"></i>
+                                        Set Inactive
+                                      </button>
+                                    </li>
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => handleStatusChange(user.id, 'pending')}
+                                      >
+                                        <i className="fas fa-clock text-warning me-2"></i>
+                                        Set Pending
+                                      </button>
+                                    </li>
+                                    <li>
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={() => handleStatusChange(user.id, 'suspended')}
+                                      >
+                                        <i className="fas fa-ban text-danger me-2"></i>
+                                        Suspend
+                                      </button>
+                                    </li>
+                                  </ul>
+                                </div>
+                                <button
+                                  className="btn btn-outline-danger"
+                                  onClick={() => handleDeleteUser(user.id)}
+                                  title="Delete User"
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="8" className="text-center py-4">
+                            <div className="text-muted">
+                              <i className="fas fa-users fa-3x mb-3 d-block"></i>
+                              {todayUsers.length === 0 ? 
+                                "No users registered today" : 
+                                "No users found matching your criteria"
+                              }
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <nav aria-label="Users pagination">
+                    <ul className="pagination justify-content-center mt-4">
+                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button
+                          className="page-link"
+                          onClick={() => setCurrentPage(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
+                          <i className="fas fa-chevron-left"></i>
+                        </button>
+                      </li>
+                      
+                      {Array.from({ length: totalPages }, (_, index) => (
+                        <li
+                          key={index + 1}
+                          className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
+                        >
+                          <button
+                            className="page-link"
+                            onClick={() => setCurrentPage(index + 1)}
+                          >
+                            {index + 1}
+                          </button>
+                        </li>
+                      ))}
+                      
+                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                        <button
+                          className="page-link"
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
+                          <i className="fas fa-chevron-right"></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                )}
+              </div>
+            </div> 
+          </div>
+        </div>
+      </div>
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header bg-primary text-white">
+                <h5 className="modal-title">
+                  <i className="fas fa-user-plus me-2"></i>
+                  Add New User
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => setShowAddUserModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handleAddUser}>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Full Name *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="name"
+                        value={newUser.name}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Enter full name"
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Phone Number *</label>
+                      <input
+                        type="tel"
+                        className="form-control"
+                        name="phone"
+                        value={newUser.phone}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="+91 1234567890"
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Email Address *</label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        name="email"
+                        value={newUser.email}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="user@example.com"
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Age *</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        name="age"
+                        value={newUser.age}
+                        onChange={handleInputChange}
+                        required
+                        min="18"
+                        max="100"
+                        placeholder="Enter age"
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Aadhar Number *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="aadhar"
+                        value={newUser.aadhar}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="1234-5678-9012"
+                        pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}"
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Purpose of Visit *</label>
+                      <select
+                        className="form-select"
+                        name="purpose"
+                        value={newUser.purpose}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option value="">Select Purpose</option>
+                        <option value="Job Application">Job Application</option>
+                        <option value="Service Inquiry">Service Inquiry</option>
+                        <option value="Complaint">Complaint</option>
+                        <option value="Meeting">Meeting</option>
+                        <option value="Delivery">Delivery</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">Status *</label>
+                      <select
+                        className="form-select"
+                        name="status"
+                        value={newUser.status}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
+                    </div>
+                    <div className="col-12 mb-3">
+                      <div className="form-text">
+                        * User will be automatically registered for today and admin will be notified
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setShowAddUserModal(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      <i className="fas fa-user-plus me-2"></i>
+                      Add User & Notify Admin
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        .dashboard-container {
+          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+          min-height: 100vh;
+          padding: 0;
+        }
+        
+        .section-title {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 0.5rem;
+        }
+        
+        .section-subtitle {
+          color: #6b7280;
+          font-size: 1.1rem;
+        }
+        
+        .stats-card {
+          background: white;
+          border-radius: 16px;
+          padding: 1.5rem;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: none;
+          transition: all 0.3s ease;
+        }
+        
+        .stats-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .stats-warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .stats-success { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+        // .stats-info { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; }
+
+
+
+
+
+
+        
+        
+        .stats-content {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+        
+        .stats-icon {
+          width: 60px;
+          height: 60px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .stats-number {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+        }
+        
+        .stats-text {
+          font-size: 0.9rem;
+          opacity: 0.9;
+          margin-bottom: 0;
+        }
+        
+        .user-filters-card {
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: none;
+        }
+        
+        .search-input-group .input-group-text {
+          background: white;
+          border-right: none;
+        }
+        
+        .search-input-group .form-control {
+          border-left: none;
+        }
+        
+        .user-table-card {
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: none;
+        }
+        
+        .user-table-row:hover {
+          background-color: #f8f9fa;
+        }
+        
+        .user-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #fff;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-badge {
+          padding: 0.35rem 0.75rem;
+          border-radius: 50px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: capitalize;
+        }
+        
+        .status-active {
+          background: rgba(16, 185, 129, 0.15);
+          color: #065f46;
+        }
+        
+        .status-inactive {
+          background: rgba(107, 114, 128, 0.15);
+          color: #374151;
+        }
+        
+        .status-pending {
+          background: rgba(245, 158, 11, 0.15);
+          color: #92400e;
+        }
+        
+        .status-suspended {
+          background: rgba(239, 68, 68, 0.15);
+          color: #991b1b;
+        }
+        
+        .table th {
+          border-top: none;
+          font-weight: 600;
+          color: #495057;
+          background: #f8f9fa;
+          padding: 1rem 0.75rem;
+        }
+        
+        .table td {
+          padding: 1rem 0.75rem;
+          vertical-align: middle;
+        }
+        
+        .btn-group-sm .btn {
+          padding: 0.25rem 0.5rem;
+          border-radius: 8px;
+        }
+        
+        .page-link {
+          border-color: #dee2e6;
+          border-radius: 8px;
+          margin: 0 3px;
+        }
+        
+        .page-item.active .page-link {
+          background-color: #3b82f6;
+          border-color: #3b82f6;
+        }
+        
+        .modal-content {
+          border-radius: 16px;
+          border: none;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+          border-top-left-radius: 16px;
+          border-top-right-radius: 16px;
+          border-bottom: 1px solid #dee2e6;
+        }
+        
+        .form-label {
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 0.5rem;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+        
+        .form-text {
+          font-size: 0.875rem;
+          color: #6b7280;
+        }
+        
+        @media (max-width: 768px) {
+          .modal-dialog {
+            margin: 1rem;
+          }
+          
+          .stats-content {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+          }
+        }
+      `}</style>
+    </div>
   );
 }

@@ -1234,7 +1234,7 @@ const Empkendra = () => {
                                   name="professionalBackground"
                                   id={`background${index}`}
                                   value={option}
-                                  checked={formData.professionalBackground.includes(option)}
+                                  checked={formData.professionalBackground?.includes(option)}
                                   onChange={handleChange}
                                 />
                                 <label className="form-check-label" htmlFor={`background${index}`}>

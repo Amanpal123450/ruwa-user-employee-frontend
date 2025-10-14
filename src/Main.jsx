@@ -183,7 +183,7 @@ function AuthWrapper({ showModal, setShowModal }) {
         <Route path='/apply-kendr' element={<ProtectedRoute><JanarogayKendrPage /></ProtectedRoute>} />
         <Route path='/kendr-sop' element={<ProtectedRoute><KendraSopPage /></ProtectedRoute>} />
         <Route path='/apply-kendrform' element={<ProtectedRoute><KendraformPage /></ProtectedRoute>} />
-        <Route path='/career' element={<ProtectedRoute><CareerPage /></ProtectedRoute>} />
+        <Route path='/career' element={<CareerPage />} />
         <Route path='/job-form' element={<ProtectedRoute><JobApplicationForm /></ProtectedRoute>} />
         <Route path='/feedback' element={<ProtectedRoute><FeedbackPage /></ProtectedRoute>} />
         <Route path='/kyc' element={<ProtectedRoute><KycPortal /></ProtectedRoute>} />
