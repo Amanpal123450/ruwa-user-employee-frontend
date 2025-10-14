@@ -581,6 +581,7 @@ export default function Header() {
                 >
                   <option value="user">User Login</option>
                   <option value="employee">Employee Login</option>
+                  <option value="vendor">Vendor Login</option>
                 </select>
 
                 {/* User Fields */}
@@ -600,6 +601,16 @@ export default function Header() {
                     type="text"
                     className="form-control mb-3"
                     placeholder="Employee ID"
+                    value={employeeId}
+                    onChange={(e) => setEmployeeId(e.target.value)}
+                  />
+                )}
+
+                {role === "vendor" && (
+                  <input
+                    type="text"
+                    className="form-control mb-3"
+                    placeholder="Vendor ID"
                     value={employeeId}
                     onChange={(e) => setEmployeeId(e.target.value)}
                   />
