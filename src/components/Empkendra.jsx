@@ -895,7 +895,7 @@ const Empkendra = () => {
                               </tr>
                             </thead>
                             <tbody>
-                              {formData?.educationalQualifications   || [].map((qual, index) => (
+                              {(formData?.educationalQualifications || []).map((qual, index) => (
                                 <tr key={index}>
                                   <td>
                                     <input
@@ -1044,7 +1044,7 @@ const Empkendra = () => {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {formData.previousWorkExperience.map((exp, index) => (
+                                  {(formData?.previousWorkExperience || []).map((exp, index) => (
                                     <tr key={index}>
                                       <td>
                                         <input
@@ -1125,7 +1125,7 @@ const Empkendra = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {formData.businessDetails.map((business, index) => (
+                               {(formData?.businessDetails || []).map((business, index) => (
                                   <tr key={index}>
                                     <td>
                                       <input
