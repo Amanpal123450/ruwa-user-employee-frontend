@@ -120,8 +120,8 @@ export default function GetCard() {
 
             const data = await response.json();
 
-            if (data.success) {
-                setUserData(data.data);
+            if (data.status) {
+                setUserData(data.application);
                 setStep(3);
             } else {
                 setError(data.message || 'Invalid OTP. Please try again.');
