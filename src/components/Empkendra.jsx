@@ -895,7 +895,7 @@ const Empkendra = () => {
                               </tr>
                             </thead>
                             <tbody>
-                              {formData.educationalQualifications.map((qual, index) => (
+                              {formData?.educationalQualifications   || [].map((qual, index) => (
                                 <tr key={index}>
                                   <td>
                                     <input

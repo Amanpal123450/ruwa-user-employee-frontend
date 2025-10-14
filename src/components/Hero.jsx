@@ -728,7 +728,20 @@ const navigate = useNavigate();
         </div>
       </div>
     </div>  
-             
+             <div className="col-md-6" data-aos="fade-up">
+      <div className="service-card p-4 rounded-4 h-100 d-flex flex-column gap-3 shadow-sm">
+        <div className="text-center fs-1">🚑</div>
+        <h3 className="text-center fs-5 mb-2">Do Your E-KYC</h3>
+        <p className="text-center">
+          Quick and reliable ambulance support during emergencies. Our service ensures timely medical transport for patients with fully equipped vehicles and trained personnel.
+        </p>
+        <div className="text-center">
+          <button className="btn btn-danger" onClick={() => navigate('/E-kyc')}>
+           Do Your e-KYC
+          </button>
+        </div>
+      </div>
+    </div>
     
               {/* Extra Cards Below Main Services */}
              
