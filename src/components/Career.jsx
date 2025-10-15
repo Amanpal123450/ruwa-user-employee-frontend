@@ -140,7 +140,7 @@ const Career = () => {
   };
 
   function NotificationCard({ notification, isExpanded, onToggleExpand }) {
-    const detailsId = `notification-details-${notification.id}`;
+    const detailsId = notification-details-${notification.id};
 
     return (
       <Card className="h-100 border-0 shadow-sm rounded-4 notification-card">
@@ -162,7 +162,7 @@ const Career = () => {
 
           <div
             id={detailsId}
-            className={`notification-details-wrapper ${isExpanded ? "expanded" : ""}`}
+            className={notification-details-wrapper ${isExpanded ? "expanded" : ""}}
           >
             <ul className="list-unstyled small text-dark mb-0">
               {notification.details.map((detail, index) => (
@@ -225,10 +225,10 @@ const Career = () => {
       
       // Add authorization header if token exists
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        headers['Authorization'] = Bearer ${token};
       }
 
-      const url = `${API_BASE_URL}/jobs`;
+      const url = ${API_BASE_URL}/jobs;
       console.log('Fetching from URL:', url);
       console.log('Headers:', headers);
 
@@ -245,7 +245,7 @@ const Career = () => {
         if (response.status === 401 || response.status === 403) {
           throw new Error('Authentication required to view jobs. Please contact administrator.');
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(HTTP error! status: ${response.status});
       }
 
       const data = await response.json();
@@ -278,7 +278,7 @@ const Career = () => {
   function handleApply(e,id) {
     e.preventDefault();
     e.stopPropagation();
-    navigate(`/job-form/?jobId=${id}`);
+    navigate(/job-form/?jobId=${id});
   }
 
   const getJobTypeBadge = (category) => {
@@ -290,7 +290,7 @@ const Career = () => {
       technical: { label: 'Technical', class: 'bg-danger' }
     };
     const type = types[category?.toLowerCase()] || { label: 'Other', class: 'bg-secondary' };
-    return <span className={`badge ${type.class} position-absolute top-0 end-0 m-2`}>{type.label}</span>;
+    return <span className={badge ${type.class} position-absolute top-0 end-0 m-2}>{type.label}</span>;
   };
 
   const formatDate = (dateString) => {
@@ -401,7 +401,7 @@ const Career = () => {
               </li>
 
               <li>
-                <strong>Official Communication:</strong> All recruitment updates will be available on the official website: <a href="https://igmcri.edu.in" className="text-blue-600 underline">https://igmcri.edu.in</a>
+                <strong>Official Communication:</strong> All recruitment updates will be available on the official website: <a href="https://ruwaindia.in" className="text-blue-600 underline">https://ruwaindia.in</a>
               </li>
 
               <li>
@@ -409,7 +409,7 @@ const Career = () => {
               </li>
 
               <li>
-                <strong>Helpline:</strong> For clarifications, contact <strong>(0413) 2277545</strong> ext. <strong>3089</strong> / <strong>3053</strong> on working days between 9:00 AM and 5:00 PM (lunch break 1:00 PM–2:00 PM).
+                <strong>Helpline:</strong> For clarifications, contact <strong>05224721948</strong>  <strong></strong> on working days between 9:00 AM and 5:00 PM (lunch break 1:00 PM–2:00 PM).
               </li>
             </ol>
 
@@ -444,7 +444,7 @@ const Career = () => {
           </div>
         ) : error ? (
           <div className="alert alert-warning" role="alert">
-            <h5 className="alert-heading">⚠️ Unable to Load Jobs</h5>
+            <h5 className="alert-heading">⚠ Unable to Load Jobs</h5>
             <p>{error}</p>
             <button className="btn btn-sm btn-outline-warning" onClick={fetchJobs}>
               Try Again
@@ -569,28 +569,28 @@ const Career = () => {
         {/* Sidebar */}
         <div className="col-md-3 mb-4 mb-md-0">
           <div className="list-group shadow-sm">
-            <button className={`list-group-item list-group-item-action ${selected === 'iconNotification' ? 'active' : ''}`} onClick={() => setSelected('iconNotification')}>
+            <button className={list-group-item list-group-item-action ${selected === 'iconNotification' ? 'active' : ''}} onClick={() => setSelected('iconNotification')}>
               Icon Notification and Jobs Notification
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'instruction' ? 'active' : ''}`} onClick={() => setSelected('instruction')}>
+            <button className={list-group-item list-group-item-action ${selected === 'instruction' ? 'active' : ''}} onClick={() => setSelected('instruction')}>
               Instruction for User
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'jobs' ? 'active' : ''}`} onClick={() => setSelected('jobs')}>
+            <button className={list-group-item list-group-item-action ${selected === 'jobs' ? 'active' : ''}} onClick={() => setSelected('jobs')}>
               Job Openings
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'life' ? 'active' : ''}`} onClick={() => setSelected('life')}>
+            <button className={list-group-item list-group-item-action ${selected === 'life' ? 'active' : ''}} onClick={() => setSelected('life')}>
               Life at RUWA
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'culture' ? 'active' : ''}`} onClick={() => setSelected('culture')}>
+            <button className={list-group-item list-group-item-action ${selected === 'culture' ? 'active' : ''}} onClick={() => setSelected('culture')}>
               Company Culture
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'locations' ? 'active' : ''}`} onClick={() => setSelected('locations')}>
+            <button className={list-group-item list-group-item-action ${selected === 'locations' ? 'active' : ''}} onClick={() => setSelected('locations')}>
               Office Locations
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'loca' ? 'active' : ''}`} onClick={() => setSelected('loca')}>
+            <button className={list-group-item list-group-item-action ${selected === 'loca' ? 'active' : ''}} onClick={() => setSelected('loca')}>
               Our Structure
             </button>
-            <button className={`list-group-item list-group-item-action ${selected === 'apply' ? 'active' : ''}`} onClick={() => setSelected('apply')}>
+            <button className={list-group-item list-group-item-action ${selected === 'apply' ? 'active' : ''}} onClick={() => setSelected('apply')}>
               How to Apply
             </button>
           </div>
@@ -605,7 +605,7 @@ const Career = () => {
       {/* Job Details Modal */}
       {activeJob && (
         <div
-          className={`modal fade ${showModal ? 'show d-block' : ''}`}
+          className={modal fade ${showModal ? 'show d-block' : ''}}
           tabIndex="-1"
           style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
           onClick={() => setShowModal(false)}
@@ -649,9 +649,9 @@ const Career = () => {
                   <div className="mb-3">
                     <h6>Age Criteria</h6>
                     <p className="text-muted">
-                      {activeJob.minAge && `Min: ${activeJob.minAge} years`}
+                      {activeJob.minAge && Min: ${activeJob.minAge} years}
                       {activeJob.minAge && activeJob.maxAge && ' | '}
-                      {activeJob.maxAge && `Max: ${activeJob.maxAge} years`}
+                      {activeJob.maxAge && Max: ${activeJob.maxAge} years}
                     </p>
                     {activeJob.ageRelaxation && (
                       <small className="text-info">{activeJob.ageRelaxation}</small>
@@ -707,7 +707,7 @@ const Career = () => {
                   </a>
                 ) : (
                   <a
-                    href={`mailto:${activeJob.applicationEmail || activeJob.contactEmail || 'hrd@ruwaindia.com'}?subject=Application for ${activeJob.postName}&body=Dear Hiring Team,%0D%0A%0D%0AI am interested in applying for the position of ${activeJob.postName} (Ref: ${activeJob.advertisementNumber}).%0D%0A%0D%0APlease find my details attached.%0D%0A%0D%0ARegards,%0D%0A[Your Name]`}
+                    href={mailto:${activeJob.applicationEmail || activeJob.contactEmail || 'hrd@ruwaindia.com'}?subject=Application for ${activeJob.postName}&body=Dear Hiring Team,%0D%0A%0D%0AI am interested in applying for the position of ${activeJob.postName} (Ref: ${activeJob.advertisementNumber}).%0D%0A%0D%0APlease find my details attached.%0D%0A%0D%0ARegards,%0D%0A[Your Name]}
                     className="btn btn-primary"
                   >
                     <FaPaperPlane className="me-2" />
