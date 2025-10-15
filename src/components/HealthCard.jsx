@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Barcode from "react-barcode";
 
@@ -23,18 +22,18 @@ const JanArogyaCard = ({Application}) => {
       style={{
         width: "430px",
         height: "270px",
-        backgroundImage: `url(${"/assets/images/cardbg.png"})`,
+        backgroundImage: 'url("https://res.cloudinary.com/dknrega1a/image/upload/v1760458579/WhatsApp_Image_2025-10-14_at_20.04.53_87984b98_mmiikk.jpg")',
         backgroundSize: "cover",
         backgroundPosition: "center",
         borderRadius: "10px",
         boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
         overflow: "hidden",
         fontFamily: "sans-serif",
-        color: "#000"
+        color: "#f1ededff"
       }}
     >
       {/* Photo */}
-      <img
+      {/* <img
         src={Application.profilePicUser}
         alt="profile"
         style={{
@@ -46,17 +45,17 @@ const JanArogyaCard = ({Application}) => {
           objectFit: "cover",
           borderRadius: "4px"
         }}
-      />
+      /> */}
 
       {/* Logo */}
       <img
-        src="/assets/images/ruwalogocolor.png"
+        src="https://res.cloudinary.com/dknrega1a/image/upload/v1760488934/WhatsApp_Image_2025-10-15_at_06.05.22_1824b6c7-removebg-preview_mjyoqm.png"
         alt="logo"
         style={{
           position: "absolute",
-          top: "35px",
-          right: "10px",
-          width: "65px"
+          top: "30px",
+          right: "19px",
+          width: "75px"
         }}
       />
 
@@ -65,8 +64,8 @@ const JanArogyaCard = ({Application}) => {
         style={{
           position: "absolute",
           top: "35px",
-          left: "135px",
-          fontSize: "20px",
+          left: "30px",
+          fontSize: "18px",
           fontWeight: "bold"
         }}
       >
@@ -78,22 +77,23 @@ const JanArogyaCard = ({Application}) => {
       <div
         style={{
           position: "absolute",
-          top: "90px",
-          left: "135px",
-          fontSize: "15px",
+          top: "120px",
+          left: "29px",
+          fontWeight: "bold",
+          fontSize: "25px",
           lineHeight: "1.6"
         }}
       >
         <div>
-          <strong>Name</strong> : {Application.name}
+           {Application.name}
         </div>
-        <div>
+        {/* <div>
           <strong>Gender</strong> : Male
-        </div>
-        <div>
+        </div> */}
+        {/* <div>
          <strong>DOB</strong> : {Application?.DOB ? new Date(Application.DOB).toISOString().split("T")[0] : "N/A"}
 
-        </div>
+        </div> */}
       </div>
 
       {/* Barcode using react-barcode */}
@@ -121,7 +121,7 @@ const JanArogyaCard = ({Application}) => {
 
 
   {/* QR Code (from Application.Qr) */}
-  {Application?.Qr && (
+  {/* {Application?.Qr && (
     <img
       src={Application.Qr}
       alt="QR Code"
@@ -130,7 +130,7 @@ const JanArogyaCard = ({Application}) => {
         height: "70px"
       }}
     />
-  )}
+  )} */}
 </div>
 
 
@@ -138,11 +138,11 @@ const JanArogyaCard = ({Application}) => {
       <div
         style={{
           position: "absolute",
-          bottom: "40px",
-          left: "135px",
-          fontSize: "22px",
+          bottom: "55px",
+          left: "28px",
+          fontSize: "19px",
           fontWeight: "bold",
-          letterSpacing: "2px"
+          letterSpacing: "13px"
         }}
       >
           {Application.aadhar}

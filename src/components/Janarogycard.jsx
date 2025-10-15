@@ -278,7 +278,7 @@ export default function Janarogycard() {
 
           generateCaptcha();
         } else {
-          alert(data.message || "Something went wrong");
+          alert(data.message || "Something went wrong")
         }
       } catch (err) {
         alert("Network error. Please try again.");

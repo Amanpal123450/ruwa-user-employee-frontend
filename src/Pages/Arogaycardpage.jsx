@@ -37,16 +37,30 @@ const Arogaycardpage = () => {
     fetchStatus();
   }, []);
 
-  const handleDownload = () => {
-    if (cardRef.current) {
-      html2canvas(cardRef.current).then((canvas) => {
-        const link = document.createElement("a");
-        link.download = "JanArogyaCard.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-    }
-  };
+  const handleDownload = async () => {
+  if (!cardRef.current) return;
+
+  // Wait a short moment to ensure all images render
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  html2canvas(cardRef.current, {
+    useCORS: true,
+    allowTaint: true,
+    scale: 2, // Better quality
+    backgroundColor: "#ffffff", // White background
+  })
+    .then((canvas) => {
+      const link = document.createElement("a");
+      link.download = "JanArogyaCard.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    })
+    .catch((error) => {
+      console.error("Error capturing card:", error);
+      alert("Failed to download card. Please try again.");
+    });
+};
+
 
   if (loading) return <p className="text-center mt-5">Checking application status...</p>;
 
@@ -81,7 +95,7 @@ const Arogaycardpage = () => {
               style={{ flexWrap: "wrap" }}
             >
               <ArogyaCard Application={Application}/>
-              <Healthcardback />
+              <Healthcardback Application={Application}/>
             </div>
             <button
               onClick={handleDownload}

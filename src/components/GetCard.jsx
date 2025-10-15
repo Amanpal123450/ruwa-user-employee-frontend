@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ArogyaCard from "../components/HealthCard";
+import Healthcardback from "../components/Healthcardback";
+import html2canvas from 'html2canvas';
 
 // --- Helper Components ---
 
@@ -28,6 +30,7 @@ export default function GetCard() {
     const [error, setError] = useState('');
     const [userData, setUserData] = useState(null);
     const [resendTimer, setResendTimer] = useState(0);
+    const cardRef = useRef();
 
     // API Base URL - Update this to your backend URL
     const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://ruwa-backend.onrender.com/api/otp';
@@ -120,8 +123,8 @@ export default function GetCard() {
 
             const data = await response.json();
 
-            if (data.success) {
-                setUserData(data.data);
+            if (data.status) {
+                setUserData(data.application);
                 setStep(3);
             } else {
                 setError(data.message || 'Invalid OTP. Please try again.');
@@ -236,6 +239,29 @@ export default function GetCard() {
         </form>
     );
 
+
+const handleDownload = async () => {
+  if (!cardRef.current) return;
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  html2canvas(cardRef.current, {
+    useCORS: true,
+    allowTaint: true,
+    scale: 2,
+    backgroundColor: "#ffffff",
+  })
+    .then((canvas) => {
+      const link = document.createElement("a");
+      link.download = "JanArogyaCard.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    })
+    .catch((error) => {
+      console.error("Error capturing card:", error);
+      alert("Failed to download card. Please try again.");
+    });
+};
+
+
     const renderOtpForm = () => (
         <form onSubmit={handleVerifyOtp} className="space-y-6">
              <p className="text-center text-sm text-slate-600">
@@ -284,51 +310,44 @@ export default function GetCard() {
     );
     
     const renderUserData = () => (
-        <div className="animate-fade-in">
-            <div className="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-lg shadow-lg p-6 text-white overflow-hidden relative">
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full"></div>
-                <div className="absolute -bottom-12 -left-8 w-40 h-40 bg-white/10 rounded-full"></div>
-                
-                <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 relative z-10">
-                    <img
-                      src={userData.profilePicUrl}
-                      alt="User profile"
-                      className="w-24 h-24 rounded-full border-4 border-white/50 shadow-md object-cover"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = `https://placehold.co/100x100/E2E8F0/475569?text=${userData.name.charAt(0)}`;
-                      }}
-                    />
-                    <div className="text-center sm:text-left">
-                        <h3 className="text-2xl font-bold tracking-wide">{userData.name}</h3>
-                        <p className="text-indigo-200 text-sm">Jan Arogya Card Holder</p>
-                    </div>
-                </div>
-            </div>
+  <div className="text-center">
+    {/* Card Preview */}
+    <div
+      ref={cardRef}
+      className="flex flex-wrap justify-center items-center gap-6 p-6 bg-white rounded-lg shadow-lg border mx-auto"
+      style={{
+        width: "100%",
+        maxWidth: "1000px", // give both cards full space
+        backgroundColor: "#ffffff",
+      }}
+    >
+      <div style={{ flex: "1 1 450px", display: "flex", justifyContent: "center" }}>
+        <ArogyaCard Application={userData} />
+      </div>
+      <div style={{ flex: "1 1 450px", display: "flex", justifyContent: "center" }}>
+        <Healthcardback Application={userData} />
+      </div>
+    </div>
 
-            <div className="bg-white p-6 space-y-4 text-sm text-slate-700">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <p><strong>Date of Birth:</strong> {userData.dob}</p>
-                    <p><strong>Gender:</strong> {userData.gender}</p>
-                    <p><strong>Card Number:</strong> <span className="font-mono bg-slate-100 px-2 py-1 rounded">{userData.cardNumber}</span></p>
-                    <p><strong>Valid Upto:</strong> {userData.validUpto}</p>
-                    <p className="md:col-span-2"><strong>Address:</strong> {userData.address}</p>
-                    <p className="md:col-span-2"><strong>Covered Services:</strong> {userData.services}</p>
-                </div>
-            </div>
+    {/* Buttons */}
+    <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
+      <button
+        onClick={handleGoBack}
+        className="w-full sm:w-auto px-5 py-2 rounded-md font-medium border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        Go Back
+      </button>
 
-             <div className="px-6 py-4 bg-slate-50 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 justify-end rounded-b-lg">
-                <button 
-                    onClick={handleGoBack}
-                    className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Go Back
-                </button>
-                 <button className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Download Card
-                </button>
-            </div>
-        </div>
-    );
+      <button
+        onClick={handleDownload}
+        className="w-full sm:w-auto px-5 py-2 rounded-md font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        Download Card
+      </button>
+    </div>
+  </div>
+);
+
 
     return (
         <>
