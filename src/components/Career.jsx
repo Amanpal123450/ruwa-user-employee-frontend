@@ -570,7 +570,7 @@ const Career = () => {
         <div className="col-md-3 mb-4 mb-md-0">
           <div className="list-group shadow-sm">
             <button className={`list-group-item list-group-item-action ${selected === 'iconNotification' ? 'active' : ''}`} onClick={() => setSelected('iconNotification')}>
-              Icon Notification and Jobs Notification
+               Jobs Notification
             </button>
             <button className={`list-group-item list-group-item-action ${selected === 'instruction' ? 'active' : ''}`} onClick={() => setSelected('instruction')}>
               Instruction for User
