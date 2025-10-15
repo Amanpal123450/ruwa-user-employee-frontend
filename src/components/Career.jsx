@@ -401,7 +401,7 @@ const Career = () => {
               </li>
 
               <li>
-                <strong>Official Communication:</strong> All recruitment updates will be available on the official website: <a href="https://ruwaindia.in" className="text-blue-600 underline">https://igmcri.edu.in</a>
+                <strong>Official Communication:</strong> All recruitment updates will be available on the official website: <a href="https://ruwaindia.in" className="text-blue-600 underline">https://ruwaindia.in</a>
               </li>
 
               <li>
