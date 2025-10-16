@@ -41,10 +41,10 @@ export default function Header() {
   e.preventDefault();
 
   try {
-    // 🟦 Vendor Login (OTP Flow)
-    if (role === "VENDOR") {
+    // 🟦 vendor Login (OTP Flow)
+    if (role === "vendor") {
       if (!number || !password) {
-        alert("Please enter Vendor ID / Phone and OTP");
+        alert("Please enter vendor ID / Phone and OTP");
         return;
       }
 
@@ -54,7 +54,7 @@ export default function Header() {
       });
 
       if (res.data.success) {
-        alert("Vendor Login Successful!");
+        alert("vendor Login Successful!");
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.vendor));
 
@@ -66,7 +66,7 @@ export default function Header() {
         setNumber("");
         setPassword("");
         setOtpSent(false);
-        setRole("VENDOR");
+        setRole("vendor");
         navigate("/vendor-dashboard");
 
         // if (loginModal) {
@@ -250,7 +250,7 @@ export default function Header() {
 
   const handleSendOtp = async () => {
   if (!number) {
-    alert("Please enter your Vendor ID or phone");
+    alert("Please enter your vendor ID or phone");
     return;
   }
 
@@ -663,7 +663,7 @@ export default function Header() {
   >
     <option value="user">User Login</option>
     <option value="employee">Employee Login</option>
-    <option value="vendor">Vendor Login</option>
+    <option value="vendor">vendor Login</option>
   </select>
 
   {/* USER LOGIN */}
@@ -728,13 +728,13 @@ export default function Header() {
     </>
   )}
 
-  {/* VENDOR LOGIN (OTP based) */}
-  {role === "VENDOR" && (
+  {/* vendor LOGIN (OTP based) */}
+  {role === "vendor" && (
     <>
       <input
         type="text"
         className="form-control mb-3"
-        placeholder="Number or Vendor ID"
+        placeholder="Number or vendor ID"
         value={number}
         onChange={(e) => setNumber(e.target.value)}
         required
@@ -764,7 +764,7 @@ export default function Header() {
   )}
 
   <button type="submit" className="btn btn-primary w-100">
-    {role === "VENDOR" ? "Verify OTP & Login" : "Login"}
+    {role === "vendor" ? "Verify OTP & Login" : "Login"}
   </button>
 </form>
 
