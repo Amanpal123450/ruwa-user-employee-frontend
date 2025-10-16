@@ -239,7 +239,7 @@ function AuthWrapper({ showModal, setShowModal }) {
 }
 
 export default function Main() {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false)
 
   return (
     <BrowserRouter>
