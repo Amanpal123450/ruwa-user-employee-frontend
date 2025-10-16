@@ -67,6 +67,7 @@ import EKYCVerification from './Pages/EKYCVerification';
 import GetCard from './components/GetCard';
 import VendorDashboard from './components/VendorDashboard';
 import ServicesManagement from './components/VendorDashboard';
+import VendorCreateEmployee from './Pages/VendorCreateEmployee';
 
 
 
@@ -228,6 +229,7 @@ function AuthWrapper({ showModal, setShowModal }) {
 
         {/* VendorProtectedRoute */}
         <Route path='/vendor-dashboard' element={<VendorProtectedRoute><ServicesManagement /> </VendorProtectedRoute>} />
+        <Route path='//vendor-create-employee' element={<VendorProtectedRoute><VendorCreateEmployee /> </VendorProtectedRoute>} />
       </Routes>
 
       <ToastContainer />

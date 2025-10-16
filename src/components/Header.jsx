@@ -42,13 +42,13 @@ export default function Header() {
 
   try {
     // 🟦 Vendor Login (OTP Flow)
-    if (role === "vendor") {
+    if (role === "VENDOR") {
       if (!number || !password) {
         alert("Please enter Vendor ID / Phone and OTP");
         return;
       }
 
-      const res = await axios.post("http://localhost:8000/api/auth/verify-otp", {
+      const res = await axios.post("https://ruwa-backend.onrender.com/api/auth/verify-otp", {
         phone: number,
         otp: password,
       });
@@ -66,7 +66,7 @@ export default function Header() {
         setNumber("");
         setPassword("");
         setOtpSent(false);
-        setRole("user");
+        setRole("VENDOR");
         navigate("/vendor-dashboard");
 
         // if (loginModal) {
@@ -255,7 +255,7 @@ export default function Header() {
   }
 
   try {
-    const res = await axios.post("http://localhost:8000/api/auth/send-otp", {
+    const res = await axios.post("https://ruwa-backend.onrender.com/api/auth/send-otp", {
       phone: number,
     });
     console.log(res.data);
@@ -729,7 +729,7 @@ export default function Header() {
   )}
 
   {/* VENDOR LOGIN (OTP based) */}
-  {role === "vendor" && (
+  {role === "VENDOR" && (
     <>
       <input
         type="text"
@@ -764,7 +764,7 @@ export default function Header() {
   )}
 
   <button type="submit" className="btn btn-primary w-100">
-    {role === "vendor" ? "Verify OTP & Login" : "Login"}
+    {role === "VENDOR" ? "Verify OTP & Login" : "Login"}
   </button>
 </form>
 

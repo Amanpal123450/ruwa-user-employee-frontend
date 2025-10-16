@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, Plus, Edit, Trash2, Wrench, DollarSign, Clock, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const categories = ['Installation', 'Maintenance', 'Repair', 'Upgrade', 'Consultation', 'Training', 'Inspection', 'Custom'];
 
@@ -151,6 +152,13 @@ export default function ServicesManagement() {
             <Plus className="h-4 w-4" />
             Add Service
           </button>
+          <Link to={"/vendor-create-employee"}
+            onClick={() => { resetForm(); setIsAddDialogOpen(true); }}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Create Employee
+          </Link>
         </div>
 
         {/* Stats Cards */}
