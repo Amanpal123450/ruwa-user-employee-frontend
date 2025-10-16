@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import { FaUser, FaIdCard, FaPhoneAlt, FaEnvelope, FaLock, FaCalendarAlt } from "react-icons/fa";
+import {
+  FaUser,
+  FaIdCard,
+  FaPhoneAlt,
+  FaEnvelope,
+  FaLock,
+  FaCalendarAlt,
+} from "react-icons/fa";
 
 import axios from "axios";
 
@@ -9,9 +16,11 @@ export default function Header() {
   const { user, logout, login } = useAuth();
   const [phone, setPhone] = useState("");
   const [employeeId, setEmployeeId] = useState("");
+  const [number, setNumber] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user"); // role selector
   const [showPassword, setShowPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,38 +37,86 @@ export default function Header() {
   }, [location.pathname]);
 
   // Updated Login Handler
-  const handleLogin = async (e) => {
-    e.preventDefault();
+ const handleLogin = async (e) => {
+  e.preventDefault();
 
+  try {
+    // 🟦 Vendor Login (OTP Flow)
+    if (role === "vendor") {
+      if (!number || !password) {
+        alert("Please enter Vendor ID / Phone and OTP");
+        return;
+      }
+
+      const res = await axios.post("http://localhost:8000/api/auth/verify-otp", {
+        phone: number,
+        otp: password,
+      });
+
+      if (res.data.success) {
+        alert("Vendor Login Successful!");
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.vendor));
+
+        // ✅ Hide modal smoothly
+        // const loginModalElement = document.getElementById("loginModal");
+        // const loginModal = window.bootstrap.Modal.getInstance(loginModalElement);
+
+        // Reset form values before redirect
+        setNumber("");
+        setPassword("");
+        setOtpSent(false);
+        setRole("user");
+        navigate("/vendor-dashboard");
+
+        // if (loginModal) {
+        //   // Hide modal first
+        //   loginModal.hide();
+
+        //   // Wait until modal is fully hidden before navigating
+        //   loginModalElement.addEventListener(
+        //     "hidden.bs.modal",
+        //     () => navigate("/vendor-dashboard"),
+        //     { once: true }
+        //   );
+        // } else {
+        //   navigate("/vendor-dashboard");
+        // }
+      } else {
+        alert(res.data.message || "Invalid OTP");
+      }
+      return;
+    }
+
+    // 🟩 User or Employee Login
     if (!password || (!phone && !employeeId)) {
       alert("Please fill in all required fields");
       return;
     }
 
-    try {
-      const identifier = role === "user" ? phone : employeeId;
-      const result = await login(identifier, password, role);
+    const identifier = role === "user" ? phone : employeeId;
+    const result = await login(identifier, password, role);
 
-      if (result.success) {
-        const loginModalElement = document.getElementById("loginModal");
-        const loginModal =
-          window.bootstrap.Modal.getInstance(loginModalElement);
-        if (loginModal) loginModal.hide();
+    if (result.success) {
+      const loginModalElement = document.getElementById("loginModal");
+      const loginModal = window.bootstrap.Modal.getInstance(loginModalElement);
+      if (loginModal) loginModal.hide();
 
-        alert(result.message);
-
-        // Clear form
-        setPhone("");
-        setEmployeeId("");
-        setPassword("");
-        setRole("user");
-      } else {
-        alert(result.error);
-      }
-    } catch (err) {
-      alert("Login failed. Please try again.");
+      alert(result.message);
+      setPhone("");
+      setEmployeeId("");
+      setPassword("");
+      setRole("user");
+    } else {
+      alert(result.error);
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("Login failed. Please try again.");
+  }
+};
+
+
 
   const handleLogout = () => {
     const confirmed = window.confirm("Are you sure you want to log out?");
@@ -81,7 +138,7 @@ export default function Header() {
     name: "",
     phone: "",
     email: "", // ✅ email add
-     aadhar: "",   // ✅ add this
+    aadhar: "", // ✅ add this
     password: "",
     confirmPassword: "",
     age: "",
@@ -107,7 +164,7 @@ export default function Header() {
           name: registerData.name,
           phone: registerData.phone,
           email: registerData.email,
-           aadhar: registerData.aadhar,  
+          aadhar: registerData.aadhar,
           password: registerData.password,
           age: registerData.age,
           role: "user", // always user
@@ -127,29 +184,31 @@ export default function Header() {
         );
         loginModal.show();
 
-        createWallet()
+        createWallet();
       }
     } catch (error) {
       alert(error.response?.data?.message || "Registration failed");
     }
   };
 
-    const createWallet = async () => {
+  const createWallet = async () => {
     try {
-      const userId = localStorage.getItem('token');
+      const userId = localStorage.getItem("token");
       const response = await fetch(`https://ruwa-backend.onrender.com/create`, {
-        method: 'POST',
+        method: "POST",
 
-        headers: { Authorization: `Bearer ${userId}`,'Content-Type': 'application/json' }
+        headers: {
+          Authorization: `Bearer ${userId}`,
+          "Content-Type": "application/json",
+        },
       });
       const data = await response.json();
       if (data.message) {
-        console.log('Wallet created successfully!');
-       
-      } 
+        console.log("Wallet created successfully!");
+      }
     } catch (err) {
-      alert('Failed to create wallet');
-    } 
+      alert("Failed to create wallet");
+    }
   };
 
   // Get navigation items based on user role
@@ -184,10 +243,33 @@ export default function Header() {
       return [
         { label: "My Profile", path: "/profile" },
         { label: "Card", path: "/profilecard" },
-         { label: "Wallet", path: "/WalletApp" },
+        { label: "Wallet", path: "/WalletApp" },
       ];
     }
   };
+
+  const handleSendOtp = async () => {
+  if (!number) {
+    alert("Please enter your Vendor ID or phone");
+    return;
+  }
+
+  try {
+    const res = await axios.post("http://localhost:8000/api/auth/send-otp", {
+      phone: number,
+    });
+    console.log(res.data);
+    if (res.data.success) {
+      // alert("OTP sent successfully!");
+      alert("OTP for testing: " + res.data.otp); 
+      setOtpSent(true);
+    } else {
+      alert(res.data.message || "Failed to send OTP");
+    }
+  } catch (err) {
+    alert("Error sending OTP");
+  }
+};
 
   return (
     <>
@@ -425,134 +507,134 @@ export default function Header() {
       </header>
 
       {/* Register Modal */}
-    <div
-  className="modal fade"
-  id="registerModal"
-  tabIndex="-1"
-  aria-hidden="true"
->
-  <div className="modal-dialog modal-dialog-centered">
-    <div className="modal-content rounded-2xl shadow-lg">
-      <div className="modal-header border-b px-4 py-2">
-        <h5 className="modal-title font-semibold text-lg">Register</h5>
-        <button
-          type="button"
-          className="btn-close"
-          data-bs-dismiss="modal"
-        ></button>
+      <div
+        className="modal fade"
+        id="registerModal"
+        tabIndex="-1"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content rounded-2xl shadow-lg">
+            <div className="modal-header border-b px-4 py-2">
+              <h5 className="modal-title font-semibold text-lg">Register</h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div className="modal-body p-4">
+              <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                {/* Full Name */}
+                <div className="relative">
+                  <FaUser className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={registerData.name}
+                    onChange={handleRegisterChange}
+                    required
+                    className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                {/* Aadhar */}
+                <div className="relative">
+                  <FaIdCard className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="text"
+                    name="aadhar"
+                    placeholder="Aadhar Number"
+                    value={registerData.aadhar}
+                    onChange={handleRegisterChange}
+                    required
+                    className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                {/* Phone */}
+                <div className="relative">
+                  <FaPhoneAlt className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number"
+                    value={registerData.phone}
+                    onChange={handleRegisterChange}
+                    required
+                    className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="relative">
+                  <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    value={registerData.email}
+                    onChange={handleRegisterChange}
+                    required
+                    className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                {/* Age */}
+                <div className="relative">
+                  <FaCalendarAlt className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="number"
+                    name="age"
+                    placeholder="Age"
+                    value={registerData.age}
+                    onChange={handleRegisterChange}
+                    required
+                    className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                {/* Password */}
+                <div className="relative">
+                  <FaLock className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={registerData.password}
+                    onChange={handleRegisterChange}
+                    required
+                    className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                {/* Confirm Password */}
+                <div className="relative">
+                  <FaLock className="absolute left-3 top-3 text-gray-400" />
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Confirm Password"
+                    value={registerData.confirmPassword}
+                    onChange={handleRegisterChange}
+                    required
+                    className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+                >
+                  Register
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="modal-body p-4">
-        <form onSubmit={handleRegisterSubmit} className="space-y-4">
-          {/* Full Name */}
-          <div className="relative">
-            <FaUser className="absolute left-3 top-3 text-gray-400" />
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={registerData.name}
-              onChange={handleRegisterChange}
-              required
-              className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* Aadhar */}
-          <div className="relative">
-            <FaIdCard className="absolute left-3 top-3 text-gray-400" />
-            <input
-              type="text"
-              name="aadhar"
-              placeholder="Aadhar Number"
-              value={registerData.aadhar}
-              onChange={handleRegisterChange}
-              required
-              className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* Phone */}
-          <div className="relative">
-            <FaPhoneAlt className="absolute left-3 top-3 text-gray-400" />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              value={registerData.phone}
-              onChange={handleRegisterChange}
-              required
-              className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* Email */}
-          <div className="relative">
-            <FaEnvelope className="absolute left-3 top-3 text-gray-400" />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email Address"
-              value={registerData.email}
-              onChange={handleRegisterChange}
-              required
-              className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* Age */}
-          <div className="relative">
-            <FaCalendarAlt className="absolute left-3 top-3 text-gray-400" />
-            <input
-              type="number"
-              name="age"
-              placeholder="Age"
-              value={registerData.age}
-              onChange={handleRegisterChange}
-              required
-              className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* Password */}
-          <div className="relative">
-            <FaLock className="absolute left-3 top-3 text-gray-400" />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={registerData.password}
-              onChange={handleRegisterChange}
-              required
-              className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div className="relative">
-            <FaLock className="absolute left-3 top-3 text-gray-400" />
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={registerData.confirmPassword}
-              onChange={handleRegisterChange}
-              required
-              className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
-          >
-            Register
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
 
       {/* Login Modal */}
       <div
@@ -572,62 +654,120 @@ export default function Header() {
               ></button>
             </div>
             <div className="modal-body">
-              <form onSubmit={handleLogin}>
-                {/* Role Selection */}
-                <select
-                  className="form-select mb-3"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                >
-                  <option value="user">User Login</option>
-                  <option value="employee">Employee Login</option>
-                </select>
+             <form onSubmit={handleLogin}>
+  {/* Role Selection */}
+  <select
+    className="form-select mb-3"
+    value={role}
+    onChange={(e) => setRole(e.target.value)}
+  >
+    <option value="user">User Login</option>
+    <option value="employee">Employee Login</option>
+    <option value="vendor">Vendor Login</option>
+  </select>
 
-                {/* User Fields */}
-                {role === "user" && (
-                  <input
-                    type="tel"
-                    className="form-control mb-3"
-                    placeholder="Phone Number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                )}
+  {/* USER LOGIN */}
+  {role === "user" && (
+    <>
+      <input
+        type="tel"
+        className="form-control mb-3"
+        placeholder="Phone Number"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        required
+      />
+      <div className="mb-3 position-relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          className="form-control"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <i
+          className={`bi ${
+            showPassword ? "bi-eye-slash" : "bi-eye"
+          } position-absolute top-50 end-0 translate-middle-y me-3`}
+          onClick={() => setShowPassword(!showPassword)}
+          style={{ cursor: "pointer" }}
+        ></i>
+      </div>
+    </>
+  )}
 
-                {/* Employee Fields */}
-                {role === "employee" && (
-                  <input
-                    type="text"
-                    className="form-control mb-3"
-                    placeholder="Employee ID"
-                    value={employeeId}
-                    onChange={(e) => setEmployeeId(e.target.value)}
-                  />
-                )}
+  {/* EMPLOYEE LOGIN */}
+  {role === "employee" && (
+    <>
+      <input
+        type="text"
+        className="form-control mb-3"
+        placeholder="Employee ID"
+        value={employeeId}
+        onChange={(e) => setEmployeeId(e.target.value)}
+        required
+      />
+      <div className="mb-3 position-relative">
+        <input
+          type={showPassword ? "text" : "password"}
+          className="form-control"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <i
+          className={`bi ${
+            showPassword ? "bi-eye-slash" : "bi-eye"
+          } position-absolute top-50 end-0 translate-middle-y me-3`}
+          onClick={() => setShowPassword(!showPassword)}
+          style={{ cursor: "pointer" }}
+        ></i>
+      </div>
+    </>
+  )}
 
-                {/* Password */}
-                <div className="mb-3 position-relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="form-control"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <i
-                    className={`bi ${
-                      showPassword ? "bi-eye-slash" : "bi-eye"
-                    } position-absolute top-50 end-0 translate-middle-y me-3`}
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ cursor: "pointer" }}
-                  ></i>
-                </div>
+  {/* VENDOR LOGIN (OTP based) */}
+  {role === "vendor" && (
+    <>
+      <input
+        type="text"
+        className="form-control mb-3"
+        placeholder="Number or Vendor ID"
+        value={number}
+        onChange={(e) => setNumber(e.target.value)}
+        required
+      />
 
-                <button type="submit" className="btn btn-primary w-100">
-                  Login
-                </button>
-              </form>
+      {!otpSent ? (
+        <button
+          type="button"
+          className="btn btn-outline-primary w-100 mb-3"
+          onClick={handleSendOtp}
+        >
+          Send OTP
+        </button>
+      ) : (
+        <>
+          <input
+            type="text"
+            className="form-control mb-3"
+            placeholder="Enter OTP"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </>
+      )}
+    </>
+  )}
+
+  <button type="submit" className="btn btn-primary w-100">
+    {role === "vendor" ? "Verify OTP & Login" : "Login"}
+  </button>
+</form>
+
 
               <div className="text-center mt-3">
                 <p>

@@ -65,6 +65,8 @@ import KycPortal from './components/KycPortal';
 // import KycPortal from './components/KycPortal';
 import EKYCVerification from './Pages/EKYCVerification';
 import GetCard from './components/GetCard';
+import VendorDashboard from './components/VendorDashboard';
+import ServicesManagement from './components/VendorDashboard';
 
 
 
@@ -118,6 +120,27 @@ function EmployeeProtectedRoute({ children }) {
 
   if (loading) return <div>Loading...</div>;
   return user?.role === "EMPLOYEE" ? children : null;
+}
+
+function VendorProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && (!user || user.role !== "VENDOR")) {
+      Swal.fire({
+        icon: "warning",
+        title: "Access Denied",
+        text: "Vendor login required to access this page",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate("/", { replace: true });
+      });
+    }
+  }, [loading, user, navigate]);
+
+  if (loading) return <div>Loading...</div>;
+  return user?.role === "VENDOR" ? children : null;
 }
 
 function AuthWrapper({ showModal, setShowModal }) {
@@ -202,6 +225,9 @@ function AuthWrapper({ showModal, setShowModal }) {
         <Route path='/manage-applications' element={<EmployeeProtectedRoute><EmpApplication /></EmployeeProtectedRoute>} />
         <Route path='/employee-att' element={<EmployeeProtectedRoute><EmployeeAttendance /></EmployeeProtectedRoute>} />
         <Route path='/employee-userhistory' element={<EmployeeProtectedRoute><Empusers /></EmployeeProtectedRoute>} />
+
+        {/* VendorProtectedRoute */}
+        <Route path='/vendor-dashboard' element={<VendorProtectedRoute><ServicesManagement /> </VendorProtectedRoute>} />
       </Routes>
 
       <ToastContainer />
