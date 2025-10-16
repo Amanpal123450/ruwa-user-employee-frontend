@@ -69,8 +69,8 @@ const Career = () => {
         },
         {
           label: "Official Website",
-          value: "www.ruwaindia.in",
-          link: "http://www.ruwaindia.in",
+          value: "https://ruwaindia.in",
+          link: "https://ruwaindia.in",
         },
         { label: "Application Start Date", value: "01/10/2025" },
         { label: "Application Last Date", value: "31/10/2025 (Midnight)" },
@@ -401,7 +401,7 @@ const Career = () => {
               </li>
 
               <li>
-                <strong>Official Communication:</strong> All recruitment updates will be available on the official website: <a href="https://igmcri.edu.in" className="text-blue-600 underline">https://igmcri.edu.in</a>
+                <strong>Official Communication:</strong> All recruitment updates will be available on the official website: <a href="https://ruwaindia.in" className="text-blue-600 underline">https://ruwaindia.in</a>
               </li>
 
               <li>
@@ -409,7 +409,7 @@ const Career = () => {
               </li>
 
               <li>
-                <strong>Helpline:</strong> For clarifications, contact <strong>(0413) 2277545</strong> ext. <strong>3089</strong> / <strong>3053</strong> on working days between 9:00 AM and 5:00 PM (lunch break 1:00 PM–2:00 PM).
+                <strong>Helpline:</strong> For clarifications, contact <strong>(+91) 05224721948</strong>  on working days between 9:00 AM and 5:00 PM (lunch break 1:00 PM–2:00 PM).
               </li>
             </ol>
 
@@ -570,7 +570,7 @@ const Career = () => {
         <div className="col-md-3 mb-4 mb-md-0">
           <div className="list-group shadow-sm">
             <button className={`list-group-item list-group-item-action ${selected === 'iconNotification' ? 'active' : ''}`} onClick={() => setSelected('iconNotification')}>
-              Icon Notification and Jobs Notification
+               Jobs Notification
             </button>
             <button className={`list-group-item list-group-item-action ${selected === 'instruction' ? 'active' : ''}`} onClick={() => setSelected('instruction')}>
               Instruction for User
